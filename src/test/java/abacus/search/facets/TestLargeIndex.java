@@ -1,6 +1,7 @@
 package abacus.search.facets;
 
 import java.io.File;
+import java.util.Arrays;
 import java.util.List;
 
 import org.apache.lucene.index.AtomicReader;
@@ -31,7 +32,7 @@ public class TestLargeIndex {
       int i = 0;
       for (AtomicReaderContext leaf : leaves) {
         AtomicReader atomicReader = leaf.reader();
-        subreaders[i++] = new FastDocValuesAtomicReader(atomicReader, MemType.Heap);
+        subreaders[i++] = new FastDocValuesAtomicReader(atomicReader, MemType.Direct);
       }
       
       reader = new MultiReader(subreaders, true);
@@ -103,6 +104,9 @@ public class TestLargeIndex {
       collectTimes[i] = send - start;
       totalTimes[i] = end - start;
     }
+    
+    Arrays.sort(collectTimes);
+    Arrays.sort(totalTimes);
     
     long sum1, sum2;
     sum1 = sum2 = 0;

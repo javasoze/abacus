@@ -160,7 +160,12 @@ public class TestFacets {
   
   @Test
   public void testMinHit() throws Exception {
-    MemType memType = MemType.Native;
+    testMinHit(MemType.Heap);
+    testMinHit(MemType.Native);
+    testMinHit(MemType.Direct);
+  }
+  
+  public void testMinHit(MemType memType) throws Exception {    
     IndexReader reader = getIndexReader(IDX_DIR, memType);
     IndexSearcher searcher = new IndexSearcher(reader);
     
