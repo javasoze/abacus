@@ -35,6 +35,7 @@ import abacus.search.facets.FacetAccumulator;
 import abacus.search.facets.FacetBucket;
 import abacus.search.facets.FacetValue;
 import abacus.search.facets.FastDocValuesAtomicReader;
+import abacus.search.facets.FastDocValuesAtomicReader.MemType;
 import abacus.search.facets.MultiBytesRefFacetAccumulator;
 import abacus.search.facets.NumericBucketFacetAccumulator;
 import abacus.search.facets.NumericFacetAccumulator;
@@ -139,7 +140,8 @@ public class TestFacets {
     }
   }
   
-  public static IndexReader getIndexReader(Directory dir, boolean useDirect) throws Exception {
+  public static IndexReader getIndexReader(Directory dir, 
+      FastDocValuesAtomicReader.MemType memType) throws Exception {
     IndexReader reader = DirectoryReader.open(dir);
     if (true) {
       List<AtomicReaderContext> leaves = reader.leaves();
@@ -148,7 +150,7 @@ public class TestFacets {
       int i = 0;
       for (AtomicReaderContext leaf : leaves) {
         AtomicReader atomicReader = leaf.reader();
-        subreaders[i++] = new FastDocValuesAtomicReader(atomicReader, useDirect);
+        subreaders[i++] = new FastDocValuesAtomicReader(atomicReader, memType);
       }
       
       reader = new MultiReader(subreaders, true);
@@ -158,7 +160,8 @@ public class TestFacets {
   
   @Test
   public void testMinHit() throws Exception {
-    IndexReader reader = getIndexReader(IDX_DIR, false);
+    MemType memType = MemType.Native;
+    IndexReader reader = getIndexReader(IDX_DIR, memType);
     IndexSearcher searcher = new IndexSearcher(reader);
     
     FacetAccumulator sizeFacetCollector = new NumericFacetAccumulator("size");
@@ -180,12 +183,13 @@ public class TestFacets {
   
   @Test
   public void testFacets() throws Exception {
-    testFacets(false);
-    testFacets(true);
+    testFacets(MemType.Heap);
+    testFacets(MemType.Direct);
+    testFacets(MemType.Native);
   }
   
-  public void testFacets(boolean useDirect) throws Exception {
-    IndexReader reader = getIndexReader(IDX_DIR, useDirect);
+  public void testFacets(MemType memType) throws Exception {
+    IndexReader reader = getIndexReader(IDX_DIR, memType);
     IndexSearcher searcher = new IndexSearcher(reader);
     
     TopScoreDocCollector docsCollector = TopScoreDocCollector.create(10, true);

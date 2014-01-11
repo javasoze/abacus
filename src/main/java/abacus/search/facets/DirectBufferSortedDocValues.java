@@ -41,7 +41,9 @@ public class DirectBufferSortedDocValues extends SortedDocValues {
     result.bytes = new byte[byteRefs[ord].length];
     result.offset = 0;
     result.length = byteRefs[ord].length;
-    buffer.get(result.bytes, byteRefs[ord].offset, byteRefs[ord].offset);
+    for (int i = 0; i < result.length; ++i) {
+      result.bytes[i] = buffer.get(byteRefs[ord].offset + i);
+    }
   }
 
   @Override

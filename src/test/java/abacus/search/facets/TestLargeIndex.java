@@ -3,7 +3,6 @@ package abacus.search.facets;
 import java.io.File;
 import java.util.List;
 
-import org.apache.lucene.facet.sortedset.SortedSetDocValuesAccumulator;
 import org.apache.lucene.index.AtomicReader;
 import org.apache.lucene.index.AtomicReaderContext;
 import org.apache.lucene.index.DirectoryReader;
@@ -19,12 +18,7 @@ import org.apache.lucene.search.TopScoreDocCollector;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
 
-import abacus.search.facets.BytesRefFacetAccumulator;
-import abacus.search.facets.FacetAccumulator;
-import abacus.search.facets.FacetValue;
-import abacus.search.facets.FastDocValuesAtomicReader;
-import abacus.search.facets.MultiBytesRefFacetAccumulator;
-import abacus.search.facets.NumericFacetAccumulator;
+import abacus.search.facets.FastDocValuesAtomicReader.MemType;
 
 public class TestLargeIndex {
   
@@ -37,7 +31,7 @@ public class TestLargeIndex {
       int i = 0;
       for (AtomicReaderContext leaf : leaves) {
         AtomicReader atomicReader = leaf.reader();
-        subreaders[i++] = new FastDocValuesAtomicReader(atomicReader, useDirect);
+        subreaders[i++] = new FastDocValuesAtomicReader(atomicReader, MemType.Heap);
       }
       
       reader = new MultiReader(subreaders, true);
@@ -48,9 +42,9 @@ public class TestLargeIndex {
   
   public static void main(String[] args) throws Exception {
     File idxDir = new File(args[0]);
-    
+    boolean useDirect = true;
     Directory dir = FSDirectory.open(idxDir);
-    IndexReader reader = getIndexReader(dir, true);
+    IndexReader reader = getIndexReader(dir, useDirect);
     
     IndexSearcher searcher = new IndexSearcher(reader);
     
@@ -66,7 +60,7 @@ public class TestLargeIndex {
     
     FacetAccumulator mileageFacetCollector = new NumericFacetAccumulator("mileage");
     
-    FacetAccumulator catchAllFacetCollector = new MultiBytesRefFacetAccumulator("catchall");
+    //FacetAccumulator catchAllFacetCollector = new MultiBytesRefFacetAccumulator("catchall");
     
     //QueryParser qp = new QueryParser(Version.LUCENE_44, "contents", new StandardAnalyzer(Version.LUCENE_44));
     //Query q = qp.parse("tags_indexed:macho");
@@ -74,44 +68,53 @@ public class TestLargeIndex {
     
     Collector collector = MultiCollector.wrap(
         tdCollector,
-        //yearFacetCollector, 
-        //colorFacetCollector,
-        //categoryFacetCollector,
-        //priceFacetCollector,
-        //mileageFacetCollector
-        catchAllFacetCollector
+        yearFacetCollector, 
+        colorFacetCollector,
+        categoryFacetCollector,
+        priceFacetCollector,
+        mileageFacetCollector
+        //catchAllFacetCollector
     );
     
-    long start = System.currentTimeMillis();
-    searcher.search(q, 
-        //new EarlyTerminationCollector(1000, collector)
-        collector
-    );
+    int numIter = 10;
+    long[] collectTimes = new long[numIter];
+    long[] totalTimes = new long[numIter];
     
-    long send = System.currentTimeMillis();
-    TopDocs td = tdCollector.topDocs();
+    for (int i = 0; i < numIter; ++i) {
+      long start = System.currentTimeMillis();
+      searcher.search(q, 
+          //new EarlyTerminationCollector(1000, collector)
+          collector
+      );
+      
+      long send = System.currentTimeMillis();
+      TopDocs td = tdCollector.topDocs();
+      
+      
+     
+      FacetValue[] yearValues = yearFacetCollector.getTopFacets(10, 1);
+      FacetValue[] colorValues = colorFacetCollector.getTopFacets(10, 1);
+      FacetValue[] categoryValues = categoryFacetCollector.getTopFacets(10, 1);
+      FacetValue[] priceValues = priceFacetCollector.getTopFacets(10, 1);
+      FacetValue[] milageValues = mileageFacetCollector.getTopFacets(10, 1);
+      //FacetValue[] catchAllValues = catchAllFacetCollector.getTopFacets(10, 1);
+      long end = System.currentTimeMillis();
+      
+      collectTimes[i] = send - start;
+      totalTimes[i] = end - start;
+    }
     
+    long sum1, sum2;
+    sum1 = sum2 = 0;
+    for (int i = 2; i < 9; ++i) {
+      sum1 += collectTimes[i];
+      sum1 += totalTimes[i];
+    }    
     
-   
-    //FacetValue[] yearValues = yearFacetCollector.getTopFacets(10, 1);
-    //FacetValue[] colorValues = colorFacetCollector.getTopFacets(10, 1);
-    //FacetValue[] categoryValues = categoryFacetCollector.getTopFacets(10, 1);
-    //FacetValue[] priceValues = priceFacetCollector.getTopFacets(10, 1);
-    //FacetValue[] milageValues = mileageFacetCollector.getTopFacets(10, 1);
-    FacetValue[] catchAllValues = catchAllFacetCollector.getTopFacets(10, 1);
-    long end = System.currentTimeMillis();
+    System.out.println("search/collect: " + (sum1 / 8));
+    System.out.println("took: " + (sum2 / 8));    
     
-    System.out.println("search/collect: " + (send - start) + ", total docs: " + td.totalHits);
-    System.out.println("took: " + (end - start));
-    /*
-    System.out.println("count : " + colorValues.length);
-    System.out.println("count : " + yearValues.length);
-    System.out.println("count : " + categoryValues.length);
-    System.out.println("count : " + priceValues.length);
-    System.out.println("count : " + milageValues.length);
-    */
-
-    System.out.println("count : " + catchAllValues.length);
+    //System.out.println("count : " + catchAllValues.length);
     reader.close();
     
   }
