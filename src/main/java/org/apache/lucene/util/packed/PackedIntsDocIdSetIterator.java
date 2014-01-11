@@ -44,8 +44,8 @@ public class PackedIntsDocIdSetIterator extends DocIdSetIterator {
   }
 
   @Override
-  public int nextDoc() throws IOException {
-    if (cs >= segList.length) {
+  public int nextDoc() throws IOException {    
+    if (cs == -1 || cs >= segList.length) {
       if (readCursor < currentCount) {
         int val = currentSeg[readCursor];
         readCursor++;

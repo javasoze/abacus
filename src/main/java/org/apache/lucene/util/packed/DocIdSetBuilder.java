@@ -4,7 +4,9 @@ import org.apache.lucene.search.DocIdSet;
 
 public class DocIdSetBuilder {
   public static DocIdSet buildEliasFanoSet(int[] docs) {
-    EliasFanoDocIdSet docset = new EliasFanoDocIdSet(docs.length, docs[docs.length - 1]);
+    int len = docs == null ? 0 : docs.length;
+    int max = docs == null || docs.length == 0 ? 0 : docs[docs.length - 1];
+    EliasFanoDocIdSet docset = new EliasFanoDocIdSet(len, max);
     for (int doc : docs) {
       docset.efEncoder.encodeNext(doc);
     }
@@ -12,7 +14,7 @@ public class DocIdSetBuilder {
   }
   
   public static DocIdSet buildPackedInts(final int[] docs, int blockSize) {
-    PackedIntsDocIdSet docset = new PackedIntsDocIdSet(128);
+    PackedIntsDocIdSet docset = new PackedIntsDocIdSet(blockSize);
     for (int doc : docs) {
       docset.addID(doc);
     }
