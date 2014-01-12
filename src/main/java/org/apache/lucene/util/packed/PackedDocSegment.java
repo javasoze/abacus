@@ -1,41 +1,38 @@
 package org.apache.lucene.util.packed;
 
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
 import java.io.IOException;
 
+import org.apache.lucene.store.DataInput;
+import org.apache.lucene.store.DataOutput;
+import org.apache.lucene.util.packed.PackedInts.Format;
 import org.apache.lucene.util.packed.PackedInts.Mutable;
+import org.apache.lucene.util.packed.PackedInts.Reader;
 
 class PackedDocSegment {
   int minVal;
   Mutable valSet;
 
-  public long sizeInBytes() {
-    return 8 + 4 + valSet.getBitsPerValue()*valSet.size();
+  public long ramBytesUsed() {
+    // 4 bytes minVal
+    // 4 bytes referecen to valSet
+    return 4 + 4 + valSet.ramBytesUsed();
   }
   
-  static void serialize(PackedDocSegment idset,DataOutputStream out) throws IOException{
-    out.writeInt(idset.minVal);
-    out.writeInt(idset.valSet.size());
-    out.writeInt(idset.valSet.getBitsPerValue());
-    int count = idset.valSet.size();
-    out.writeInt(count);
-    for (int i=0;i<count;++i){
-      out.writeLong(idset.valSet.get(i));
-    }
+  static void serialize(PackedDocSegment segment, DataOutput out) throws IOException{
+    out.writeInt(segment.minVal);
+    segment.valSet.save(out);
   }
   
-  static PackedDocSegment deserialize(DataInputStream in, float acceptableOverheadRatio) throws IOException{
-    int minVal = in.readInt();
-    int valCount = in.readInt();
-    int bitsPerVal = in.readInt();
-    int len = in.readInt();
+  static PackedDocSegment deserialize(DataInput in) throws IOException{
+    int minVal = in.readInt();    
     
-    Mutable valSet = PackedInts.getMutable(valCount, bitsPerVal, acceptableOverheadRatio);
+    Reader reader = PackedInts.getReader(in);
     
-    for (int i=0;i<len;++i){
-      valSet.set(i, in.readLong());
-    }
+    int bitsPerVal = reader.getBitsPerValue();
+    int valCount = reader.size();
+    
+    
+    Mutable valSet = PackedInts.getMutable(valCount, bitsPerVal, Format.PACKED);
     
     PackedDocSegment seg = new PackedDocSegment();
     seg.minVal = minVal;
