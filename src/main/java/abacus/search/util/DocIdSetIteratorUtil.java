@@ -26,16 +26,20 @@ public class DocIdSetIteratorUtil {
     return buf.toString();
   }
   
+  public static int[] toIntArray(IntArray arr) {
+    int[] res = new int[arr.size()];
+    for (int i = 0; i < res.length; ++i) {
+      res[i] = arr.get(i);
+    }
+    return res;
+  }
+  
   public static int[] toIntArray(DocIdSetIterator iter) throws IOException {
     IntArray arr = new IntArray();
     int doc;
     while ((doc = iter.nextDoc()) != DocIdSetIterator.NO_MORE_DOCS) {
       arr.addToArray(doc);
     }
-    int[] res = new int[arr.size()];
-    for (int i = 0; i < res.length; ++i) {
-      res[i] = arr.get(i);
-    }
-    return res;
+    return toIntArray(arr);
   }
 }

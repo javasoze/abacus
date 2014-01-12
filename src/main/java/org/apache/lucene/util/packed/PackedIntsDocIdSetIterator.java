@@ -44,20 +44,20 @@ public class PackedIntsDocIdSetIterator extends DocIdSetIterator {
   }
 
   @Override
-  public int nextDoc() throws IOException {    
+  public int nextDoc() throws IOException {
     if (cs == -1 || cs >= segList.length) {
       if (readCursor < currentCount) {
-        int val = currentSeg[readCursor];
+        doc = currentSeg[readCursor];
         readCursor++;
-        return val;
+        return doc;
       } else {
         return NO_MORE_DOCS;
       }
     }
     if (readCursor < segList[cs].valSet.size()) {
-      int val = (int) segList[cs].valSet.get(readCursor);
-      val += lastVal;
-      lastVal = val;
+      doc = (int) segList[cs].valSet.get(readCursor);
+      doc += lastVal;
+      lastVal = doc;
       if (readCursor == segList[cs].valSet.size() - 1) {
         readCursor = 0;
         if (cs < segList.length - 1) {
@@ -70,7 +70,7 @@ public class PackedIntsDocIdSetIterator extends DocIdSetIterator {
       } else {
         readCursor++;
       }
-      return val;
+      return doc;
     }
     return NO_MORE_DOCS;
   }
@@ -79,22 +79,28 @@ public class PackedIntsDocIdSetIterator extends DocIdSetIterator {
   public int advance(int target) throws IOException {
     int i;
     boolean sameAsMinVal = false;
-    for (i = 0; i < segList.length; ++i) {
-      if (segList[i].minVal > target) {
-        break;
-      } else if (segList[i].minVal == target){
-        sameAsMinVal = true;
-        break;
+    if (cs != -1) {
+      for (i = cs; i < segList.length; ++i) {
+        if (segList[i].minVal > target) {
+          break;
+        } else if (segList[i].minVal == target){
+          sameAsMinVal = true;
+          break;
+        }
       }
+      // first block
+      if (i == 0 || sameAsMinVal) {
+        cs = i;           
+      } else {  // seek to last block
+        cs = i - 1;
+      }
+      lastVal = segList[cs].minVal;
     }
-    // first block
-    if (i == 0 || sameAsMinVal) {
-      cs = i;           
-    } else {  // seek to last block
-      cs = i - 1;
+    
+    while (doc < target) {
+      doc = nextDoc();
     }
-    lastVal = segList[cs].minVal;
-    return nextDoc();
+    return doc;
   }
 
   @Override
