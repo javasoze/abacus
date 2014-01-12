@@ -80,7 +80,8 @@ public class PackedIntsDocIdSetIterator extends DocIdSetIterator {
     int i;
     boolean sameAsMinVal = false;
     if (cs != -1) {
-      for (i = cs; i < segList.length; ++i) {
+      int newSegIdx = cs;
+      for (i = newSegIdx; i < segList.length; ++i) {
         if (segList[i].minVal > target) {
           break;
         } else if (segList[i].minVal == target){
@@ -90,11 +91,15 @@ public class PackedIntsDocIdSetIterator extends DocIdSetIterator {
       }
       // first block
       if (i == 0 || sameAsMinVal) {
-        cs = i;           
+        newSegIdx = i;           
       } else {  // seek to last block
-        cs = i - 1;
+        newSegIdx = i - 1;
       }
-      lastVal = segList[cs].minVal;
+      if (cs != newSegIdx) {
+        lastVal = segList[cs].minVal;
+        // reset the read cursor
+        readCursor = 0;
+      }
     }
     
     while (doc < target) {

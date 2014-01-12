@@ -73,21 +73,27 @@ public class DocIdSetTests {
     returned = DocIdSetIteratorUtil.toIntArray(docidSet.iterator());
     assertTrue("expected: " + Arrays.toString(expected) +", got: " + Arrays.toString(returned),
         Arrays.equals(expected, returned));
+  }
+  
+  @Test
+  public void testPackedIntsDocIdSetSkips() throws Exception {
+    int blockSize = 3;
+    PackedIntsDocIdSet docidSet;
+    DocIdSetIterator iter;
+    int[] expected, docs, skips;
     
-// test skipping
-    // TODO: offby one error somewhere, need to fix
-   /* int[] docs = new int[] {1, 2, 3, 4};
+    docs = new int[] {1, 2, 3, 4};
     docidSet = DocIdSetBuilder.buildPackedInts(docs, blockSize);    
-    int[] skips = new int[] {2, 3};
+    skips = new int[] {2, 3};
     expected = new int[] {2, 3};
-    DocIdSetIterator iter = docidSet.iterator();
+    iter = docidSet.iterator();
     verifySKips(iter, skips, expected);
-    */
-    int[] docs = new int[] {1, 3, 5, 7, 9, 11, 12};
+    
+    docs = new int[] {1, 3, 5, 7, 9, 11, 12};
     docidSet = DocIdSetBuilder.buildPackedInts(docs, blockSize);
-    int[] skips = new int[] {13, 15, 18};
+    skips = new int[] {13, 15, 18};
     expected = new int[] {};
-    DocIdSetIterator iter = docidSet.iterator();
+    iter = docidSet.iterator();
     verifySKips(iter, skips, expected);
     
     docs = new int[] {1, 3, 5, 7, 9, 11, 12};
