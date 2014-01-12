@@ -15,7 +15,6 @@ import org.apache.lucene.store.OutputStreamDataOutput;
 import org.apache.lucene.util.packed.DocIdSetBuilder;
 import org.apache.lucene.util.packed.PackedIntsDocIdSet;
 import org.junit.Test;
-import org.omg.CORBA.NO_IMPLEMENT;
 
 import abacus.search.util.DocIdSetIteratorUtil;
 
