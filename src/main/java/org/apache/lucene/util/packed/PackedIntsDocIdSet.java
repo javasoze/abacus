@@ -17,34 +17,34 @@ public class PackedIntsDocIdSet extends DocIdSet {
   private final LinkedList<PackedDocSegment> segList = new LinkedList<PackedDocSegment>();
   
   public static void serialize(PackedIntsDocIdSet idset,DataOutput out) throws IOException {    
-    out.writeInt(idset.currentSeg.length);
-    out.writeInt(idset.currentCount);
+    out.writeVInt(idset.currentSeg.length);
+    out.writeVInt(idset.currentCount);
     for (int i=0;i<idset.currentCount;++i){
-      out.writeInt(idset.currentSeg[i]);
+      out.writeVInt(idset.currentSeg[i]);
     }
     
-    out.writeInt(idset.maxDelta);
+    out.writeVInt(idset.maxDelta);
     
-    out.writeInt(idset.size);
-    out.writeInt(idset.segList.size());    
+    out.writeVInt(idset.size);
+    out.writeVInt(idset.segList.size());    
     for (PackedDocSegment seg : idset.segList){
       PackedDocSegment.serialize(seg, out);
     }
   }
   
   public static PackedIntsDocIdSet deserialize(DataInput in) throws IOException {
-    int blockSize = in.readInt();
+    int blockSize = in.readVInt();
     
     PackedIntsDocIdSet idSet = new PackedIntsDocIdSet(blockSize);
-    idSet.currentCount = in.readInt();
+    idSet.currentCount = in.readVInt();
     int[] currentSeg = idSet.currentSeg;
     for (int i=0;i < idSet.currentCount; ++i){
-      currentSeg[i] = in.readInt();
+      currentSeg[i] = in.readVInt();
     }
-    idSet.maxDelta = in.readInt();
-    idSet.size = in.readInt();
+    idSet.maxDelta = in.readVInt();
+    idSet.size = in.readVInt();
     
-    int segLen = in.readInt();
+    int segLen = in.readVInt();
 
     for (int i=0;i<segLen;++i){
       PackedDocSegment seg = PackedDocSegment.deserialize(in);

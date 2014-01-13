@@ -19,12 +19,12 @@ class PackedDocSegment {
   }
   
   static void serialize(PackedDocSegment segment, DataOutput out) throws IOException{
-    out.writeInt(segment.minVal);
+    out.writeVInt(segment.minVal);
     segment.valSet.save(out);
   }
   
   static PackedDocSegment deserialize(DataInput in) throws IOException{
-    int minVal = in.readInt();    
+    int minVal = in.readVInt();    
     
     Reader reader = PackedInts.getReader(in);
     
