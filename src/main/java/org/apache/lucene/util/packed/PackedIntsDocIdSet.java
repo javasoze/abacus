@@ -7,6 +7,7 @@ import org.apache.lucene.search.DocIdSet;
 import org.apache.lucene.search.DocIdSetIterator;
 import org.apache.lucene.store.DataInput;
 import org.apache.lucene.store.DataOutput;
+import org.apache.lucene.util.RamUsageEstimator;
 import org.apache.lucene.util.packed.PackedInts.Format;
 
 public class PackedIntsDocIdSet extends DocIdSet {
@@ -59,11 +60,19 @@ public class PackedIntsDocIdSet extends DocIdSet {
     init();
   }
 
-  public long sizeInBytes() {
-    int size = currentCount * 4 + 20;
+  public long ramBytesUsed() {
+    long size = RamUsageEstimator.sizeOf(currentSeg) + 
+        3 * RamUsageEstimator.NUM_BYTES_INT + 
+        RamUsageEstimator.NUM_BYTES_OBJECT_REF * (segList.size() + 2);
+
     for (PackedDocSegment seg : segList) {
       size += seg.ramBytesUsed();
     }
+    
+    return size;
+  }
+  
+  public int size() {
     return size;
   }
 
@@ -90,6 +99,7 @@ public class PackedIntsDocIdSet extends DocIdSet {
 
   private void compressBlock() {
     int nBits = PackedIntsUtil.getNumBits(maxDelta);
+
     PackedDocSegment seg = new PackedDocSegment();
     seg.minVal = currentSeg[0];
     seg.valSet = PackedInts.getMutable(currentSeg.length, nBits, Format.PACKED);
