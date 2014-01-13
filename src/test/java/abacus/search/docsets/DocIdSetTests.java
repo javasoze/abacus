@@ -7,9 +7,14 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.Arrays;
 
+import junit.framework.TestCase;
+
 import org.apache.lucene.facet.collections.IntArray;
+import org.apache.lucene.search.AndNotDocIdSetIterator;
 import org.apache.lucene.search.DocIdSet;
 import org.apache.lucene.search.DocIdSetIterator;
+import org.apache.lucene.search.IntArrayDocIdSetIterator;
+import org.apache.lucene.search.PairDocIdSetIterator;
 import org.apache.lucene.store.InputStreamDataInput;
 import org.apache.lucene.store.OutputStreamDataOutput;
 import org.apache.lucene.util.packed.DocIdSetBuilder;
@@ -19,6 +24,56 @@ import org.junit.Test;
 import abacus.search.util.DocIdSetIteratorUtil;
 
 public class DocIdSetTests {
+	
+  @Test
+  public void testIntArrayDSI() throws Exception{
+    int[] arr = new int[]{-1,-1,1,3,5,7,9};
+    IntArrayDocIdSetIterator iter = new IntArrayDocIdSetIterator(arr);
+    int doc = iter.nextDoc();
+    TestCase.assertEquals(1,doc);
+    doc = iter.nextDoc();
+    TestCase.assertEquals(3,doc);
+
+    iter.reset();
+    for (int i=0;i<5;++i){
+      doc = iter.nextDoc();
+    }
+    TestCase.assertEquals(9,doc);
+    doc = iter.nextDoc();
+    TestCase.assertEquals(DocIdSetIterator.NO_MORE_DOCS,doc);
+
+    iter.reset();
+    doc = iter.advance(6);
+    TestCase.assertEquals(7,doc);
+
+    doc = iter.advance(7);
+    TestCase.assertEquals(9,doc);
+
+    iter.reset();
+    doc = iter.advance(9);
+    TestCase.assertEquals(9,doc);
+    doc = iter.nextDoc();
+    TestCase.assertEquals(DocIdSetIterator.NO_MORE_DOCS,doc);
+
+    iter.reset();
+    doc = iter.advance(10);
+    TestCase.assertEquals(DocIdSetIterator.NO_MORE_DOCS,doc);
+
+
+    arr = new int[]{1,3,5,7,9};
+    iter = new IntArrayDocIdSetIterator(arr);
+    doc = iter.nextDoc();
+    doc = iter.nextDoc();
+    doc = iter.nextDoc();
+    doc = iter.advance(1);
+    TestCase.assertEquals(5,doc);
+    arr = new int[]{1,3,5,7,9};
+    iter = new IntArrayDocIdSetIterator(arr);
+    doc = iter.advance(1);
+    TestCase.assertEquals(1,doc);
+    doc = iter.advance(1);
+    TestCase.assertEquals(3,doc);
+  }
 
   @Test
   public void testEliasFanoDocIdSet() throws Exception {
@@ -166,5 +221,174 @@ public class DocIdSetTests {
     assertTrue("expected: " + Arrays.toString(expected) +", got: " + Arrays.toString(returned),
         Arrays.equals(expected, returned));    
     
+  }
+  
+  @Test
+  public void testAndNotDocIdSetIterator() throws Exception {
+
+    // test iteration
+    int[] d1 = new int[] {1, 2, 3, 4, 5};
+    int[] d2 = new int[] {2, 4};
+    int[] expected = new int[] {1, 3, 5};
+    DocIdSetIterator iter = new AndNotDocIdSetIterator(new IntArrayDocIdSetIterator(d1),
+            new IntArrayDocIdSetIterator(d2));
+    int[] returned = DocIdSetIteratorUtil.toIntArray(iter);
+    assertTrue("expected: " + Arrays.toString(expected) +", got: " + Arrays.toString(returned),
+        Arrays.equals(expected, returned));
+
+
+    d1 = new int[] {1, 2, 3, 4, 5};
+    d2 = new int[] {};
+    expected = new int[] {1, 2, 3, 4, 5};
+
+    iter = new AndNotDocIdSetIterator(new IntArrayDocIdSetIterator(d1),
+            new IntArrayDocIdSetIterator(d2));
+    returned = DocIdSetIteratorUtil.toIntArray(iter);
+    assertTrue("expected: " + Arrays.toString(expected) +", got: " + Arrays.toString(returned),
+        Arrays.equals(expected, returned));
+
+    d1 = new int[] {1, 2, 3, 4, 5};
+    d2 = new int[] {7, 8, 9};
+    expected = new int[] {1, 2, 3, 4, 5};
+
+    iter = new AndNotDocIdSetIterator(new IntArrayDocIdSetIterator(d1),
+            new IntArrayDocIdSetIterator(d2));
+    returned = DocIdSetIteratorUtil.toIntArray(iter);
+    assertTrue("expected: " + Arrays.toString(expected) +", got: " + Arrays.toString(returned),
+        Arrays.equals(expected, returned));
+
+    d1 = new int[] {1, 3, 5};
+    d2 = new int[] {2, 4};
+    expected = new int[] {1, 3, 5};
+
+    iter = new AndNotDocIdSetIterator(new IntArrayDocIdSetIterator(d1),
+            new IntArrayDocIdSetIterator(d2));
+    returned = DocIdSetIteratorUtil.toIntArray(iter);
+    assertTrue("expected: " + Arrays.toString(expected) +", got: " + Arrays.toString(returned),
+        Arrays.equals(expected, returned));
+
+    // test skips
+    int[] skipPoints = new int[] {2, 3};
+    d1 = new int[] {1, 2, 3, 4, 5};
+    d2 = new int[] {2, 4};
+
+    expected = new int[] {3, 5};
+    
+    iter = new AndNotDocIdSetIterator(new IntArrayDocIdSetIterator(d1),
+            new IntArrayDocIdSetIterator(d2));
+    
+    verifySKips(iter, skipPoints, expected);
+
+    skipPoints = new int[] {2, 3};
+    d1 = new int[] {1, 2, 3, 4, 5};
+    d2 = new int[] {};
+
+    expected = new int[] {2, 3};
+    
+
+    iter = new AndNotDocIdSetIterator(new IntArrayDocIdSetIterator(d1),
+            new IntArrayDocIdSetIterator(d2));
+    verifySKips(iter, skipPoints, expected);
+
+
+    skipPoints = new int[] {1, 4};
+    d1 = new int[] {1, 3, 4, 5};
+    d2 = new int[] {2, 4};
+
+    expected = new int[] {1, 5};
+    
+    iter = new AndNotDocIdSetIterator(new IntArrayDocIdSetIterator(d1),
+            new IntArrayDocIdSetIterator(d2));
+    verifySKips(iter, skipPoints, expected);
+  }
+
+  @Test
+  public void testPairDocIdSetIterator() throws Exception {
+    int[] d1 = new int[] {1, 3,  5};
+    int[] d2 = new int[] {2, 4, 6};
+    int[] expected = new int[] {1, 2, 3, 4, 5, 6};
+
+    DocIdSetIterator iter = new PairDocIdSetIterator(new IntArrayDocIdSetIterator(d1),
+            new IntArrayDocIdSetIterator(d2));
+    int[] returned = DocIdSetIteratorUtil.toIntArray(iter);
+    assertTrue("expected: " + Arrays.toString(expected) +", got: " + Arrays.toString(returned),
+        Arrays.equals(expected, returned));
+
+    d1 = new int[] {1, 3,  5};
+    d2 = new int[] {};
+    expected = new int[] {1, 3, 5};
+
+    iter = new PairDocIdSetIterator(new IntArrayDocIdSetIterator(d1),
+            new IntArrayDocIdSetIterator(d2));
+    returned = DocIdSetIteratorUtil.toIntArray(iter);
+    assertTrue("expected: " + Arrays.toString(expected) +", got: " + Arrays.toString(returned),
+        Arrays.equals(expected, returned));
+
+    iter = new PairDocIdSetIterator(DocIdSetIterator.empty(), DocIdSetIterator.empty());
+    returned = DocIdSetIteratorUtil.toIntArray(iter);
+    expected = new int[]{};
+    assertTrue("expected: " + Arrays.toString(expected) +", got: " + Arrays.toString(returned),
+        Arrays.equals(expected, returned));
+
+    iter = new PairDocIdSetIterator(new IntArrayDocIdSetIterator(d1), DocIdSetIterator.empty());
+    returned = DocIdSetIteratorUtil.toIntArray(iter);
+    expected = d1;
+    assertTrue("expected: " + Arrays.toString(expected) +", got: " + Arrays.toString(returned),
+        Arrays.equals(expected, returned));
+
+    iter = new PairDocIdSetIterator(DocIdSetIterator.empty(), new IntArrayDocIdSetIterator(d1));
+    returned = DocIdSetIteratorUtil.toIntArray(iter);
+    expected = d1;
+    assertTrue("expected: " + Arrays.toString(expected) +", got: " + Arrays.toString(returned),
+        Arrays.equals(expected, returned));
+
+
+    d1 = new int[] {1, 3,  5};
+    d2 = new int[] {1, 4, 5};
+    expected = new int[] {1, 3, 4, 5};
+
+    iter = new PairDocIdSetIterator(new IntArrayDocIdSetIterator(d1),
+            new IntArrayDocIdSetIterator(d2));
+    returned = DocIdSetIteratorUtil.toIntArray(iter);
+    assertTrue("expected: " + Arrays.toString(expected) +", got: " + Arrays.toString(returned),
+        Arrays.equals(expected, returned));
+
+    d1 = new int[] {1, 3,  5};
+    d2 = new int[] {1, 4, 5, 6};
+    expected = new int[] {1, 3, 4, 5, 6};
+
+    iter = new PairDocIdSetIterator(new IntArrayDocIdSetIterator(d1),
+            new IntArrayDocIdSetIterator(d2));
+    returned = DocIdSetIteratorUtil.toIntArray(iter);
+    assertTrue("expected: " + Arrays.toString(expected) +", got: " + Arrays.toString(returned),
+        Arrays.equals(expected, returned));
+
+    d1 = new int[] {1, 3, 5};
+    d2 = new int[] {3, 5, 6};
+    expected = new int[] {1, 3, 5, 6};
+
+    iter = new PairDocIdSetIterator(new IntArrayDocIdSetIterator(d1),
+            new IntArrayDocIdSetIterator(d2));
+    returned = DocIdSetIteratorUtil.toIntArray(iter);
+    assertTrue("expected: " + Arrays.toString(expected) +", got: " + Arrays.toString(returned),
+        Arrays.equals(expected, returned));
+
+    d1 = new int[] {1, 3, 5};
+    d2 = new int[] {3, 5, 6};
+    int[] skipPoints = new int[] {3, 6, 7};
+    expected = new int[] {3, 6};
+    
+    iter = new PairDocIdSetIterator(new IntArrayDocIdSetIterator(d1),
+            new IntArrayDocIdSetIterator(d2));
+    verifySKips(iter, skipPoints, expected);
+
+    d1 = new int[] {1, 3,  5};
+    d2 = new int[] {1, 4, 5, 6};
+    skipPoints = new int[] {2, 3, 6};
+    expected = new int[] {3, 4, 6};
+    
+    iter = new PairDocIdSetIterator(new IntArrayDocIdSetIterator(d1),
+            new IntArrayDocIdSetIterator(d2));
+    verifySKips(iter, skipPoints, expected);
   }
 }
