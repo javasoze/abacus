@@ -25,7 +25,7 @@ public class EarlyTerminateScoreScorer extends Scorer {
 
   @Override
   public float score() throws IOException {
-    if (processedCount >= numToScore) {
+    if (processedCount > numToScore) {
       return defaultScore;
     } else {
       return innerScorer.score();
@@ -44,22 +44,22 @@ public class EarlyTerminateScoreScorer extends Scorer {
 
   @Override
   public int nextDoc() throws IOException {
-    //if (processedCount < numToProcess) {
+    if (processedCount < numToProcess) {
       processedCount++;
       return innerScorer.nextDoc();
-    //} else {
-      //return NO_MORE_DOCS;
-    //}
+    } else {
+      return NO_MORE_DOCS;
+    }
   }
 
   @Override
   public int advance(int target) throws IOException {
-    //if (processedCount < numToProcess) {
+    if (processedCount < numToProcess) {
       processedCount++;
       return innerScorer.advance(target);
-    //} else {
-      //return NO_MORE_DOCS;
-    //}
+    } else {
+      return NO_MORE_DOCS;
+    }
   }
 
   @Override

@@ -30,8 +30,7 @@ public class EarlyTerminateScoreWeight extends Weight {
   @Override
   public Explanation explain(AtomicReaderContext context, int doc)
       throws IOException {
-    // TODO Auto-generated method stub
-    return null;
+    return innerWeight.explain(context, doc);
   }
 
   @Override
@@ -56,4 +55,5 @@ public class EarlyTerminateScoreWeight extends Weight {
     return new EarlyTerminateScoreScorer(this, innerScorer, numToProcess, numToScore, defaultScore);
   }
 
+  
 }
