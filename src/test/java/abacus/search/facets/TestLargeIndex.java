@@ -32,7 +32,7 @@ public class TestLargeIndex {
       int i = 0;
       for (AtomicReaderContext leaf : leaves) {
         AtomicReader atomicReader = leaf.reader();
-        subreaders[i++] = new FastDocValuesAtomicReader(atomicReader, MemType.Direct);
+        subreaders[i++] = new FastDocValuesAtomicReader(atomicReader, MemType.Native);
       }
       
       reader = new MultiReader(subreaders, true);
@@ -52,14 +52,15 @@ public class TestLargeIndex {
     TopScoreDocCollector tdCollector = TopScoreDocCollector.create(20, true);
     
     FacetAccumulator yearFacetCollector = new NumericFacetAccumulator("year");
+    FacetAccumulator yearsFacetCollector = new BytesRefFacetAccumulator("year_s");
     
-    BytesRefFacetAccumulator colorFacetCollector = new BytesRefFacetAccumulator("color");
+//    BytesRefFacetAccumulator colorFacetCollector = new BytesRefFacetAccumulator("color");
     
-    BytesRefFacetAccumulator categoryFacetCollector = new BytesRefFacetAccumulator("category");
+  //  BytesRefFacetAccumulator categoryFacetCollector = new BytesRefFacetAccumulator("category");
     
-    FacetAccumulator priceFacetCollector = new NumericFacetAccumulator("price");
+    //FacetAccumulator priceFacetCollector = new NumericFacetAccumulator("price");
     
-    FacetAccumulator mileageFacetCollector = new NumericFacetAccumulator("mileage");
+    //FacetAccumulator mileageFacetCollector = new NumericFacetAccumulator("mileage");
     
     //FacetAccumulator catchAllFacetCollector = new MultiBytesRefFacetAccumulator("catchall");
     
@@ -69,11 +70,11 @@ public class TestLargeIndex {
     
     Collector collector = MultiCollector.wrap(
         tdCollector,
-        yearFacetCollector, 
-        colorFacetCollector,
-        categoryFacetCollector,
-        priceFacetCollector,
-        mileageFacetCollector
+        yearsFacetCollector
+//        colorFacetCollector,
+  //      categoryFacetCollector,
+   //     priceFacetCollector,
+     //   mileageFacetCollector
         //catchAllFacetCollector
     );
     
@@ -91,13 +92,12 @@ public class TestLargeIndex {
       long send = System.currentTimeMillis();
       TopDocs td = tdCollector.topDocs();
       
-      
-     
-      FacetValue[] yearValues = yearFacetCollector.getTopFacets(10, 1);
+      FacetValue[] yearValues = yearsFacetCollector.getTopFacets(10, 1);
+      /*
       FacetValue[] colorValues = colorFacetCollector.getTopFacets(10, 1);
       FacetValue[] categoryValues = categoryFacetCollector.getTopFacets(10, 1);
       FacetValue[] priceValues = priceFacetCollector.getTopFacets(10, 1);
-      FacetValue[] milageValues = mileageFacetCollector.getTopFacets(10, 1);
+      FacetValue[] milageValues = mileageFacetCollector.getTopFacets(10, 1);*/
       //FacetValue[] catchAllValues = catchAllFacetCollector.getTopFacets(10, 1);
       long end = System.currentTimeMillis();
       
@@ -112,7 +112,7 @@ public class TestLargeIndex {
     sum1 = sum2 = 0;
     for (int i = 2; i < 9; ++i) {
       sum1 += collectTimes[i];
-      sum1 += totalTimes[i];
+      sum2 += totalTimes[i];
     }    
     
     System.out.println("search/collect: " + (sum1 / 8));

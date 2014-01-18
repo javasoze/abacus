@@ -21,6 +21,8 @@ import org.apache.lucene.util.BytesRef;
 import org.apache.lucene.util.Version;
 import org.json.JSONObject;
 
+import abacus.search.codecs.Abacus46FacetCodec;
+
 public class IndexGenerator {
 
   static void addMetaString(Document doc, String field, String value) {
@@ -41,6 +43,7 @@ public class IndexGenerator {
     catchAll[0]=String.valueOf(json.optDouble("price"));
     doc.add(new TextField("contents", json.optString("contents"), Store.NO));
     doc.add(new NumericDocValuesField("year", json.optInt("year")));
+    doc.add(new SortedDocValuesField("year_s", new BytesRef(String.valueOf(json.optInt("year")))));
     catchAll[1]=String.valueOf(json.optInt("year"));
     doc.add(new NumericDocValuesField("mileage", json.optInt("mileage")));
     catchAll[2]=String.valueOf(json.optInt("mileage"));
@@ -98,7 +101,8 @@ public class IndexGenerator {
   }
   
   static void buildLargeIndex(Directory smallIndex, int numChunks, File outDir) throws Exception{
-    IndexWriterConfig idxWriterConfig = new IndexWriterConfig(Version.LUCENE_44, null);
+    IndexWriterConfig idxWriterConfig = new IndexWriterConfig(Version.LUCENE_46, null);
+    idxWriterConfig.setCodec(new Abacus46FacetCodec());
     Directory tempDir = FSDirectory.open(outDir);
     IndexWriter writer = new IndexWriter(tempDir, idxWriterConfig);
     // build first 1.5M chunk
