@@ -6,7 +6,7 @@ import it.unimi.dsi.fastutil.ints.IntList;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import org.apache.lucene.facet.FacetResult;
@@ -179,8 +179,7 @@ public class LabelAndOrdFacetCounts extends Facets {
 
   @Override
   public List<FacetResult> getAllDims(int topN) throws IOException {
-    FacetResult result = getTopChildren(topN, field, new String[0]);
-    return Arrays.asList(result);
+    return Collections.singletonList(getTopChildren(topN, field, new String[0]));
   }
 
 }

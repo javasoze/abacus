@@ -1,14 +1,11 @@
 package abacus.search.facets;
 
-import it.unimi.dsi.fastutil.longs.Long2IntMap;
-import it.unimi.dsi.fastutil.longs.Long2IntMap.Entry;
-import it.unimi.dsi.fastutil.longs.Long2IntOpenHashMap;
-import it.unimi.dsi.fastutil.objects.ObjectIterator;
-
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
+import java.util.SortedMap;
+import java.util.TreeMap;
 
 import org.apache.lucene.facet.FacetResult;
 import org.apache.lucene.facet.Facets;
@@ -21,17 +18,35 @@ import org.apache.lucene.search.DocIdSet;
 import org.apache.lucene.search.DocIdSetIterator;
 import org.apache.lucene.util.PriorityQueue;
 
-public class NumericFacetCounts extends Facets {
+public class NumericBucketFacetCounts extends Facets {
 
   private final String field;
-  private Long2IntMap countMap = new Long2IntOpenHashMap();
+  private final SortedMap<String, FacetBucket> bucketMap;
   
-  public NumericFacetCounts(String field, FacetsCollector hits) throws IOException {
+  private static Comparator<LabelAndValue> COMPARATOR = new Comparator<LabelAndValue>() {
+
+    @Override
+    public int compare(LabelAndValue o1, LabelAndValue o2) {
+      int val = o2.value.intValue() - o1.value.intValue();
+      if (val == 0) {
+        val = o1.label.compareTo(o2.label);
+      }
+      return val;
+    }
+    
+  };
+  
+  public NumericBucketFacetCounts(String field, FacetBucket[] buckets, FacetsCollector facetCollector) 
+       throws IOException {
     this.field = field;
-    countMap.defaultReturnValue(0);
-    count(hits.getMatchingDocs());
+    this.bucketMap = new TreeMap<String, FacetBucket>();
+    for(FacetBucket bucket : buckets) {
+      this.bucketMap.put(bucket.getLabel(), bucket);
+    }
+    count(facetCollector.getMatchingDocs());
   }
   
+
   /** Does all the "real work" of tallying up the counts. */
   private final void count(List<MatchingDocs> matchingDocs) throws IOException {
     for(MatchingDocs hits : matchingDocs) {
@@ -48,13 +63,14 @@ public class NumericFacetCounts extends Facets {
         int docid;
         while ((docid = hitsIter.nextDoc()) != DocIdSetIterator.NO_MORE_DOCS) {
           long val = docValues.get(docid);
-          int count = countMap.get(val) + 1;
-          countMap.put(val, count);
+          for (FacetBucket bucket : bucketMap.values()) {
+            bucket.accumulate(val);
+          }
         }
       }
     }
   }
-  
+
   @Override
   public List<FacetResult> getAllDims(int topN) throws IOException {
     return Collections.singletonList(getTopChildren(topN, field, new String[0]));
@@ -67,53 +83,46 @@ public class NumericFacetCounts extends Facets {
       throw new IllegalArgumentException("paths should have length = 1");
     }
     
-    long val = Long.parseLong(paths[0]);
-    
-    return countMap.get(val);
+    FacetBucket bucket = bucketMap.get(paths[0]);
+    return bucket == null ? null : bucket.getCount();
   }
-  
+
   @Override
   public FacetResult getTopChildren(int topN, String dim, String... paths)
       throws IOException {
     if (paths.length != 0) {
       throw new IllegalArgumentException("paths should have length = 0");
     }
-    PriorityQueue<ValCountPair> pq = ValCountPair.getPriorityQueue(topN);
-    
-    final ObjectIterator<Entry> entryIter = countMap.long2IntEntrySet().iterator();
+    PriorityQueue<LabelAndValue> pq = new PriorityQueue<LabelAndValue>(topN) {
+
+      @Override
+      protected boolean lessThan(LabelAndValue v1, LabelAndValue v2) {
+        return COMPARATOR.compare(v1, v2) > 0;
+      }
+    };
     
     int sum = 0;
     int childCount = 0;
-    ValCountPair pair = null;
-    while(entryIter.hasNext()) {
-      Entry entry = entryIter.next();
-      int count = entry.getIntValue();
+    for (FacetBucket bucket : bucketMap.values()) {
+      int count = bucket.getCount();
       if (count > 0) {
-        if (pair == null) {
-          pair = new ValCountPair();
-        }      
-        pair.val = entry.getLongKey();
-        pair.count = count;
-        
         sum += count;
-        childCount++;
-        pair = pq.insertWithOverflow(pair);
+        childCount ++;
+        pq.insertWithOverflow(new LabelAndValue(bucket.getLabel(), count));
       }
+      
     }
     
     int numVals = pq.size();
     LabelAndValue[] valArr = new LabelAndValue[numVals];
-
-    ValCountPair node;
     
     // Priority queue pops out "least" element first (that is the root).
     // Least in our definition regardless of how we define what that is should be the last element.
-    for(int i = valArr.length-1; i>=0; i--) {
-      node = pq.pop();
-      String label = String.valueOf(node.val);      
-      valArr[i] = new LabelAndValue(label,  node.count);
+    for(int i = valArr.length-1; i>=0; i--) {      
+      valArr[i] = pq.pop();
     }
     
     return new FacetResult(field, new String[0], sum, valArr, childCount);
   }
+
 }

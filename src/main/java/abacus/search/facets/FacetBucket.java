@@ -1,16 +1,18 @@
 package abacus.search.facets;
 
-import org.apache.lucene.util.BytesRef;
 
-public abstract class FacetBucket extends FacetValue {
+public abstract class FacetBucket {
+
+  private final String label;
   
-  public FacetBucket() {
-    super();
+  public FacetBucket(String label) {
+    this.label = label;
+  }
+  
+  public String getLabel() {
+    return label;
   }
 
-  public FacetBucket(BytesRef label, int count) {
-    super(label, count);
-  }
-
+  public abstract int getCount();
   public abstract void accumulate(long val);
 }
