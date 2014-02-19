@@ -4,6 +4,7 @@ import java.io.File;
 import java.util.Arrays;
 import java.util.List;
 
+import org.apache.lucene.facet.Facets;
 import org.apache.lucene.index.AtomicReader;
 import org.apache.lucene.index.AtomicReaderContext;
 import org.apache.lucene.index.DirectoryReader;
@@ -51,15 +52,15 @@ public class TestLargeIndex {
     
     TopScoreDocCollector tdCollector = TopScoreDocCollector.create(20, true);
     
-    FacetAccumulator yearFacetCollector = new NumericFacetAccumulator("year");
+    Facets yearFacetCollector = new NumericFacetCounts("year");
     
     BytesRefFacetAccumulator colorFacetCollector = new BytesRefFacetAccumulator("color");
     
     BytesRefFacetAccumulator categoryFacetCollector = new BytesRefFacetAccumulator("category");
     
-    FacetAccumulator priceFacetCollector = new NumericFacetAccumulator("price");
+    FacetAccumulator priceFacetCollector = new NumericFacetCounts("price");
     
-    FacetAccumulator mileageFacetCollector = new NumericFacetAccumulator("mileage");
+    FacetAccumulator mileageFacetCollector = new NumericFacetCounts("mileage");
     
     //FacetAccumulator catchAllFacetCollector = new MultiBytesRefFacetAccumulator("catchall");
     

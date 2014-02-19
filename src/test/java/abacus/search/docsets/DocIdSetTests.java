@@ -1,13 +1,14 @@
 package abacus.search.docsets;
 
 import static org.junit.Assert.assertTrue;
+import it.unimi.dsi.fastutil.ints.IntArrayList;
+import it.unimi.dsi.fastutil.ints.IntList;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.Arrays;
 
-import org.apache.lucene.facet.collections.IntArray;
 import org.apache.lucene.search.DocIdSet;
 import org.apache.lucene.search.DocIdSetIterator;
 import org.apache.lucene.store.InputStreamDataInput;
@@ -105,11 +106,11 @@ public class DocIdSetTests {
   }
   
   private void verifySKips(DocIdSetIterator iter, int[] skips, int[] expected) throws IOException {
-    IntArray arr = new IntArray();
+    IntList arr = new IntArrayList();
     for (int skip : skips) {
       int doc = iter.advance(skip);
       if (doc != DocIdSetIterator.NO_MORE_DOCS) {
-        arr.addToArray(doc);
+        arr.add(doc);
       }
     }
     int[] docs = DocIdSetIteratorUtil.toIntArray(arr);

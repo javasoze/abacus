@@ -98,7 +98,7 @@ public class IndexGenerator {
   }
   
   static void buildLargeIndex(Directory smallIndex, int numChunks, File outDir) throws Exception{
-    IndexWriterConfig idxWriterConfig = new IndexWriterConfig(Version.LUCENE_44, null);
+    IndexWriterConfig idxWriterConfig = new IndexWriterConfig(Version.LUCENE_47, null);
     Directory tempDir = FSDirectory.open(outDir);
     IndexWriter writer = new IndexWriter(tempDir, idxWriterConfig);
     // build first 1.5M chunk

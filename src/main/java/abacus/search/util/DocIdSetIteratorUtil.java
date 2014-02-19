@@ -1,8 +1,10 @@
 package abacus.search.util;
 
+import it.unimi.dsi.fastutil.ints.IntArrayList;
+import it.unimi.dsi.fastutil.ints.IntList;
+
 import java.io.IOException;
 
-import org.apache.lucene.facet.collections.IntArray;
 import org.apache.lucene.search.DocIdSetIterator;
 
 public class DocIdSetIteratorUtil {
@@ -26,7 +28,7 @@ public class DocIdSetIteratorUtil {
     return buf.toString();
   }
   
-  public static int[] toIntArray(IntArray arr) {
+  public static int[] toIntArray(IntList arr) {
     int[] res = new int[arr.size()];
     for (int i = 0; i < res.length; ++i) {
       res[i] = arr.get(i);
@@ -35,10 +37,10 @@ public class DocIdSetIteratorUtil {
   }
   
   public static int[] toIntArray(DocIdSetIterator iter) throws IOException {
-    IntArray arr = new IntArray();
+    IntList arr = new IntArrayList();
     int doc;
     while ((doc = iter.nextDoc()) != DocIdSetIterator.NO_MORE_DOCS) {
-      arr.addToArray(doc);
+      arr.add(doc);
     }
     return toIntArray(arr);
   }

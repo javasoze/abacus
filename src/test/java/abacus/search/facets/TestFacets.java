@@ -11,6 +11,9 @@ import org.apache.lucene.document.Document;
 import org.apache.lucene.document.NumericDocValuesField;
 import org.apache.lucene.document.SortedDocValuesField;
 import org.apache.lucene.document.SortedSetDocValuesField;
+import org.apache.lucene.facet.FacetResult;
+import org.apache.lucene.facet.Facets;
+import org.apache.lucene.facet.FacetsCollector;
 import org.apache.lucene.index.AtomicReader;
 import org.apache.lucene.index.AtomicReaderContext;
 import org.apache.lucene.index.DirectoryReader;
@@ -30,15 +33,7 @@ import org.apache.lucene.util.BytesRef;
 import org.apache.lucene.util.Version;
 import org.junit.Test;
 
-import abacus.search.facets.BytesRefFacetAccumulator;
-import abacus.search.facets.FacetAccumulator;
-import abacus.search.facets.FacetBucket;
-import abacus.search.facets.FacetValue;
-import abacus.search.facets.FastDocValuesAtomicReader;
 import abacus.search.facets.FastDocValuesAtomicReader.MemType;
-import abacus.search.facets.MultiBytesRefFacetAccumulator;
-import abacus.search.facets.NumericBucketFacetAccumulator;
-import abacus.search.facets.NumericFacetAccumulator;
 
 public class TestFacets {
   // test dataset
@@ -109,7 +104,7 @@ public class TestFacets {
       doc.add(new SortedSetDocValuesField("tag", new BytesRef("rabbit")));   
       DOC_LIST.add(doc);
       
-      IndexWriterConfig conf = new IndexWriterConfig(Version.LUCENE_44, null);
+      IndexWriterConfig conf = new IndexWriterConfig(Version.LUCENE_47, null);
       try {
         IndexWriter writer = new IndexWriter(IDX_DIR, conf);
         int count = 0;
@@ -129,9 +124,9 @@ public class TestFacets {
       }
   }
   
-  void checkFacets(FacetValue[] facetVals, Comparator<FacetValue> comparator) {
-    FacetValue prev = null;
-    for (FacetValue facetVal : facetVals) {
+  void checkFacets(List<FacetResult> facetVals, Comparator<FacetResult> comparator) {
+    FacetResult prev = null;
+    for (FacetResult facetVal : facetVals) {
       if (prev != null) {
         int comp = comparator.compare(prev, facetVal);
         assertTrue(comp <= 0);
@@ -159,34 +154,6 @@ public class TestFacets {
   }
   
   @Test
-  public void testMinHit() throws Exception {
-    testMinHit(MemType.Heap);
-    testMinHit(MemType.Native);
-    testMinHit(MemType.Direct);
-  }
-  
-  public void testMinHit(MemType memType) throws Exception {    
-    IndexReader reader = getIndexReader(IDX_DIR, memType);
-    IndexSearcher searcher = new IndexSearcher(reader);
-    
-    FacetAccumulator sizeFacetCollector = new NumericFacetAccumulator("size");
-    BytesRefFacetAccumulator colorFacetCollector = new BytesRefFacetAccumulator("color");
-    
-    searcher.search(new MatchAllDocsQuery(), MultiCollector.wrap(sizeFacetCollector, colorFacetCollector));
-   
-    FacetValue[] values = sizeFacetCollector.getTopFacets(10, 3);
-    assertEquals(1, values.length);
-    assertEquals("4", values[0].getLabel().utf8ToString());
-    assertEquals(3, values[0].getCount());
-    
-    values = colorFacetCollector.getTopFacets(10, 3);
-    assertEquals(1, values.length);
-    assertEquals("red", values[0].getLabel().utf8ToString());
-    assertEquals(3, values[0].getCount());
-    reader.close();
-  }
-  
-  @Test
   public void testFacets() throws Exception {
     testFacets(MemType.Heap);
     testFacets(MemType.Direct);
@@ -198,10 +165,11 @@ public class TestFacets {
     IndexSearcher searcher = new IndexSearcher(reader);
     
     TopScoreDocCollector docsCollector = TopScoreDocCollector.create(10, true);
-    FacetAccumulator sizeFacetCollector = new NumericFacetAccumulator("size");
-    FacetAccumulator colorFacetCollector = new BytesRefFacetAccumulator("color");
-    FacetAccumulator tagFacetCollector = new MultiBytesRefFacetAccumulator("tag");
+    FacetsCollector facetsCollector = new FacetsCollector(false);
+    Facets sizeFacet = new NumericFacetCounts("size", facetsCollector);
+    Facets colorFacet = new NumericFacetCounts("color", facetsCollector);
     
+    /*
     FacetAccumulator sizeRangeFacetCollector = new NumericBucketFacetAccumulator("size", new FacetBucket[] {
         new FacetBucket(new BytesRef("(*, 3]"), 0) {
           @Override
@@ -221,30 +189,22 @@ public class TestFacets {
         },
         
     });
+    */
     
     Collector collector = 
         MultiCollector.wrap(docsCollector, 
-            sizeFacetCollector, 
-            colorFacetCollector, 
-            tagFacetCollector,
-            sizeRangeFacetCollector);
+            facetsCollector);
     
     searcher.search(new MatchAllDocsQuery(), collector);
     
     TopDocs docs = docsCollector.topDocs();
     assertEquals(reader.numDocs(), docs.totalHits);
     
-    FacetValue[] facetValues = sizeFacetCollector.getTopFacets(3);
-    checkFacets(facetValues, FacetValue.COUNT_COMPARATOR);    
+    List<FacetResult> facetValues = sizeFacet.getAllDims(3);
+    checkFacets(facetValues, FacetResultComparator.INSTANCE);    
     
-    facetValues = colorFacetCollector.getTopFacets(3);
-    checkFacets(facetValues, FacetValue.COUNT_COMPARATOR);    
-    
-    facetValues = tagFacetCollector.getTopFacets(3);
-    checkFacets(facetValues, FacetValue.COUNT_COMPARATOR);
-    
-    facetValues = sizeRangeFacetCollector.getTopFacets(3);    
-    checkFacets(facetValues, FacetValue.COUNT_COMPARATOR);
+    facetValues = colorFacet.getAllDims(3);
+    checkFacets(facetValues, FacetResultComparator.INSTANCE);
     
     reader.close();
   }
