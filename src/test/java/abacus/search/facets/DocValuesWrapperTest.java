@@ -14,6 +14,7 @@ import org.apache.lucene.index.DirectoryReader;
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.IndexWriterConfig;
+import org.apache.lucene.index.NumericDocValues;
 import org.apache.lucene.index.SortedDocValues;
 import org.apache.lucene.store.RAMDirectory;
 import org.apache.lucene.util.BytesRef;
@@ -69,19 +70,50 @@ public class DocValuesWrapperTest {
     topReader.close();
   }
   
-  @Test
-  public void testArraySortedDocValues() throws Exception {
-    SortedDocValues docVals = atomicReader.getSortedDocValues(SORTED_FIELD);
-    SortedDocValues arrayWrapperVals = new ArraySortedDocValues(docVals, atomicReader.maxDoc());
-    
-    TestCase.assertEquals(docVals.getValueCount(), arrayWrapperVals.getValueCount());
-    for (int i = 0; i < docVals.getValueCount(); ++i) {
+  private void testNumericDocValues(NumericDocValues expected, NumericDocValues wrapped) throws Exception {
+    for (int i = 0; i < atomicReader.maxDoc(); ++i) {
+      long expectedVal = expected.get(i);
+      long gotVal = wrapped.get(i);
+      TestCase.assertEquals("expected: " + expectedVal+", got: " + gotVal,
+          expected.get(i), wrapped.get(i));
+    }
+  }
+  
+  private void testSortedDocValues(SortedDocValues expected, SortedDocValues wrapped) throws Exception {
+    TestCase.assertEquals(expected.getValueCount(), wrapped.getValueCount());
+    for (int i = 0; i < expected.getValueCount(); ++i) {
       BytesRef bref1 = new BytesRef();
-      docVals.lookupOrd(i, bref1);
+      expected.lookupOrd(i, bref1);
       BytesRef bref2 = new BytesRef();
-      arrayWrapperVals.lookupOrd(i, bref2);
+      wrapped.lookupOrd(i, bref2);
       TestCase.assertEquals("expected: " + bref1.utf8ToString() + ", got: " + bref2.utf8ToString(),
           0, BREF_COMPARATOR.compare(bref1, bref2)); 
     }
+  }
+  
+  @Test
+  public void testNumericDocValues() throws Exception {
+    NumericDocValues docVals = atomicReader.getNumericDocValues(NUMERIC_FIELD);
+    NumericDocValues arrayWrapperVals = new ArrayNumericDocValues(docVals, atomicReader.maxDoc());
+    testNumericDocValues(docVals, arrayWrapperVals);
+    
+    NumericDocValues directWrapperVals = new DirectBufferNumericDocValues(docVals, atomicReader.maxDoc());
+    testNumericDocValues(docVals, directWrapperVals);
+    
+    NumericDocValues nativeWrapperVals = new NativeNumericDocValues(docVals, atomicReader.maxDoc());
+    testNumericDocValues(docVals, nativeWrapperVals);
+  }
+  
+  @Test
+  public void testSortedDocValues() throws Exception {
+    SortedDocValues docVals = atomicReader.getSortedDocValues(SORTED_FIELD);
+    SortedDocValues arrayWrapperVals = new ArraySortedDocValues(docVals, atomicReader.maxDoc());    
+    testSortedDocValues(docVals, arrayWrapperVals);
+    
+    SortedDocValues directWrapperVals = new DirectBufferSortedDocValues(docVals, atomicReader.maxDoc());
+    testSortedDocValues(docVals, directWrapperVals);
+    
+    SortedDocValues nativeWrapperVals = new NativeSortedDocValues(docVals, atomicReader.maxDoc());
+    testSortedDocValues(docVals, nativeWrapperVals);
   }
 }
