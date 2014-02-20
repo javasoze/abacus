@@ -42,7 +42,7 @@ public class TestLargeIndex {
   
   public static void main(String[] args) throws Exception {
     File idxDir = new File(args[0]);
-    MemType memType = MemType.Heap;
+    MemType memType = MemType.Default;
     Directory dir = FSDirectory.open(idxDir);
     IndexReader reader = getIndexReader(dir, memType);
     
@@ -75,25 +75,32 @@ public class TestLargeIndex {
       //TopDocs td = tdCollector.topDocs();
       
       NumericFacetCounts yearFacet = new NumericFacetCounts("year", facetsCollector);
+      
+      LabelAndOrdFacetCounts colorFacet = new LabelAndOrdFacetCounts("color", new SortedDocValuesOrdReader("color"), facetsCollector);
+      
+      LabelAndOrdFacetCounts categoryFacet = new LabelAndOrdFacetCounts("category", new SortedDocValuesOrdReader("category"), facetsCollector);
       /*
-      LabelAndOrdFacetCounts colorFacetCollector = new BytesRefFacetAccumulator("color");
-      
-      LabelAndOrdFacetCounts categoryFacetCollector = new BytesRefFacetAccumulator("category");
-      
       NumericFacetCounts priceFacetCollector = new NumericFacetCounts("price");
       
       NumericFacetCounts mileageFacetCollector = new NumericFacetCounts("mileage");
-      
-      LabelAndOrdFacetCounts catchAllFacetCollector = new MultiBytesRefFacetAccumulator("catchall");
-        */
+      */
+      LabelAndOrdFacetCounts catchAllFacet = new LabelAndOrdFacetCounts("catchall", new SortedSetDocValuesOrdReader("catchall"), facetsCollector);
      
       FacetResult yearValues = yearFacet.getAllDims(10).get(0);
+      FacetResult colorValues = colorFacet.getAllDims(10).get(0);
+      FacetResult categoryValues = categoryFacet.getAllDims(10).get(0);
+      FacetResult catchAllValues = catchAllFacet.getAllDims(10).get(0);
+      
+      if (true) {
+        System.out.println(yearValues);
+        System.out.println(colorValues);
+        System.out.println(categoryValues);
+        System.out.println(catchAllValues);
+      }
+      //FacetResult catchAllValues = catchAllFacetCollector.getAllDims(10).get(0);
       /*
-      FacetValue[] colorValues = colorFacetCollector.getTopFacets(10, 1);
-      FacetValue[] categoryValues = categoryFacetCollector.getTopFacets(10, 1);
       FacetValue[] priceValues = priceFacetCollector.getTopFacets(10, 1);
       FacetValue[] milageValues = mileageFacetCollector.getTopFacets(10, 1);
-      //FacetValue[] catchAllValues = catchAllFacetCollector.getTopFacets(10, 1);
        * 
        */
       long end = System.currentTimeMillis();

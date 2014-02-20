@@ -23,7 +23,7 @@ public class ArraySortedSetDocValues extends SortedSetDocValues {
     for (int i =0;i< maxDoc; ++i) {
       inner.setDocument(i);
       ord[i] = new IntsRef();
-      ord[i].offset=count;
+      ord[i].offset = count;
       
       long currentOrd;
       while((currentOrd = inner.nextOrd()) != NO_MORE_ORDS) {

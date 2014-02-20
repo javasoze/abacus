@@ -54,7 +54,7 @@ public abstract class PerSegmentFacetCount {
       @Override
       public void lookupLabel(long val, BytesRef label) {
         int ord = (int) val;
-        lookupLabel(ord, label);        
+        PerSegmentFacetCount.this.lookupLabel(ord, label);
       }
     };
   }

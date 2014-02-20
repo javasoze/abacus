@@ -71,7 +71,7 @@ public class IndexGenerator {
     BufferedReader reader = new BufferedReader(new FileReader(dataFile));
     
     
-    IndexWriterConfig idxWriterConfig = new IndexWriterConfig(Version.LUCENE_44, new StandardAnalyzer(Version.LUCENE_44));
+    IndexWriterConfig idxWriterConfig = new IndexWriterConfig(Version.LUCENE_47, new StandardAnalyzer(Version.LUCENE_47));
     Directory dir = FSDirectory.open(idxDir);
     IndexWriter writer = new IndexWriter(dir, idxWriterConfig);
     int count = 0;

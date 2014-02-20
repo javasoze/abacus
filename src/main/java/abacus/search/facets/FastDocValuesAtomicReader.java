@@ -24,6 +24,7 @@ public class FastDocValuesAtomicReader extends FilterAtomicReader {
   private List<Closeable> closableList = new ArrayList<Closeable>();
   
   public static enum MemType {
+    Default,
     Heap,
     Direct,
     Native
@@ -36,16 +37,16 @@ public class FastDocValuesAtomicReader extends FilterAtomicReader {
     sortedSetCached = new HashMap<String, SortedSetDocValues>();
     for (FieldInfo finfo : in.getFieldInfos()) {
       if (finfo.hasDocValues()) {
-        switch(finfo.getDocValuesType()) {
+        switch(finfo.getDocValuesType()) {        
         case NUMERIC: {
-          NumericDocValues val;
+          NumericDocValues val = super.getNumericDocValues(finfo.name);
           if (type == MemType.Heap) {
-            val = new ArrayNumericDocValues(super.getNumericDocValues(finfo.name), maxDoc());
+            val = new ArrayNumericDocValues(val, maxDoc());
           } else if (type == MemType.Direct) {
-            val = new DirectBufferNumericDocValues(super.getNumericDocValues(finfo.name), maxDoc());
-          } else {
+            val = new DirectBufferNumericDocValues(val, maxDoc());
+          } else if (type == MemType.Native){
             NativeNumericDocValues nativeVals =
-                new NativeNumericDocValues(super.getNumericDocValues(finfo.name), maxDoc());
+                new NativeNumericDocValues(val, maxDoc());
             closableList.add(nativeVals);
             val = nativeVals;
           }
@@ -53,14 +54,14 @@ public class FastDocValuesAtomicReader extends FilterAtomicReader {
           break;
         }
         case SORTED : {
-          SortedDocValues val;
+          SortedDocValues val = super.getSortedDocValues(finfo.name);
           if (type == MemType.Heap) {
-            val = new ArraySortedDocValues(super.getSortedDocValues(finfo.name), maxDoc());
+            val = new ArraySortedDocValues(val, maxDoc());
           } else if (type == MemType.Direct) {
-            val = new DirectBufferSortedDocValues(super.getSortedDocValues(finfo.name), maxDoc());
-          } else {
+            val = new DirectBufferSortedDocValues(val, maxDoc());
+          } else if (type == MemType.Native){
             NativeSortedDocValues nativeVals =
-                new NativeSortedDocValues(super.getSortedDocValues(finfo.name), maxDoc());
+                new NativeSortedDocValues(val, maxDoc());
             closableList.add(nativeVals);
             val = nativeVals;
           }
@@ -68,8 +69,10 @@ public class FastDocValuesAtomicReader extends FilterAtomicReader {
           break;
         }
         case SORTED_SET : {
-          SortedSetDocValues val =
-              new ArraySortedSetDocValues(super.getSortedSetDocValues(finfo.name), maxDoc());
+          SortedSetDocValues val = super.getSortedSetDocValues(finfo.name);
+          if (type == MemType.Heap) {
+            val = new ArraySortedSetDocValues(val, maxDoc());            
+          }
           sortedSetCached.put(finfo.name, val);
           break;
         }

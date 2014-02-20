@@ -32,7 +32,9 @@ public class LabelAndOrdFacetCounts extends Facets {
     this.ordReader = ordReader;
     List<MatchingDocs> matchingDocs = facetCollector.getMatchingDocs();
     segmentCountList = new ArrayList<PerSegmentFacetCount>(matchingDocs.size());
+    //long start = System.currentTimeMillis();
     count(matchingDocs);
+    //System.out.println("labelordfacet: " + field +", count took: " + (System.currentTimeMillis() - start));
   }
   
   protected int[] newCountArray(int numVals) {
@@ -41,12 +43,13 @@ public class LabelAndOrdFacetCounts extends Facets {
   
   /** Does all the "real work" of tallying up the counts. */
   private final void count(List<MatchingDocs> matchingDocs) throws IOException {
-    for(MatchingDocs hits : matchingDocs) {
-      final FacetOrdSegmentReader ordSegmentReader = ordReader.getSegmentOrdReader(ordReader.getIndexedFieldName(), hits.context);
+    for(MatchingDocs hits : matchingDocs) {      
+      final FacetOrdSegmentReader ordSegmentReader = ordReader.getSegmentOrdReader(hits.context);
       
       if (ordSegmentReader == null) {
         continue;
       }
+      
       int[] counts = newCountArray(ordSegmentReader.getValueCount());
       
       PerSegmentFacetCount segmentCount = new PerSegmentFacetCount(counts) {
@@ -101,7 +104,7 @@ public class LabelAndOrdFacetCounts extends Facets {
           FacetEntryIterator perSegIterator = segmentCount.getFacetEntryIterator();
           ValCountPair pair = new ValCountPair();
           BytesRef label = new BytesRef();
-          while (perSegIterator.next(pair)) {
+          while (perSegIterator.next(pair)) {            
             perSegIterator.lookupLabel(pair.val, label);            
             int id;
             if ((id = labelHash.find(label)) < 0) {
