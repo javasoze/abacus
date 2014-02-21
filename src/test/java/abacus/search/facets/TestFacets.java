@@ -3,7 +3,6 @@ package abacus.search.facets;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -22,7 +21,6 @@ import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.IndexWriterConfig;
 import org.apache.lucene.index.MultiReader;
-import org.apache.lucene.index.SortedDocValues;
 import org.apache.lucene.search.Collector;
 import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.MatchAllDocsQuery;
@@ -30,7 +28,6 @@ import org.apache.lucene.search.MultiCollector;
 import org.apache.lucene.search.TopDocs;
 import org.apache.lucene.search.TopScoreDocCollector;
 import org.apache.lucene.store.Directory;
-import org.apache.lucene.store.FSDirectory;
 import org.apache.lucene.store.RAMDirectory;
 import org.apache.lucene.util.BytesRef;
 import org.apache.lucene.util.Version;
@@ -158,6 +155,7 @@ public class TestFacets {
   
   @Test
   public void testFacets() throws Exception {
+    testFacets(MemType.Default);
     testFacets(MemType.Heap);
     testFacets(MemType.Direct);
     testFacets(MemType.Native);
@@ -172,27 +170,25 @@ public class TestFacets {
     Facets sizeFacet = new NumericFacetCounts("size", facetsCollector);
     Facets colorFacet = new NumericFacetCounts("color", facetsCollector);
     
-    /*
-    FacetAccumulator sizeRangeFacetCollector = new NumericBucketFacetAccumulator("size", new FacetBucket[] {
-        new FacetBucket(new BytesRef("(*, 3]"), 0) {
+    Facets sizeRangeFacets = new NumericBucketFacetCounts("size", new FacetBucket[] {
+        new FacetBucket("(*, 3]") {
           @Override
           public void accumulate(long val) {
             if (val <= 3) {
               count++;
             }
-          }          
+          }
         },
-        new FacetBucket(new BytesRef("(3, *)"), 0) {
+        new FacetBucket("(3, *)") {
           @Override
           public void accumulate(long val) {
             if (val > 3) {
               count++;
             }
-          }          
+          }
         },
         
-    });
-    */
+    }, facetsCollector);
     
     Collector collector = 
         MultiCollector.wrap(docsCollector, 
@@ -205,6 +201,9 @@ public class TestFacets {
     
     List<FacetResult> facetValues = sizeFacet.getAllDims(3);
     checkFacets(facetValues, FacetResultComparator.INSTANCE);    
+    
+    facetValues = sizeRangeFacets.getAllDims(3);
+    checkFacets(facetValues, FacetResultComparator.INSTANCE);
     
     facetValues = colorFacet.getAllDims(3);
     checkFacets(facetValues, FacetResultComparator.INSTANCE);

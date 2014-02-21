@@ -4,6 +4,7 @@ package abacus.search.facets;
 public abstract class FacetBucket {
 
   private final String label;
+  protected int count = 0;
   
   public FacetBucket(String label) {
     this.label = label;
@@ -13,6 +14,9 @@ public abstract class FacetBucket {
     return label;
   }
 
-  public abstract int getCount();
+  public int getCount() {
+    return count;
+  }
+  
   public abstract void accumulate(long val);
 }

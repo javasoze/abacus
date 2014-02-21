@@ -11,12 +11,9 @@ import org.apache.lucene.index.AtomicReaderContext;
 import org.apache.lucene.index.DirectoryReader;
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.MultiReader;
-import org.apache.lucene.search.Collector;
 import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.MatchAllDocsQuery;
-import org.apache.lucene.search.MultiCollector;
 import org.apache.lucene.search.Query;
-import org.apache.lucene.search.TopScoreDocCollector;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
 
@@ -48,58 +45,64 @@ public class TestLargeIndex {
     
     IndexSearcher searcher = new IndexSearcher(reader);
     
-    TopScoreDocCollector tdCollector = TopScoreDocCollector.create(20, true);
     FacetsCollector facetsCollector = new FacetsCollector(false);
     
-    //QueryParser qp = new QueryParser(Version.LUCENE_44, "contents", new StandardAnalyzer(Version.LUCENE_44));
-    //Query q = qp.parse("tags_indexed:macho");
     Query q = new MatchAllDocsQuery();
-    
-    Collector collector = MultiCollector.wrap(
-        //tdCollector,
-        facetsCollector
-    );
     
     int numIter = 10;
     long[] collectTimes = new long[numIter];
     long[] totalTimes = new long[numIter];
-    searcher.search(q, 
-        //new EarlyTerminationCollector(1000, collector)
-        collector
-    );
+    searcher.search(q, facetsCollector);
     for (int i = 0; i < numIter; ++i) {      
       long start = System.currentTimeMillis();
       //TopDocs td = tdCollector.topDocs();
       
       NumericFacetCounts yearFacet = new NumericFacetCounts("year", facetsCollector);
       
+      NumericFacetCounts mileageFacet = new NumericFacetCounts("mileage", facetsCollector);
+      
       LabelAndOrdFacetCounts colorFacet = new LabelAndOrdFacetCounts("color", new SortedDocValuesOrdReader("color"), facetsCollector);
       
       LabelAndOrdFacetCounts categoryFacet = new LabelAndOrdFacetCounts("category", new SortedDocValuesOrdReader("category"), facetsCollector);
-      /*
-      NumericFacetCounts priceFacetCollector = new NumericFacetCounts("price");
       
-      NumericFacetCounts mileageFacetCollector = new NumericFacetCounts("mileage");
-      */
+      NumericBucketFacetCounts priceFacet = new NumericBucketFacetCounts("price", new FacetBucket[] {
+          new FacetBucket("cheap") {
+            @Override
+            public final void accumulate(long val) {
+              if (val <= 5000) {
+                count ++;
+              }
+            }            
+          },
+          new FacetBucket("expensive") {
+            @Override
+            public final void accumulate(long val) {
+              if (val > 5000) {
+                count ++;
+              }
+            }
+            
+          }
+      }, facetsCollector);
+      
       LabelAndOrdFacetCounts catchAllFacet = new LabelAndOrdFacetCounts("catchall", new SortedSetDocValuesOrdReader("catchall"), facetsCollector);
      
       FacetResult yearValues = yearFacet.getAllDims(10).get(0);
       FacetResult colorValues = colorFacet.getAllDims(10).get(0);
       FacetResult categoryValues = categoryFacet.getAllDims(10).get(0);
+      FacetResult priceValues = priceFacet.getAllDims(10).get(0);
+      FacetResult mileageValues = mileageFacet.getAllDims(10).get(0);
       FacetResult catchAllValues = catchAllFacet.getAllDims(10).get(0);
       
       if (false) {
         System.out.println(yearValues);
         System.out.println(colorValues);
         System.out.println(categoryValues);
+        System.out.println(priceValues);
+        System.out.println(mileageValues);
         System.out.println(catchAllValues);
       }
-      //FacetResult catchAllValues = catchAllFacetCollector.getAllDims(10).get(0);
-      /*
-      FacetValue[] priceValues = priceFacetCollector.getTopFacets(10, 1);
-      FacetValue[] milageValues = mileageFacetCollector.getTopFacets(10, 1);
-       * 
-       */
+      
       totalTimes[i] = System.currentTimeMillis() - start;      
     }
     
@@ -113,7 +116,6 @@ public class TestLargeIndex {
     
     System.out.println("took: " + (sum / 8));    
     
-    //System.out.println("count : " + catchAllValues.length);
     reader.close();
     
   }

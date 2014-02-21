@@ -6,8 +6,8 @@ import java.io.FileReader;
 
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.document.Document;
-import org.apache.lucene.document.DoubleDocValuesField;
 import org.apache.lucene.document.Field.Store;
+import org.apache.lucene.document.LongDocValuesField;
 import org.apache.lucene.document.NumericDocValuesField;
 import org.apache.lucene.document.SortedDocValuesField;
 import org.apache.lucene.document.SortedSetDocValuesField;
@@ -37,7 +37,7 @@ public class IndexGenerator {
     String[] catchAll = new String[5];
     
     doc.add(new NumericDocValuesField("id", json.getLong("id")));
-    doc.add(new DoubleDocValuesField("price", json.optDouble("price")));
+    doc.add(new NumericDocValuesField("price", json.optLong("price")));
     catchAll[0]=String.valueOf(json.optDouble("price"));
     doc.add(new TextField("contents", json.optString("contents"), Store.NO));
     doc.add(new NumericDocValuesField("year", json.optInt("year")));
