@@ -12,39 +12,41 @@ public class NativeSortedDocValues extends SortedDocValues
     implements Closeable {
 
   private final long ordsPtr;
-  private final long bufferPtr;  
-  //private final BytesRef[] byteRefs;
+  private final long bufferPtr;
   private final long bytesRefPtr;
   private final int numTerms;
+  
   public NativeSortedDocValues(SortedDocValues inner, int maxDoc) {    
     this.ordsPtr = HS.allocArray(maxDoc, 4, false);
-    for (int i =0;i< maxDoc; ++i) {     
+    for (int i =0; i< maxDoc; ++i) {     
       HS.setInt(this.ordsPtr, i, inner.getOrd(i));
     }
-    
-    
     numTerms = inner.getValueCount();
+    // temp buffer to hold the bytesrefs
     BytesRef[] byteRefs = new BytesRef[numTerms];
-    bytesRefPtr= HS.allocArray(numTerms, 8, false);
-    
+   
     int numBytes = 0;
     for (int i=0; i < numTerms; ++i) {
       BytesRef tempRef = new BytesRef();
       inner.lookupOrd(i, tempRef);
       numBytes+=tempRef.length;
       byteRefs[i] = tempRef;
-      HS.setInt(bytesRefPtr, i*2, tempRef.offset);
-      HS.setInt(bytesRefPtr, i*2 + 1, tempRef.length);
     }
     
+    bytesRefPtr= HS.allocArray(numTerms, 8, false);
     bufferPtr = HS.allocArray(numBytes, 1, false);
+    
+    int byteCount = 0;
     for (int i=0;i < numTerms; ++i) {
       int offset = byteRefs[i].offset;
       int length = byteRefs[i].length;
       for (int k = 0; k < length; ++k) {
-        HS.unsafe.putByte(bufferPtr + k, byteRefs[i].bytes[offset + k]);
+        HS.unsafe.putByte(bufferPtr + byteCount + k, byteRefs[i].bytes[offset + k]);        
       }      
       byteRefs[i].bytes = null;
+      HS.setInt(bytesRefPtr, i*2, byteCount);
+      HS.setInt(bytesRefPtr, i*2 + 1, length);
+      byteCount += length;
     }
   }
   
@@ -63,7 +65,7 @@ public class NativeSortedDocValues extends SortedDocValues
     result.length = length;
     for (int i = 0; i < result.length; ++i) {
       result.bytes[i] = HS.unsafe.getByte(bufferPtr + offset + i);  
-    }    
+    }
   }
 
   @Override

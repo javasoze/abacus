@@ -19,7 +19,7 @@ public class DirectBufferSortedDocValues extends SortedDocValues {
     }
     
     numTerms = inner.getValueCount();
-    this.byteRefs = ByteBuffer.allocateDirect(numTerms * 8);
+    
     BytesRef[] byteRefArr = new BytesRef[numTerms];
     
     int numBytes = 0;
@@ -27,13 +27,16 @@ public class DirectBufferSortedDocValues extends SortedDocValues {
       BytesRef tempRef = new BytesRef();
       inner.lookupOrd(i, tempRef);
       numBytes += tempRef.length;
-      byteRefArr[i] = tempRef;
-      this.byteRefs.putInt(tempRef.offset);
-      this.byteRefs.putInt(tempRef.length);
+      byteRefArr[i] = tempRef;      
     }
+    this.byteRefs = ByteBuffer.allocateDirect(numTerms * 8);
     buffer = ByteBuffer.allocateDirect(numBytes);    
+    int byteCount = 0;
     for (int i = 0;i < numTerms ;++i) {      
-      buffer.put(byteRefArr[i].bytes, byteRefArr[i].offset, byteRefArr[i].length);
+      buffer.put(byteRefArr[i].bytes, byteRefArr[i].offset, byteRefArr[i].length);      
+      this.byteRefs.putInt(byteCount);
+      this.byteRefs.putInt(byteRefArr[i].length);
+      byteCount += byteRefArr[i].length;
     }
   }
   

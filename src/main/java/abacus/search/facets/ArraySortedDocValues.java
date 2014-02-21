@@ -7,12 +7,15 @@ public class ArraySortedDocValues extends SortedDocValues {
   private final int[] ords;
   private final byte[] buffer;
   private final BytesRef[] byteRefs;
-  public ArraySortedDocValues(SortedDocValues inner, int maxDoc) {    
-    this.ords = new int[maxDoc];
+  
+  public ArraySortedDocValues(SortedDocValues inner, int maxDoc) {
+    // ordinal array
+    this.ords = new int[maxDoc];    
     for (int i =0;i< maxDoc; ++i) {
       this.ords[i] = inner.getOrd(i);
     }
     
+    // bytesRef array
     byteRefs = new BytesRef[inner.getValueCount()];
     
     int numBytes = 0;
@@ -22,10 +25,15 @@ public class ArraySortedDocValues extends SortedDocValues {
       numBytes+=tempRef.length;
       byteRefs[i] = tempRef;
     }
+    
+    // loading in the bytes
     buffer = new byte[numBytes];
+    int byteCount = 0;
     for (int i=0;i<byteRefs.length;++i) {
-      System.arraycopy(byteRefs[i].bytes, byteRefs[i].offset, buffer, byteRefs[i].offset, byteRefs[i].length);
+      System.arraycopy(byteRefs[i].bytes, byteRefs[i].offset, buffer, byteCount, byteRefs[i].length);
       byteRefs[i].bytes = buffer;
+      byteRefs[i].offset=byteCount;
+      byteCount += byteRefs[i].length;
     }
   }
   

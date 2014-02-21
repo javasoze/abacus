@@ -26,7 +26,7 @@ public class HS
   static {
     try {
       Field field = sun.misc.Unsafe.class.getDeclaredField("theUnsafe");
-      field.setAccessible(true);
+      field.setAccessible(true);      
       unsafe = (sun.misc.Unsafe) field.get(null);
     } catch (Exception e) {
       throw new RuntimeException("HS: can't load Unsafe!", e);
