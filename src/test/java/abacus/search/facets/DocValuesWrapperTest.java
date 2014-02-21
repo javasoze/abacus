@@ -16,6 +16,7 @@ import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.IndexWriterConfig;
 import org.apache.lucene.index.NumericDocValues;
 import org.apache.lucene.index.SortedDocValues;
+import org.apache.lucene.index.SortedSetDocValues;
 import org.apache.lucene.store.RAMDirectory;
 import org.apache.lucene.util.BytesRef;
 import org.apache.lucene.util.Version;
@@ -80,6 +81,18 @@ public class DocValuesWrapperTest {
   }
   
   private void testSortedDocValues(SortedDocValues expected, SortedDocValues wrapped) throws Exception {
+    for (int i = 0; i < atomicReader.maxDoc(); ++i) {
+      int expectedOrd = expected.getOrd(i);
+      int gotOrd = wrapped.getOrd(i);
+      TestCase.assertEquals(expectedOrd, gotOrd);
+      BytesRef bref1 = new BytesRef();
+      expected.get(i, bref1);
+      BytesRef bref2 = new BytesRef();
+      wrapped.get(i, bref2);
+      TestCase.assertEquals("expected: " + bref1.utf8ToString() + ", got: " + bref2.utf8ToString(),
+          0, BREF_COMPARATOR.compare(bref1, bref2));
+    }
+
     TestCase.assertEquals(expected.getValueCount(), wrapped.getValueCount());
     for (int i = 0; i < expected.getValueCount(); ++i) {
       BytesRef bref1 = new BytesRef();
@@ -87,8 +100,40 @@ public class DocValuesWrapperTest {
       BytesRef bref2 = new BytesRef();
       wrapped.lookupOrd(i, bref2);
       TestCase.assertEquals("expected: " + bref1.utf8ToString() + ", got: " + bref2.utf8ToString(),
-          0, BREF_COMPARATOR.compare(bref1, bref2)); 
+          0, BREF_COMPARATOR.compare(bref1, bref2));      
     }
+    
+  }
+  
+  private void testSortedSetDocValues(SortedSetDocValues expected, SortedSetDocValues wrapped) throws Exception {
+    for (int i = 0; i < atomicReader.maxDoc(); ++i) {
+      expected.setDocument(i);
+      wrapped.setDocument(i);
+      long expectedOrd;
+      long gotOrd = SortedSetDocValues.NO_MORE_ORDS;
+      while ((expectedOrd = expected.nextOrd()) != SortedSetDocValues.NO_MORE_ORDS) {
+        gotOrd = wrapped.nextOrd();
+        TestCase.assertEquals(expectedOrd, gotOrd);
+        BytesRef bref1 = new BytesRef();
+        expected.lookupOrd(expectedOrd, bref1);
+        BytesRef bref2 = new BytesRef();
+        wrapped.lookupOrd(gotOrd, bref2);
+        TestCase.assertEquals("expected: " + bref1.utf8ToString() + ", got: " + bref2.utf8ToString(),
+            0, BREF_COMPARATOR.compare(bref1, bref2));
+      }
+      TestCase.assertEquals(expectedOrd, gotOrd);      
+    }
+
+    TestCase.assertEquals(expected.getValueCount(), wrapped.getValueCount());
+    for (int i = 0; i < expected.getValueCount(); ++i) {
+      BytesRef bref1 = new BytesRef();
+      expected.lookupOrd(i, bref1);
+      BytesRef bref2 = new BytesRef();
+      wrapped.lookupOrd(i, bref2);
+      TestCase.assertEquals("expected: " + bref1.utf8ToString() + ", got: " + bref2.utf8ToString(),
+          0, BREF_COMPARATOR.compare(bref1, bref2));      
+    }
+    
   }
   
   @Test
@@ -115,5 +160,5 @@ public class DocValuesWrapperTest {
     
     SortedDocValues nativeWrapperVals = new NativeSortedDocValues(docVals, atomicReader.maxDoc());
     testSortedDocValues(docVals, nativeWrapperVals);
-  }
+  }  
 }

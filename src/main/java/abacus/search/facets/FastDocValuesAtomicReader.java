@@ -69,10 +69,7 @@ public class FastDocValuesAtomicReader extends FilterAtomicReader {
           break;
         }
         case SORTED_SET : {
-          SortedSetDocValues val = super.getSortedSetDocValues(finfo.name);
-          if (type == MemType.Heap) {
-            val = new ArraySortedSetDocValues(val, maxDoc());            
-          }
+          SortedSetDocValues val = super.getSortedSetDocValues(finfo.name);          
           sortedSetCached.put(finfo.name, val);
           break;
         }
