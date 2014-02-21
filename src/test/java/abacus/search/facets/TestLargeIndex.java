@@ -45,7 +45,7 @@ public class TestLargeIndex {
     
     IndexSearcher searcher = new IndexSearcher(reader);
     
-    FacetsCollector facetsCollector = new FacetsCollector(false);
+    FacetsCollector facetsCollector = new CachedFacetsCollector();
     
     Query q = new MatchAllDocsQuery();
     
