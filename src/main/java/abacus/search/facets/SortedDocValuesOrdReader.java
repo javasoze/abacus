@@ -1,7 +1,5 @@
 package abacus.search.facets;
 
-import it.unimi.dsi.fastutil.ints.IntIterator;
-
 import java.io.IOException;
 
 import org.apache.lucene.index.AtomicReaderContext;
@@ -19,8 +17,10 @@ public class SortedDocValuesOrdReader extends FacetOrdReader {
   @Override
   public FacetOrdSegmentReader getSegmentOrdReader(final AtomicReaderContext ctx) 
       throws IOException {
+    
     return new FacetOrdSegmentReader() {
-      SortedDocValues docVals = ctx.reader().getSortedDocValues(field);      
+      SortedDocValues docVals = ctx.reader().getSortedDocValues(field);
+      int ord = -1;
       @Override
       public int lookupOrd(BytesRef label) {
         return docVals.lookupTerm(label);
@@ -37,8 +37,15 @@ public class SortedDocValuesOrdReader extends FacetOrdReader {
       }
       
       @Override
-      public IntIterator getOrds(int docid) {
-        return new SingleValueIntIterator(docVals.getOrd(docid));
+      public void setDocument(int docid) {
+        ord = docVals.getOrd(docid);
+      }
+
+      @Override
+      public long nextOrd() {
+        int retOrd = ord;
+        ord = -1;
+        return retOrd;
       }
     };
   }

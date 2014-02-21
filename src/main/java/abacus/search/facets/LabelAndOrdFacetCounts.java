@@ -1,7 +1,6 @@
 package abacus.search.facets;
 
 import it.unimi.dsi.fastutil.ints.IntArrayList;
-import it.unimi.dsi.fastutil.ints.IntIterator;
 import it.unimi.dsi.fastutil.ints.IntList;
 
 import java.io.IOException;
@@ -14,6 +13,7 @@ import org.apache.lucene.facet.Facets;
 import org.apache.lucene.facet.FacetsCollector;
 import org.apache.lucene.facet.FacetsCollector.MatchingDocs;
 import org.apache.lucene.facet.LabelAndValue;
+import org.apache.lucene.index.SortedSetDocValues;
 import org.apache.lucene.search.DocIdSet;
 import org.apache.lucene.search.DocIdSetIterator;
 import org.apache.lucene.util.BytesRef;
@@ -71,15 +71,12 @@ public class LabelAndOrdFacetCounts extends Facets {
       if (hitSet != null) {
         DocIdSetIterator hitsIter = hitSet.iterator();
         int docid;
-        while ((docid = hitsIter.nextDoc()) != DocIdSetIterator.NO_MORE_DOCS) {
-          IntIterator ordIter = ordSegmentReader.getOrds(docid);
-          if (ordIter instanceof SingleValueIntIterator) {
-            segmentCount.accumulate(ordIter.nextInt());
-          } else {
-            while (ordIter.hasNext()) {
-              segmentCount.accumulate(ordIter.nextInt());
-            }
-          }
+        while ((docid = hitsIter.nextDoc()) != DocIdSetIterator.NO_MORE_DOCS) {          
+          ordSegmentReader.setDocument(docid);
+          long ord;
+          while((ord = ordSegmentReader.nextOrd()) != SortedSetDocValues.NO_MORE_ORDS) {
+            segmentCount.accumulate((int) ord);
+          }          
         }
       }      
     }

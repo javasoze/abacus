@@ -1,9 +1,5 @@
 package abacus.search.facets;
 
-import it.unimi.dsi.fastutil.ints.IntArrayList;
-import it.unimi.dsi.fastutil.ints.IntIterator;
-import it.unimi.dsi.fastutil.ints.IntList;
-
 import java.io.IOException;
 
 import org.apache.lucene.index.AtomicReaderContext;
@@ -36,20 +32,16 @@ public class SortedSetDocValuesOrdReader extends FacetOrdReader {
       @Override
       public int getValueCount() {
         return (int) docVals.getValueCount();
-      }
-      
+      }      
+
       @Override
-      public IntIterator getOrds(int docid) {
+      public void setDocument(int docid) {
         docVals.setDocument(docid);
-        long ord;
-        IntList ordList = new IntArrayList();
-        while ((ord = docVals.nextOrd()) != SortedSetDocValues.NO_MORE_ORDS) {
-          if (ord > Integer.MAX_VALUE) {
-            throw new IllegalStateException("ord too large: " + ord);
-          }
-          ordList.add((int)ord);
-        }
-        return ordList.iterator();
+      }
+
+      @Override
+      public long nextOrd() {
+        return docVals.nextOrd();
       }
     };
   }

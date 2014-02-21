@@ -42,7 +42,7 @@ public class TestLargeIndex {
   
   public static void main(String[] args) throws Exception {
     File idxDir = new File(args[0]);
-    MemType memType = MemType.Default;
+    MemType memType = MemType.Native;
     Directory dir = FSDirectory.open(idxDir);
     IndexReader reader = getIndexReader(dir, memType);
     
@@ -63,15 +63,12 @@ public class TestLargeIndex {
     int numIter = 10;
     long[] collectTimes = new long[numIter];
     long[] totalTimes = new long[numIter];
-    
-    for (int i = 0; i < numIter; ++i) {
+    searcher.search(q, 
+        //new EarlyTerminationCollector(1000, collector)
+        collector
+    );
+    for (int i = 0; i < numIter; ++i) {      
       long start = System.currentTimeMillis();
-      searcher.search(q, 
-          //new EarlyTerminationCollector(1000, collector)
-          collector
-      );
-      
-      long send = System.currentTimeMillis();
       //TopDocs td = tdCollector.topDocs();
       
       NumericFacetCounts yearFacet = new NumericFacetCounts("year", facetsCollector);
@@ -91,7 +88,7 @@ public class TestLargeIndex {
       FacetResult categoryValues = categoryFacet.getAllDims(10).get(0);
       FacetResult catchAllValues = catchAllFacet.getAllDims(10).get(0);
       
-      if (true) {
+      if (false) {
         System.out.println(yearValues);
         System.out.println(colorValues);
         System.out.println(categoryValues);
@@ -103,24 +100,18 @@ public class TestLargeIndex {
       FacetValue[] milageValues = mileageFacetCollector.getTopFacets(10, 1);
        * 
        */
-      long end = System.currentTimeMillis();
-      
-      collectTimes[i] = send - start;
-      totalTimes[i] = end - start;
+      totalTimes[i] = System.currentTimeMillis() - start;      
     }
     
     Arrays.sort(collectTimes);
     Arrays.sort(totalTimes);
     
-    long sum1, sum2;
-    sum1 = sum2 = 0;
-    for (int i = 2; i < 9; ++i) {
-      sum1 += collectTimes[i];
-      sum2 += totalTimes[i];
+    long sum = 0;
+    for (int i = 2; i < 9; ++i) {      
+      sum += totalTimes[i];
     }    
     
-    System.out.println("search/collect: " + (sum1 / 8));
-    System.out.println("took: " + (sum2 / 8));    
+    System.out.println("took: " + (sum / 8));    
     
     //System.out.println("count : " + catchAllValues.length);
     reader.close();
