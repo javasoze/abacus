@@ -24,6 +24,16 @@ import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import abacus.search.facets.docvalues.ArrayNumericDocValues;
+import abacus.search.facets.docvalues.ArraySortedDocValues;
+import abacus.search.facets.docvalues.ArraySortedSetDocValues;
+import abacus.search.facets.docvalues.DirectBufferNumericDocValues;
+import abacus.search.facets.docvalues.DirectBufferSortedDocValues;
+import abacus.search.facets.docvalues.DirectBufferSortedSetDocValues;
+import abacus.search.facets.docvalues.NativeNumericDocValues;
+import abacus.search.facets.docvalues.NativeSortedDocValues;
+import abacus.search.facets.docvalues.NativeSortedSetDocValues;
+
 public class DocValuesWrapperTest {
 
   static final String NUMERIC_FIELD = "numeric";
@@ -121,6 +131,7 @@ public class DocValuesWrapperTest {
         TestCase.assertEquals("expected: " + bref1.utf8ToString() + ", got: " + bref2.utf8ToString(),
             0, BREF_COMPARATOR.compare(bref1, bref2));
       }
+      gotOrd = wrapped.nextOrd();
       TestCase.assertEquals(expectedOrd, gotOrd);      
     }
 
@@ -145,8 +156,9 @@ public class DocValuesWrapperTest {
     NumericDocValues directWrapperVals = new DirectBufferNumericDocValues(docVals, atomicReader.maxDoc());
     testNumericDocValues(docVals, directWrapperVals);
     
-    NumericDocValues nativeWrapperVals = new NativeNumericDocValues(docVals, atomicReader.maxDoc());
+    NativeNumericDocValues nativeWrapperVals = new NativeNumericDocValues(docVals, atomicReader.maxDoc());
     testNumericDocValues(docVals, nativeWrapperVals);
+    nativeWrapperVals.close();
   }
   
   @Test
@@ -158,7 +170,23 @@ public class DocValuesWrapperTest {
     SortedDocValues directWrapperVals = new DirectBufferSortedDocValues(docVals, atomicReader.maxDoc());
     testSortedDocValues(docVals, directWrapperVals);
     
-    SortedDocValues nativeWrapperVals = new NativeSortedDocValues(docVals, atomicReader.maxDoc());
+    NativeSortedDocValues nativeWrapperVals = new NativeSortedDocValues(docVals, atomicReader.maxDoc());
     testSortedDocValues(docVals, nativeWrapperVals);
+    nativeWrapperVals.close();
   }  
+  
+
+  @Test
+  public void testSortedSetDocValues() throws Exception {
+    SortedSetDocValues docVals = atomicReader.getSortedSetDocValues(SORTEDSET_FIELD);
+    SortedSetDocValues arrayWrapperVals = new ArraySortedSetDocValues(docVals, atomicReader.maxDoc());    
+    testSortedSetDocValues(docVals, arrayWrapperVals);
+    
+    SortedSetDocValues directWrapperVals = new DirectBufferSortedSetDocValues(docVals, atomicReader.maxDoc());    
+    testSortedSetDocValues(docVals, directWrapperVals);
+    
+    NativeSortedSetDocValues nativeWrapperVals = new NativeSortedSetDocValues(docVals, atomicReader.maxDoc());    
+    testSortedSetDocValues(docVals, nativeWrapperVals);
+    nativeWrapperVals.close();
+  }
 }

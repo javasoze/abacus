@@ -1,4 +1,4 @@
-package abacus.search.facets;
+package abacus.search.facets.docvalues;
 
 import org.apache.lucene.index.NumericDocValues;
 

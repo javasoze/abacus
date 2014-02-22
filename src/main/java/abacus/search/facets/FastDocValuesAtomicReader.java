@@ -15,6 +15,16 @@ import org.apache.lucene.index.SortedDocValues;
 import org.apache.lucene.index.SortedSetDocValues;
 import org.apache.lucene.util.IOUtils;
 
+import abacus.search.facets.docvalues.ArrayNumericDocValues;
+import abacus.search.facets.docvalues.ArraySortedDocValues;
+import abacus.search.facets.docvalues.ArraySortedSetDocValues;
+import abacus.search.facets.docvalues.DirectBufferNumericDocValues;
+import abacus.search.facets.docvalues.DirectBufferSortedDocValues;
+import abacus.search.facets.docvalues.DirectBufferSortedSetDocValues;
+import abacus.search.facets.docvalues.NativeNumericDocValues;
+import abacus.search.facets.docvalues.NativeSortedDocValues;
+import abacus.search.facets.docvalues.NativeSortedSetDocValues;
+
 public class FastDocValuesAtomicReader extends FilterAtomicReader {
 
   private Map<String, NumericDocValues> cached;
@@ -69,7 +79,17 @@ public class FastDocValuesAtomicReader extends FilterAtomicReader {
           break;
         }
         case SORTED_SET : {
-          SortedSetDocValues val = super.getSortedSetDocValues(finfo.name);          
+          SortedSetDocValues val = super.getSortedSetDocValues(finfo.name);
+          if (type == MemType.Heap) {
+            val = new ArraySortedSetDocValues(val, maxDoc());
+          } else if (type == MemType.Direct) {
+            val = new DirectBufferSortedSetDocValues(val, maxDoc());
+          } else if (type == MemType.Native){
+            NativeSortedSetDocValues nativeVals =
+                new NativeSortedSetDocValues(val, maxDoc());
+            closableList.add(nativeVals);
+            val = nativeVals;
+          }
           sortedSetCached.put(finfo.name, val);
           break;
         }

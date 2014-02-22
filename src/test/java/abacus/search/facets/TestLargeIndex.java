@@ -94,7 +94,7 @@ public class TestLargeIndex {
       FacetResult mileageValues = mileageFacet.getAllDims(10).get(0);
       FacetResult catchAllValues = catchAllFacet.getAllDims(10).get(0);
       
-      if (false) {
+      if (true) {
         System.out.println(yearValues);
         System.out.println(colorValues);
         System.out.println(categoryValues);

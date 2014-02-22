@@ -1,4 +1,4 @@
-package abacus.search.facets;
+package abacus.search.facets.docvalues;
 
 import java.io.Closeable;
 import java.io.IOException;
