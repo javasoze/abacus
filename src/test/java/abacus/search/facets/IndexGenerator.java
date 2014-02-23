@@ -6,51 +6,72 @@ import java.io.FileReader;
 
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.document.Document;
+import org.apache.lucene.document.Field;
 import org.apache.lucene.document.Field.Store;
 import org.apache.lucene.document.NumericDocValuesField;
 import org.apache.lucene.document.SortedDocValuesField;
 import org.apache.lucene.document.SortedSetDocValuesField;
 import org.apache.lucene.document.StringField;
 import org.apache.lucene.document.TextField;
+import org.apache.lucene.facet.FacetsConfig;
+import org.apache.lucene.facet.taxonomy.FacetLabel;
+import org.apache.lucene.index.DirectoryReader;
+import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.IndexWriterConfig;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
+import org.apache.lucene.store.RAMDirectory;
 import org.apache.lucene.util.BytesRef;
 import org.apache.lucene.util.Version;
 import org.json.JSONObject;
 
 public class IndexGenerator {
 
+  static FacetsConfig FACETS_CONFIG = new FacetsConfig();
+  static {
+    FACETS_CONFIG.setMultiValued("tags", true);
+  }  
+  
   static void addMetaString(Document doc, String field, String value) {
     if (value != null) {
       doc.add(new SortedDocValuesField(field, new BytesRef(value)));
       doc.add(new StringField(field+"_indexed", value, Store.YES));
+      doc.add(buildFacetsField(field, value));
     }
   }
   
   static final String CONTENTS_FIELD = "contents";
   
+  static Field buildFacetsField(String name, String label) {
+    FacetLabel cp = new FacetLabel(name, label);
+    String fullPath = FacetsConfig.pathToString(cp.components, cp.length);
+    //System.out.println("add " + fullPath);
+
+    // For facet counts:
+    return new SortedSetDocValuesField(FacetsConfig.DEFAULT_INDEX_FIELD_NAME, new BytesRef(fullPath));
+  }
+  
   static Document buildDoc(JSONObject json) throws Exception{
     Document doc = new Document();
-    String[] catchAll = new String[5];
     
+    // uid
     doc.add(new NumericDocValuesField("id", json.getLong("id")));
-    doc.add(new NumericDocValuesField("price", json.optLong("price")));
-    catchAll[0]=String.valueOf(json.optDouble("price"));
-    doc.add(new TextField("contents", json.optString("contents"), Store.NO));
-    doc.add(new NumericDocValuesField("year", json.optInt("year")));
-    catchAll[1]=String.valueOf(json.optInt("year"));
-    doc.add(new NumericDocValuesField("mileage", json.optInt("mileage")));
-    catchAll[2]=String.valueOf(json.optInt("mileage"));
-    addMetaString(doc,"color", json.optString("color"));
-    catchAll[3]=String.valueOf(json.optString("color"));
-    addMetaString(doc,"category", json.optString("category"));
-    catchAll[4]=String.valueOf(json.optString("category"));
     
-    for (String s : catchAll) {
-      doc.add(new SortedSetDocValuesField("catchall", new BytesRef(s)));
-    }
+    // contents text field
+    doc.add(new TextField("contents", json.optString("contents"), Store.NO));
+    
+    // range fields
+    doc.add(new NumericDocValuesField("price", json.optLong("price")));
+    
+    doc.add(new NumericDocValuesField("year", json.optInt("year")));
+    
+    doc.add(new NumericDocValuesField("mileage", json.optInt("mileage")));
+    
+    
+    addMetaString(doc,"color", json.optString("color"));
+    
+    addMetaString(doc,"category", json.optString("category"));
     
     String tagsString = json.optString("tags");
     if (tagsString != null) {
@@ -59,19 +80,20 @@ public class IndexGenerator {
         for (String part : parts) {
           doc.add(new SortedSetDocValuesField("tags", new BytesRef(part)));
           doc.add(new StringField("tags_indexed", part, Store.NO));
+          doc.add(buildFacetsField("tags", part));
         }
       }      
-    }    
-    //doc.add(new BinaryDocValuesField("json", new BytesRef(json.toString())));    
+    }        
+    FACETS_CONFIG.build(doc);    
     return doc;
   }
   
-  static Directory buildSmallIndex(File dataFile, File idxDir) throws Exception {
+  static Directory buildSmallIndex(File dataFile) throws Exception {
     BufferedReader reader = new BufferedReader(new FileReader(dataFile));
     
     
     IndexWriterConfig idxWriterConfig = new IndexWriterConfig(Version.LUCENE_47, new StandardAnalyzer(Version.LUCENE_47));
-    Directory dir = FSDirectory.open(idxDir);
+    Directory dir = new RAMDirectory();
     IndexWriter writer = new IndexWriter(dir, idxWriterConfig);
     int count = 0;
     while (true) {
@@ -81,13 +103,10 @@ public class IndexGenerator {
       JSONObject json = new JSONObject(line);
       Document doc = buildDoc(json);
       writer.addDocument(doc);
-      count++;
-      if (count % 100 == 0) {
-        System.out.print(".");
-      }
+      count++;      
     }
     
-    System.out.println(count+" docs indexed");
+    System.out.println(count+" seed docs indexed");
     
     reader.close();
     writer.commit();
@@ -100,27 +119,40 @@ public class IndexGenerator {
     IndexWriterConfig idxWriterConfig = new IndexWriterConfig(Version.LUCENE_47, null);
     Directory tempDir = FSDirectory.open(outDir);
     IndexWriter writer = new IndexWriter(tempDir, idxWriterConfig);
-    // build first 1.5M chunk
-    for (int i=0; i<100; ++i) {
-      writer.addIndexes(smallIndex);
+    // index size = 15000 * numChunks
+    IndexReader reader = DirectoryReader.open(smallIndex);
+    for (int i = 0; i < numChunks; ++i) {
+      writer.addIndexes(reader);
+      System.out.println((i+1)*reader.maxDoc() +" docs indexed.");
     }
+    
+    System.out.println("merging all segments");
     writer.forceMerge(1);
+    
     writer.commit();
-    writer.close();    
+    writer.close();  
+    reader.close();
   }
   
   
   public static void main(String[] args) throws Exception {
-    if (args.length != 2) {
+    if (args.length < 2) {
       System.out.println("usage: source_file index_dir");
     }
     
     File f = new File(args[0]);
     File outDir = new File(args[1]);
     
+    int numChunks = 1;    
+    try {
+      numChunks = Integer.parseInt(args[2]);
+    } catch (Exception e) {
+      System.out.println("default to chunk=1");
+    }
     
-    Directory smallIdx = buildSmallIndex(f, new File(outDir,"small-idx"));
-    buildLargeIndex(smallIdx, 10, new File(outDir,"large-idx"));
+    
+    Directory smallIdx = buildSmallIndex(f);
+    buildLargeIndex(smallIdx, numChunks, outDir);
   }
 
 }

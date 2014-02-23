@@ -4,6 +4,7 @@ import java.io.File;
 import java.util.Arrays;
 import java.util.List;
 
+import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.facet.FacetResult;
 import org.apache.lucene.facet.FacetsCollector;
 import org.apache.lucene.index.AtomicReader;
@@ -11,11 +12,12 @@ import org.apache.lucene.index.AtomicReaderContext;
 import org.apache.lucene.index.DirectoryReader;
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.MultiReader;
+import org.apache.lucene.queryparser.classic.QueryParser;
 import org.apache.lucene.search.IndexSearcher;
-import org.apache.lucene.search.MatchAllDocsQuery;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
+import org.apache.lucene.util.Version;
 
 import abacus.search.facets.FastDocValuesAtomicReader.MemType;
 
@@ -47,7 +49,9 @@ public class TestLargeIndex {
     
     FacetsCollector facetsCollector = new FacetsCollector(false);
     
-    Query q = new MatchAllDocsQuery();
+    QueryParser qp = new QueryParser(Version.LUCENE_47, "contents", new StandardAnalyzer(Version.LUCENE_47));
+    Query q = qp.parse("tags_indexed:macho");
+    //Query q = new MatchAllDocsQuery();
     
     int numIter = 10;
     long[] collectTimes = new long[numIter];
@@ -55,7 +59,6 @@ public class TestLargeIndex {
     searcher.search(q, facetsCollector);
     for (int i = 0; i < numIter; ++i) {      
       long start = System.currentTimeMillis();
-      //TopDocs td = tdCollector.topDocs();
       
       NumericFacetCounts yearFacet = new NumericFacetCounts("year", facetsCollector);
       
@@ -94,7 +97,7 @@ public class TestLargeIndex {
       FacetResult mileageValues = mileageFacet.getAllDims(10).get(0);
       FacetResult catchAllValues = catchAllFacet.getAllDims(10).get(0);
       
-      if (true) {
+      if (false) {
         System.out.println(yearValues);
         System.out.println(colorValues);
         System.out.println(categoryValues);
