@@ -12,9 +12,7 @@
 	<modules>
 	    <module>abacus-core</module>
 	    <module>abacus-cli</module>
-		<!--
 	    <module>abacus-demo</module>
-	-->
 	</modules>
 	
 	<licenses>
