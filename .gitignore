@@ -2,4 +2,6 @@
 .classpath
 .project
 .settings/
-car-idx/
+/car-idx/
+/abacus-core/target
+/abacus-cli/target
