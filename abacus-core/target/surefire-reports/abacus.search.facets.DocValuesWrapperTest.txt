@@ -1,4 +1,0 @@
--------------------------------------------------------------------------------
-Test set: abacus.search.facets.DocValuesWrapperTest
--------------------------------------------------------------------------------
-Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.509 sec
