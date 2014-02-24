@@ -64,9 +64,13 @@ public class IndexGenerator {
     // range fields
     doc.add(new NumericDocValuesField("price", json.optLong("price")));
     
-    doc.add(new NumericDocValuesField("year", json.optInt("year")));
+    int year = json.optInt("year");
+    doc.add(new NumericDocValuesField("year", year));
+    doc.add(buildFacetsField("year", String.valueOf(year)));
     
-    doc.add(new NumericDocValuesField("mileage", json.optInt("mileage")));
+    int miles = json.optInt("mileage");
+    doc.add(new NumericDocValuesField("mileage", miles));
+    doc.add(buildFacetsField("mileage", String.valueOf(miles)));
     
     
     addMetaString(doc,"color", json.optString("color"));
