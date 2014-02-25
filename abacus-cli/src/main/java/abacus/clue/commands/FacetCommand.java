@@ -2,32 +2,33 @@ package abacus.clue.commands;
 
 import java.io.PrintStream;
 
-import com.senseidb.clue.ClueContext;
+import org.apache.lucene.facet.sortedset.SortedSetDocValuesReaderState;
+
 import com.senseidb.clue.commands.ClueCommand;
 
 public class FacetCommand extends ClueCommand {
 
-  public FacetCommand(ClueContext ctx) {
+  public static final String CMD = "facet";
+  
+  private SortedSetDocValuesReaderState facetState;
+  public FacetCommand(AbacusClueContext ctx) {
     super(ctx);
-    // TODO Auto-generated constructor stub
+    facetState = ctx.getFacetState();
   }
 
   @Override
-  public void execute(String[] arg0, PrintStream arg1) throws Exception {
-    // TODO Auto-generated method stub
+  public void execute(String[] args, PrintStream out) throws Exception {
     
   }
 
   @Override
   public String getName() {
-    // TODO Auto-generated method stub
-    return null;
+    return CMD;
   }
 
   @Override
   public String help() {
-    // TODO Auto-generated method stub
-    return null;
+    return "facet command";
   }
 
 }
