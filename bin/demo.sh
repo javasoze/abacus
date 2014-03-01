@@ -14,4 +14,4 @@ JAVA_OPTS="-server -d64"
 MAIN_CLASS="abacus.demo.Application"
 CLASSPATH=$resources/:$classes/:$lib/*:$dist/*:$1/ext/*
 
-java $JAVA_OPTS $JMX_OPTS $HEAP_OPTS -classpath $CLASSPATH $MAIN_CLASS
+java $JAVA_OPTS $JMX_OPTS $HEAP_OPTS -classpath $CLASSPATH $MAIN_CLASS $bin/../car-idx
