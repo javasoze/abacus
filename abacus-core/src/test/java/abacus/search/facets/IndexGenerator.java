@@ -6,15 +6,9 @@ import java.io.FileReader;
 
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.document.Document;
-import org.apache.lucene.document.Field;
 import org.apache.lucene.document.Field.Store;
 import org.apache.lucene.document.NumericDocValuesField;
-import org.apache.lucene.document.SortedDocValuesField;
-import org.apache.lucene.document.SortedSetDocValuesField;
-import org.apache.lucene.document.StringField;
 import org.apache.lucene.document.TextField;
-import org.apache.lucene.facet.FacetsConfig;
-import org.apache.lucene.facet.taxonomy.FacetLabel;
 import org.apache.lucene.index.DirectoryReader;
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.IndexWriter;
@@ -22,35 +16,22 @@ import org.apache.lucene.index.IndexWriterConfig;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
 import org.apache.lucene.store.RAMDirectory;
-import org.apache.lucene.util.BytesRef;
 import org.apache.lucene.util.Version;
 import org.json.JSONObject;
 
+import abacus.indexing.AbacusIndexer;
+
 public class IndexGenerator {
 
-  static FacetsConfig FACETS_CONFIG = new FacetsConfig();
-  static {
-    FACETS_CONFIG.setMultiValued("tags", true);
-  }  
   
   static void addMetaString(Document doc, String field, String value) {
     if (value != null) {
-      doc.add(new SortedDocValuesField(field, new BytesRef(value)));
-      doc.add(new StringField(field+"_indexed", value, Store.YES));
-      doc.add(buildFacetsField(field, value));
+      AbacusIndexer.addFacetTermField(doc, field, value, false);
+      AbacusIndexer.addAttributeField(doc, "$facets", field, value);
     }
   }
   
   static final String CONTENTS_FIELD = "contents";
-  
-  static Field buildFacetsField(String name, String label) {
-    FacetLabel cp = new FacetLabel(name, label);
-    String fullPath = FacetsConfig.pathToString(cp.components, cp.length);
-    //System.out.println("add " + fullPath);
-
-    // For facet counts:
-    return new SortedSetDocValuesField(FacetsConfig.DEFAULT_INDEX_FIELD_NAME, new BytesRef(fullPath));
-  }
   
   static Document buildDoc(JSONObject json) throws Exception{
     Document doc = new Document();
@@ -62,15 +43,17 @@ public class IndexGenerator {
     doc.add(new TextField("contents", json.optString("contents"), Store.NO));
     
     // range fields
-    doc.add(new NumericDocValuesField("price", json.optLong("price")));
+    double price = json.optDouble("price");
+    AbacusIndexer.addNumericField(doc, "price", price);
+    AbacusIndexer.addAttributeField(doc, "$facets", "price", String.valueOf(price));
     
     int year = json.optInt("year");
-    doc.add(new NumericDocValuesField("year", year));
-    doc.add(buildFacetsField("year", String.valueOf(year)));
+    AbacusIndexer.addNumericField(doc, "year", year);
+    AbacusIndexer.addAttributeField(doc, "$facets", "year", String.valueOf(year));
     
     int miles = json.optInt("mileage");
-    doc.add(new NumericDocValuesField("mileage", miles));
-    doc.add(buildFacetsField("mileage", String.valueOf(miles)));
+    AbacusIndexer.addNumericField(doc, "mileage", miles);
+    AbacusIndexer.addAttributeField(doc, "$facets", "mileage", String.valueOf(miles));
     
     
     addMetaString(doc,"color", json.optString("color"));
@@ -82,13 +65,11 @@ public class IndexGenerator {
       String[] parts = tagsString.split(",");
       if (parts != null && parts.length > 0) {
         for (String part : parts) {
-          doc.add(new SortedSetDocValuesField("tags", new BytesRef(part)));
-          doc.add(new StringField("tags_indexed", part, Store.NO));
-          doc.add(buildFacetsField("tags", part));
+          AbacusIndexer.addFacetTermField(doc, "tags", part, true);          
+          AbacusIndexer.addAttributeField(doc, "$facets", "tags", part);
         }
       }      
-    }        
-    FACETS_CONFIG.build(doc);    
+    }
     return doc;
   }
   
