@@ -33,7 +33,7 @@ public class AbacusIndexer {
     INDEXED_TERM_TYPE.freeze();           
   }  
   
-  public static void addAttributeField(Document doc, String fieldName, String name, String val) {
+  public static Document addAttributeField(Document doc, String fieldName, String name, String val) {
     Field indexedPart1 = new Field(fieldName, name, INDEXED_TERM_TYPE);
     Field indexedPart2 = new Field(fieldName, val, INDEXED_TERM_TYPE);
     
@@ -45,9 +45,10 @@ public class AbacusIndexer {
     doc.add(indexedPart1);
     doc.add(indexedPart2);
     doc.add(docValField);
+    return doc;
   }
   
-  public static void addFacetTermField(Document doc, String fieldName, String val, boolean multi) {    
+  public static Document addFacetTermField(Document doc, String fieldName, String val, boolean multi) {    
     Field indexedPart = new Field(fieldName, val, INDEXED_TERM_TYPE);
     Field docValPart;
     if (multi) {
@@ -57,33 +58,38 @@ public class AbacusIndexer {
     }
     doc.add(indexedPart);
     doc.add(docValPart);
+    return doc;
   }
   
-  public static void addNumericField(Document doc, String fieldName, int value) {
+  public static Document addNumericField(Document doc, String fieldName, int value) {
     IntField intField = new IntField(fieldName, value, Store.NO);
     Field docValPart = new NumericDocValuesField(fieldName, value);
     doc.add(intField);
     doc.add(docValPart);
+    return doc;
   }
   
-  public static void addNumericField(Document doc, String fieldName, long value) {
+  public static Document addNumericField(Document doc, String fieldName, long value) {
     LongField longField = new LongField(fieldName, value, Store.NO);
     Field docValPart = new NumericDocValuesField(fieldName, value);
     doc.add(longField);
     doc.add(docValPart);
+    return doc;
   }
   
-  public static void addNumericField(Document doc, String fieldName, float value) {
+  public static Document addNumericField(Document doc, String fieldName, float value) {    
     FloatField floatField = new FloatField(fieldName, value, Store.NO);
     Field docValPart = new FloatDocValuesField(fieldName, value);
     doc.add(floatField);
     doc.add(docValPart);
+    return doc;
   }
   
-  public static void addNumericField(Document doc, String fieldName, double value) {
+  public static Document addNumericField(Document doc, String fieldName, double value) {
     DoubleField doubleField = new DoubleField(fieldName, value, Store.NO);
     Field docValPart = new DoubleDocValuesField(fieldName, value);
     doc.add(doubleField);
     doc.add(docValPart);
+    return doc;
   }
 }
