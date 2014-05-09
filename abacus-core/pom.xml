@@ -46,7 +46,7 @@
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 	</properties>
-	<repositories>
+<!--	<repositories>
 	<repository>
 	        <id>apache-snapshots</id>
 	        <name>Apache Snapshots</name>
@@ -57,36 +57,42 @@
 	        </snapshots>
 	 </repository>
 	</repositories>
+	-->
 	<dependencies>
 		<dependency>
 			<groupId>org.apache.lucene</groupId>
 			<artifactId>lucene-core</artifactId>
-			<version>4.7-SNAPSHOT</version>
+			<version>4.8.0</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.lucene</groupId>
 			<artifactId>lucene-codecs</artifactId>
-			<version>4.7-SNAPSHOT</version>
+			<version>4.8.0</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.lucene</groupId>
 			<artifactId>lucene-queries</artifactId>
-			<version>4.7-SNAPSHOT</version>
+			<version>4.8.0</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.lucene</groupId>
 			<artifactId>lucene-queryparser</artifactId>
-			<version>4.7-SNAPSHOT</version>
+			<version>4.8.0</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.lucene</groupId>
 			<artifactId>lucene-facet</artifactId>
-			<version>4.7-SNAPSHOT</version>
+			<version>4.8.0</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.lucene</groupId>
 			<artifactId>lucene-analyzers-common</artifactId>
-			<version>4.7-SNAPSHOT</version>
+			<version>4.8.0</version>
+		</dependency>
+		<dependency>
+		  <groupId>org.apache.thrift</groupId>
+		  <artifactId>libthrift</artifactId>
+		  <version>0.9.1</version>
 		</dependency>
 		<dependency>
             <groupId>it.unimi.dsi</groupId>
