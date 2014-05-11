@@ -15,6 +15,7 @@ import org.apache.lucene.index.SortedDocValues;
 import org.apache.lucene.index.SortedSetDocValues;
 import org.apache.lucene.util.IOUtils;
 
+import abacus.config.FacetsConfig;
 import abacus.search.facets.docvalues.ArrayNumericDocValues;
 import abacus.search.facets.docvalues.ArraySortedDocValues;
 import abacus.search.facets.docvalues.ArraySortedSetDocValues;
@@ -40,14 +41,24 @@ public class FastDocValuesAtomicReader extends FilterAtomicReader {
     Native
   };
   
-  public FastDocValuesAtomicReader(AtomicReader in, MemType type) throws IOException {
+  public FastDocValuesAtomicReader(AtomicReader in, Map<String, FacetsConfig> configMap) 
+      throws IOException {
+    this(in, configMap, MemType.Default);    
+  }
+  
+  public FastDocValuesAtomicReader(AtomicReader in, Map<String, FacetsConfig> configMap, MemType defaultMemType) 
+      throws IOException {
     super(in);
     cached = new HashMap<String, NumericDocValues>();
     sortedCached = new HashMap<String, SortedDocValues>();
     sortedSetCached = new HashMap<String, SortedSetDocValues>();
     for (FieldInfo finfo : in.getFieldInfos()) {
+      MemType type = configMap != null ? configMap.get(finfo.name).getMemType() : null;
+      if (type == null) {
+        type = MemType.Default;
+      }
       if (finfo.hasDocValues()) {
-        switch(finfo.getDocValuesType()) {        
+        switch(finfo.getDocValuesType()) {
         case NUMERIC: {
           NumericDocValues val = super.getNumericDocValues(finfo.name);
           if (type == MemType.Heap) {

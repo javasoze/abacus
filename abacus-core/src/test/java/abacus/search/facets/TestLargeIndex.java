@@ -33,7 +33,7 @@ public class TestLargeIndex {
     int i = 0;
     for (AtomicReaderContext leaf : leaves) {
       AtomicReader atomicReader = leaf.reader();
-      subreaders[i++] = new FastDocValuesAtomicReader(atomicReader, memType);
+      subreaders[i++] = new FastDocValuesAtomicReader(atomicReader, null, memType);
     }
     
     reader = new MultiReader(subreaders, true);
