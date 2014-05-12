@@ -3,14 +3,9 @@ package abacus.search.facets;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
-import org.apache.lucene.document.Document;
-import org.apache.lucene.document.NumericDocValuesField;
-import org.apache.lucene.document.SortedDocValuesField;
-import org.apache.lucene.document.SortedSetDocValuesField;
 import org.apache.lucene.facet.FacetResult;
 import org.apache.lucene.facet.Facets;
 import org.apache.lucene.facet.FacetsCollector;
@@ -18,8 +13,6 @@ import org.apache.lucene.index.AtomicReader;
 import org.apache.lucene.index.AtomicReaderContext;
 import org.apache.lucene.index.DirectoryReader;
 import org.apache.lucene.index.IndexReader;
-import org.apache.lucene.index.IndexWriter;
-import org.apache.lucene.index.IndexWriterConfig;
 import org.apache.lucene.index.MultiReader;
 import org.apache.lucene.search.Collector;
 import org.apache.lucene.search.IndexSearcher;
@@ -28,101 +21,12 @@ import org.apache.lucene.search.MultiCollector;
 import org.apache.lucene.search.TopDocs;
 import org.apache.lucene.search.TopScoreDocCollector;
 import org.apache.lucene.store.Directory;
-import org.apache.lucene.store.RAMDirectory;
-import org.apache.lucene.util.BytesRef;
-import org.apache.lucene.util.Version;
 import org.junit.Test;
 
 import abacus.search.facets.FastDocValuesAtomicReader.MemType;
 
 public class TestFacets {
-  // test dataset
-  private static final List<Document> DOC_LIST = new ArrayList<Document>();
-  private static final Directory IDX_DIR = new RAMDirectory();
   
-  static {
-      Document doc = new Document();
-      doc.add(new NumericDocValuesField("id", 1));
-      doc.add(new SortedDocValuesField("color", new BytesRef("red")));
-      doc.add(new NumericDocValuesField("size", 4));
-      doc.add(new SortedSetDocValuesField("tag", new BytesRef("rabbit")));
-      doc.add(new SortedSetDocValuesField("tag", new BytesRef("pet")));
-      doc.add(new SortedSetDocValuesField("tag", new BytesRef("animal")));
-      DOC_LIST.add(doc);
-
-      doc = new Document();
-      doc.add(new NumericDocValuesField("id", 2));
-      doc.add(new SortedDocValuesField("color", new BytesRef("red")));
-      doc.add(new NumericDocValuesField("size", 2));
-      doc.add(new SortedSetDocValuesField("tag", new BytesRef("dog")));
-      doc.add(new SortedSetDocValuesField("tag", new BytesRef("pet")));
-      doc.add(new SortedSetDocValuesField("tag", new BytesRef("poodle")));
-      DOC_LIST.add(doc);
-
-      doc = new Document();
-      doc.add(new NumericDocValuesField("id", 3));
-      doc.add(new SortedDocValuesField("color", new BytesRef("green")));
-      doc.add(new NumericDocValuesField("size", 4));
-      doc.add(new SortedSetDocValuesField("tag", new BytesRef("rabbit")));
-      doc.add(new SortedSetDocValuesField("tag", new BytesRef("cartoon")));
-      doc.add(new SortedSetDocValuesField("tag", new BytesRef("funny")));
-      DOC_LIST.add(doc);
-
-      doc = new Document();
-      doc.add(new NumericDocValuesField("id", 4));
-      doc.add(new SortedDocValuesField("color", new BytesRef("blue")));
-      doc.add(new NumericDocValuesField("size", 1));
-      doc.add(new SortedSetDocValuesField("tag", new BytesRef("store")));
-      doc.add(new SortedSetDocValuesField("tag", new BytesRef("pet")));
-      doc.add(new SortedSetDocValuesField("tag", new BytesRef("animal")));
-      DOC_LIST.add(doc);
-      
-      doc = new Document();
-      doc.add(new NumericDocValuesField("id", 5));
-      doc.add(new SortedDocValuesField("color", new BytesRef("blue"))); 
-      doc.add(new NumericDocValuesField("size", 4));
-      doc.add(new SortedSetDocValuesField("tag", new BytesRef("cartoon")));
-      doc.add(new SortedSetDocValuesField("tag", new BytesRef("funny")));
-      doc.add(new SortedSetDocValuesField("tag", new BytesRef("disney")));  
-      DOC_LIST.add(doc);
-
-      doc = new Document();
-      doc.add(new NumericDocValuesField("id", 6));
-      doc.add(new SortedDocValuesField("color", new BytesRef("green")));
-      doc.add(new NumericDocValuesField("size", 6));
-      doc.add(new SortedSetDocValuesField("tag", new BytesRef("funny")));
-      doc.add(new SortedSetDocValuesField("tag", new BytesRef("humor")));
-      doc.add(new SortedSetDocValuesField("tag", new BytesRef("joke")));  
-      DOC_LIST.add(doc);
-
-      doc = new Document();
-      doc.add(new NumericDocValuesField("id", 7));
-      doc.add(new SortedDocValuesField("color", new BytesRef("red")));
-      doc.add(new NumericDocValuesField("size", 2));
-      doc.add(new SortedSetDocValuesField("tag", new BytesRef("humane")));
-      doc.add(new SortedSetDocValuesField("tag", new BytesRef("dog")));
-      doc.add(new SortedSetDocValuesField("tag", new BytesRef("rabbit")));   
-      DOC_LIST.add(doc);
-      
-      IndexWriterConfig conf = new IndexWriterConfig(Version.LUCENE_47, null);
-      try {
-        IndexWriter writer = new IndexWriter(IDX_DIR, conf);
-        int count = 0;
-        for (Document d : DOC_LIST) {
-          writer.addDocument(d);          
-          // make sure we get multiple segments
-          if (count %2 == 1) {
-            writer.commit();
-          }
-          count++;
-        }
-        writer.commit();
-        
-        writer.close();
-      } catch (Exception e) {
-        throw new RuntimeException(e);
-      }
-  }
   
   void checkFacets(List<FacetResult> facetVals, Comparator<FacetResult> comparator) {
     FacetResult prev = null;
@@ -162,7 +66,7 @@ public class TestFacets {
   }
   
   public void testFacets(MemType memType) throws Exception {
-    IndexReader reader = getIndexReader(IDX_DIR, memType);
+    IndexReader reader = getIndexReader(FacetTestUtil.IDX_DIR, memType);
     IndexSearcher searcher = new IndexSearcher(reader);
     
     TopScoreDocCollector docsCollector = TopScoreDocCollector.create(10, true);

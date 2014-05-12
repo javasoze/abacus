@@ -1,15 +1,8 @@
 package abacus.indexing;
 
 import org.apache.lucene.document.Document;
-import org.apache.lucene.document.DoubleDocValuesField;
-import org.apache.lucene.document.DoubleField;
 import org.apache.lucene.document.Field;
-import org.apache.lucene.document.Field.Store;
 import org.apache.lucene.document.FieldType;
-import org.apache.lucene.document.FloatDocValuesField;
-import org.apache.lucene.document.FloatField;
-import org.apache.lucene.document.IntField;
-import org.apache.lucene.document.LongField;
 import org.apache.lucene.document.NumericDocValuesField;
 import org.apache.lucene.document.SortedDocValuesField;
 import org.apache.lucene.document.SortedSetDocValuesField;
@@ -61,35 +54,14 @@ public class AbacusIndexer {
     return doc;
   }
   
-  public static Document addNumericField(Document doc, String fieldName, int value) {
-    IntField intField = new IntField(fieldName, value, Store.NO);
-    Field docValPart = new NumericDocValuesField(fieldName, value);
-    doc.add(intField);
-    doc.add(docValPart);
-    return doc;
-  }
-  
   public static Document addNumericField(Document doc, String fieldName, long value) {
-    LongField longField = new LongField(fieldName, value, Store.NO);
-    Field docValPart = new NumericDocValuesField(fieldName, value);
-    doc.add(longField);
+    Field docValPart = new NumericDocValuesField(fieldName, value);    
     doc.add(docValPart);
     return doc;
-  }
-  
-  public static Document addNumericField(Document doc, String fieldName, float value) {    
-    FloatField floatField = new FloatField(fieldName, value, Store.NO);
-    Field docValPart = new FloatDocValuesField(fieldName, value);
-    doc.add(floatField);
-    doc.add(docValPart);
-    return doc;
-  }
+  }  
   
   public static Document addNumericField(Document doc, String fieldName, double value) {
-    DoubleField doubleField = new DoubleField(fieldName, value, Store.NO);
-    Field docValPart = new DoubleDocValuesField(fieldName, value);
-    doc.add(doubleField);
-    doc.add(docValPart);
-    return doc;
+    long longVal = Double.doubleToRawLongBits(value);
+    return addNumericField(doc, fieldName, longVal);
   }
 }
