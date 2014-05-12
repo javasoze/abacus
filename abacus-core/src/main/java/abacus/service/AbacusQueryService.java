@@ -8,7 +8,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.apache.lucene.facet.FacetResult;
+import org.apache.lucene.facet.Facets;
 import org.apache.lucene.facet.FacetsCollector;
+import org.apache.lucene.facet.sortedset.DefaultSortedSetDocValuesReaderState;
+import org.apache.lucene.facet.sortedset.SortedSetDocValuesFacetCounts;
+import org.apache.lucene.facet.sortedset.SortedSetDocValuesReaderState;
 import org.apache.lucene.index.AtomicReader;
 import org.apache.lucene.index.AtomicReaderContext;
 import org.apache.lucene.index.DirectoryReader;
@@ -27,23 +32,31 @@ import org.apache.lucene.search.TopScoreDocCollector;
 import org.apache.lucene.store.Directory;
 
 import abacus.api.query.Facet;
+import abacus.api.query.FacetParam;
 import abacus.api.query.Request;
 import abacus.api.query.Result;
 import abacus.api.query.ResultSet;
+import abacus.config.FacetType;
 import abacus.config.FacetsConfig;
 import abacus.config.IndexDirectoryFacetsConfigReader;
 import abacus.search.facets.FastDocValuesAtomicReader;
 import abacus.search.facets.FastDocValuesAtomicReader.MemType;
+import abacus.search.facets.LabelAndOrdFacetCounts;
+import abacus.search.facets.NumericFacetCounts;
+import abacus.search.facets.SortedDocValuesOrdReader;
+import abacus.search.facets.SortedSetDocValuesOrdReader;
 
 public class AbacusQueryService implements Closeable {
   
   private final Map<String, FacetsConfig> configMap;
+  private final Map<String, SortedSetDocValuesReaderState> attrReaderState;
   private final IndexReader reader;
   private final QueryParser queryParser;
   
-  AbacusQueryService(Directory idxDir, QueryParser queryParser) throws IOException {
+  public AbacusQueryService(Directory idxDir, QueryParser queryParser) throws IOException {
     DirectoryReader dirReader = DirectoryReader.open(idxDir);
     configMap = IndexDirectoryFacetsConfigReader.readerFacetsConfig(dirReader);
+    attrReaderState = new HashMap<String, SortedSetDocValuesReaderState>();
     List<AtomicReaderContext> leaves = dirReader.leaves();
     AtomicReader[] subreaders = new AtomicReader[leaves.size()];
     int i = 0;
@@ -53,6 +66,17 @@ public class AbacusQueryService implements Closeable {
     }
     
     reader = new MultiReader(subreaders, true);
+    
+    for (Entry<String, FacetsConfig> entry : configMap.entrySet()) {
+      String name = entry.getKey();
+      FacetsConfig config = entry.getValue();
+      if (FacetType.ATTRIBUTE.equals(config.getFacetType())) {
+        SortedSetDocValuesReaderState readerState = new DefaultSortedSetDocValuesReaderState(reader);
+        attrReaderState.put(name, readerState);
+      }
+     }
+    
+    
     this.queryParser = queryParser;
   }  
   
@@ -96,7 +120,7 @@ public class AbacusQueryService implements Closeable {
     rs.setLatencyInMs(System.currentTimeMillis() - start);
     
     if (facetsCollector != null) {
-      rs.setFacetList(buildFacetResults(configMap, facetsCollector));
+      rs.setFacetList(buildFacetResults(configMap, req.getFacetParams(), facetsCollector));
     }
     
     return rs;
@@ -112,16 +136,37 @@ public class AbacusQueryService implements Closeable {
     return hitResult;
   }
   
-  private static List<Facet> buildFacetList(Entry<String, FacetsConfig> configEntry, 
-      FacetsCollector collector) {    
+  private List<Facet> buildFacetList(Entry<String, FacetsConfig> configEntry, 
+      FacetParam facetParam,
+      FacetsCollector collector) throws IOException {
+    String field = configEntry.getKey();
+    FacetsConfig config = configEntry.getValue();
+    FacetType type = config.getFacetType();
+    Facets facetCounts;
+    if (FacetType.NUMERIC == type) {  // numeric
+      facetCounts = new NumericFacetCounts(configEntry.getKey(), collector);      
+    } else if (FacetType.SINGLE == type) {
+      SortedDocValuesOrdReader ordReader = new SortedDocValuesOrdReader(field);
+      facetCounts = new LabelAndOrdFacetCounts(field, ordReader, collector);      
+    } else if (FacetType.MULTI == type) {
+      SortedSetDocValuesOrdReader ordReader = new SortedSetDocValuesOrdReader(field);
+      facetCounts = new LabelAndOrdFacetCounts(field, ordReader, collector);
+    } else if (FacetType.ATTRIBUTE == type) {
+      facetCounts = new SortedSetDocValuesFacetCounts(attrReaderState.get(field), collector);
+    } else {
+      throw new IllegalStateException("invalid facet type: " + type);
+    }
+    List<FacetResult> facetResults = facetCounts.getAllDims(facetParam.maxNumValues);
     return null;
   }
   
-  static Map<String, List<Facet>> buildFacetResults(Map<String, FacetsConfig> configMap, 
-      FacetsCollector collector) {
+  Map<String, List<Facet>> buildFacetResults(Map<String, FacetsConfig> configMap,
+      Map<String, FacetParam> facetParams,
+      FacetsCollector collector) throws IOException {
     Map<String, List<Facet>> facetsResult = new HashMap<String, List<Facet>>();
     for (Entry<String, FacetsConfig> entry : configMap.entrySet()) {
-      facetsResult.put(entry.getKey(), buildFacetList(entry, collector));
+      String field = entry.getKey();
+      facetsResult.put(field, buildFacetList(entry, facetParams.get(field),collector));
     }
     return facetsResult;
   }
