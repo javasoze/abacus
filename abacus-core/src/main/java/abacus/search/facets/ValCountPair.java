@@ -5,12 +5,13 @@ import org.apache.lucene.util.PriorityQueue;
 public class ValCountPair implements Comparable<ValCountPair> {
   long val;
   int count;
-  
+
+  // Sort by count first, then by value in reverse order
   @Override
   public int compareTo(ValCountPair o) {
-    int value = o.count - count;
+    int value = count - o.count;
     if (value == 0) {
-      value = Long.compare(val, o.val);
+      value = Long.compare(o.val, val);
     }
     return value;
   }
@@ -20,7 +21,7 @@ public class ValCountPair implements Comparable<ValCountPair> {
 
       @Override
       protected boolean lessThan(ValCountPair a, ValCountPair b) {
-        return a.compareTo(b) > 0;
+        return a.compareTo(b) < 0;
       }
 
     };

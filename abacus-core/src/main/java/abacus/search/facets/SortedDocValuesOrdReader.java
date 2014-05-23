@@ -37,8 +37,8 @@ public class SortedDocValuesOrdReader extends FacetOrdReader {
       }
       
       @Override
-      public void setDocument(int docid) {
-        ord = docVals.getOrd(docid);
+      public void setDocument(int docId) {
+        ord = docVals.getOrd(docId);
       }
 
       @Override

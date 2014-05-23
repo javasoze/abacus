@@ -54,7 +54,7 @@ public class FastDocValuesAtomicReader extends FilterAtomicReader {
     sortedSetCached = new HashMap<String, SortedSetDocValues>();
     for (FieldInfo finfo : in.getFieldInfos()) {
       FacetsConfig config = configMap != null ? configMap.get(finfo.name) : null;
-      MemType type = config != null ? config.getMemType() : null;
+      MemType type = config != null ? config.getMemType() : defaultMemType;
       if (type == null) {
         type = MemType.Default;
       }

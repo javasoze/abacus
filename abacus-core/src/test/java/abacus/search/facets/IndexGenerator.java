@@ -30,9 +30,7 @@ public class IndexGenerator {
       AbacusIndexer.addAttributeField(doc, "$facets", field, value);
     }
   }
-  
-  static final String CONTENTS_FIELD = "contents";
-  
+
   static Document buildDoc(JSONObject json) throws Exception{
     Document doc = new Document();
     
@@ -101,7 +99,7 @@ public class IndexGenerator {
   }
   
   static void buildLargeIndex(Directory smallIndex, int numChunks, File outDir) throws Exception{
-    IndexWriterConfig idxWriterConfig = new IndexWriterConfig(Version.LUCENE_47, null);
+    IndexWriterConfig idxWriterConfig = new IndexWriterConfig(Version.LUCENE_48, null);
     Directory tempDir = FSDirectory.open(outDir);
     IndexWriter writer = new IndexWriter(tempDir, idxWriterConfig);
     // index size = 15000 * numChunks
