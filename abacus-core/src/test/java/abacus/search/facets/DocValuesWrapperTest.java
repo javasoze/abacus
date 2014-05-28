@@ -149,6 +149,7 @@ public class DocValuesWrapperTest {
   
   @Test
   public void testNumericDocValues() throws Exception {
+
     NumericDocValues docVals = atomicReader.getNumericDocValues(NUMERIC_FIELD);
     NumericDocValues arrayWrapperVals = new ArrayNumericDocValues(docVals, atomicReader.maxDoc());
     testNumericDocValues(docVals, arrayWrapperVals);

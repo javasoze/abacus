@@ -1,8 +1,6 @@
 package abacus.search.facets;
 
-import java.util.ArrayList;
-import java.util.List;
-
+import abacus.indexing.AbacusIndexer;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.NumericDocValuesField;
@@ -18,7 +16,9 @@ import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.RAMDirectory;
 import org.apache.lucene.util.Version;
 
-import abacus.indexing.AbacusIndexer;
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 
 public class FacetTestUtil {
   //test data set
@@ -126,4 +126,19 @@ public class FacetTestUtil {
     reader = new MultiReader(subReaders, true);
     return reader;
   }
+
+  public static void deleteDir(File file) {
+    if (file == null || !file.exists()) {
+      return;
+    }
+    for (File f : file.listFiles()) {
+      if (f.isDirectory()) {
+        deleteDir(f);
+      } else {
+        f.delete();
+      }
+    }
+    file.delete();
+  }
+
 }
