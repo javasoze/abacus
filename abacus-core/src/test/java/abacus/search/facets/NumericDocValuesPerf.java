@@ -7,11 +7,14 @@ import abacus.search.facets.docvalues.NativeNumericDocValues;
 import junit.framework.TestCase;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.document.Document;
+import org.apache.lucene.document.Field;
+import org.apache.lucene.document.LongField;
 import org.apache.lucene.index.AtomicReader;
 import org.apache.lucene.index.DirectoryReader;
 import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.IndexWriterConfig;
 import org.apache.lucene.index.NumericDocValues;
+import org.apache.lucene.search.FieldCache;
 import org.apache.lucene.store.FSDirectory;
 import org.apache.lucene.util.Version;
 import org.junit.Test;
@@ -23,23 +26,61 @@ import java.io.File;
  */
 public class NumericDocValuesPerf extends TestCase {
 
-  String indexDir = "/tmp/ArrayNumericDocValuesPerf";
-  int testScale = 10000000;
+  String indexDir = "/tmp/NumericDocValuesPerf";
+  int testScale = 1000000;
 
   @Override
   public void setUp() throws Exception {
+    File file = new File(indexDir);
+    FacetTestUtil.deleteDir(file);
     IndexWriterConfig config = new IndexWriterConfig(Version.LUCENE_48, new StandardAnalyzer(
         Version.LUCENE_48));
     IndexWriter writer = new IndexWriter(
         FSDirectory.open(new File(indexDir)), config);
     for (int i = 0; i < testScale; ++i) {
       Document doc = new Document();
+      Field fieldCache = new LongField("fieldCache", i, Field.Store.NO);
+      doc.add(fieldCache);
+      Field stored = new LongField("stored", i, Field.Store.YES);
+      doc.add(stored);
       AbacusIndexer.addNumericField(doc, "id", i);
       writer.addDocument(doc);
     }
     writer.forceMerge(1);
     writer.commit();
     writer.close();
+  }
+
+  @Test
+  public void testFieldCache() throws Exception {
+    DirectoryReader directoryReader = DirectoryReader.open(FSDirectory.open(new File(indexDir)));
+    AtomicReader atomicReader = directoryReader.leaves().get(0).reader();
+    long time0 = System.currentTimeMillis();
+    FieldCache.Longs docValues = FieldCache.DEFAULT.getLongs(atomicReader, "fieldCache", false);
+    long time1 = System.currentTimeMillis();
+    for (int i = 0; i < testScale; ++i) {
+      docValues.get(i);
+    }
+    long time2 = System.currentTimeMillis();
+    System.out.println(
+        "Initialize FieldCache took " + (time1 - time0) + "ms");
+    System.out.println(
+        "Traversing all FieldCache took " + (time2 - time1) + "ms");
+    directoryReader.close();
+  }
+
+  @Test
+  public void testStoredField() throws Exception {
+    DirectoryReader directoryReader = DirectoryReader.open(FSDirectory.open(new File(indexDir)));
+    AtomicReader atomicReader = directoryReader.leaves().get(0).reader();
+    long time1 = System.currentTimeMillis();
+    for (int i = 0; i < testScale; ++i) {
+      atomicReader.document(i).get("stored");
+    }
+    long time2 = System.currentTimeMillis();
+    System.out.println(
+        "Traversing all stored field took " + (time2 - time1) + "ms");
+    directoryReader.close();
   }
 
   @Test
@@ -50,7 +91,7 @@ public class NumericDocValuesPerf extends TestCase {
     NumericDocValues docValues = atomicReader.getNumericDocValues("id");
     long time1 = System.currentTimeMillis();
     for (int i = 0; i < testScale; ++i) {
-      assertEquals(i, docValues.get(i));
+      docValues.get(i);
     }
     long time2 = System.currentTimeMillis();
     System.out.println(
@@ -70,7 +111,7 @@ public class NumericDocValuesPerf extends TestCase {
         atomicReader.maxDoc());
     long time1 = System.currentTimeMillis();
     for (int i = 0; i < testScale; ++i) {
-      assertEquals(i, docValuesWrapper.get(i));
+      docValuesWrapper.get(i);
     }
     long time2 = System.currentTimeMillis();
     System.out.println(
@@ -90,7 +131,7 @@ public class NumericDocValuesPerf extends TestCase {
         atomicReader.maxDoc());
     long time1 = System.currentTimeMillis();
     for (int i = 0; i < testScale; ++i) {
-      assertEquals(i, docValuesWrapper.get(i));
+      docValuesWrapper.get(i);
     }
     long time2 = System.currentTimeMillis();
     System.out.println(
@@ -110,7 +151,7 @@ public class NumericDocValuesPerf extends TestCase {
         atomicReader.maxDoc());
     long time1 = System.currentTimeMillis();
     for (int i = 0; i < testScale; ++i) {
-      assertEquals(i, docValuesWrapper.get(i));
+      docValuesWrapper.get(i);
     }
     long time2 = System.currentTimeMillis();
     System.out.println(
