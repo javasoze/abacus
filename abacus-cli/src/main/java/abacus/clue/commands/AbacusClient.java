@@ -1,7 +1,5 @@
 package abacus.clue.commands;
 
-import com.senseidb.clue.ClueApplication;
-import com.senseidb.clue.ClueContext;
 
 public class AbacusClient {
 	public static void main(String[] args) throws Exception {
