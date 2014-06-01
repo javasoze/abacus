@@ -43,8 +43,8 @@ public class DocValuesWrapperTest {
   
   static RAMDirectory dir = new RAMDirectory();
   static long[] numericVals = new long[] {12, 13, 0, 100};
-  static String[] sortedvals = new String[]{"lucene", "facet", "abacus", "search"};
-  static String[][] sortedsetvals = new String[][]{
+  static String[] sortedVals = new String[]{"lucene", "facet", "abacus", "search"};
+  static String[][] sortedSetVals = new String[][]{
     {"lucene", "search"},
     {"search"},
     {"facet", "abacus", "search"},
@@ -55,16 +55,16 @@ public class DocValuesWrapperTest {
   
   @BeforeClass
   public static void setup() throws Exception {
-    IndexWriterConfig config = new IndexWriterConfig(Version.LUCENE_47, new StandardAnalyzer(Version.LUCENE_47));
+    IndexWriterConfig config = new IndexWriterConfig(Version.LUCENE_48, new StandardAnalyzer(Version.LUCENE_48));
     IndexWriter writer = new IndexWriter(dir, config);
     
     for (int i = 0; i < numericVals.length; ++i) {
       Document doc = new Document();
       doc.add(new NumericDocValuesField(NUMERIC_FIELD, numericVals[i]));
-      doc.add(new SortedDocValuesField(SORTED_FIELD, new BytesRef(sortedvals[i])));
-      String[] sortedSetVals = sortedsetvals[i];
-      for (String sortedSetVal : sortedSetVals) {
-        doc.add(new SortedSetDocValuesField(SORTEDSET_FIELD, new BytesRef(sortedSetVal)));  
+      doc.add(new SortedDocValuesField(SORTED_FIELD, new BytesRef(sortedVals[i])));
+      String[] sortedSetVal = sortedSetVals[i];
+      for (String value : sortedSetVal) {
+        doc.add(new SortedSetDocValuesField(SORTEDSET_FIELD, new BytesRef(value)));
       }
       writer.addDocument(doc);
     }    
@@ -110,7 +110,7 @@ public class DocValuesWrapperTest {
       BytesRef bref2 = new BytesRef();
       wrapped.lookupOrd(i, bref2);
       TestCase.assertEquals("expected: " + bref1.utf8ToString() + ", got: " + bref2.utf8ToString(),
-          0, BREF_COMPARATOR.compare(bref1, bref2));      
+          0, BREF_COMPARATOR.compare(bref1, bref2));
     }
     
   }
@@ -120,7 +120,7 @@ public class DocValuesWrapperTest {
       expected.setDocument(i);
       wrapped.setDocument(i);
       long expectedOrd;
-      long gotOrd = SortedSetDocValues.NO_MORE_ORDS;
+      long gotOrd;
       while ((expectedOrd = expected.nextOrd()) != SortedSetDocValues.NO_MORE_ORDS) {
         gotOrd = wrapped.nextOrd();
         TestCase.assertEquals(expectedOrd, gotOrd);
@@ -142,13 +142,14 @@ public class DocValuesWrapperTest {
       BytesRef bref2 = new BytesRef();
       wrapped.lookupOrd(i, bref2);
       TestCase.assertEquals("expected: " + bref1.utf8ToString() + ", got: " + bref2.utf8ToString(),
-          0, BREF_COMPARATOR.compare(bref1, bref2));      
+          0, BREF_COMPARATOR.compare(bref1, bref2));
     }
     
   }
   
   @Test
   public void testNumericDocValues() throws Exception {
+
     NumericDocValues docVals = atomicReader.getNumericDocValues(NUMERIC_FIELD);
     NumericDocValues arrayWrapperVals = new ArrayNumericDocValues(docVals, atomicReader.maxDoc());
     testNumericDocValues(docVals, arrayWrapperVals);
