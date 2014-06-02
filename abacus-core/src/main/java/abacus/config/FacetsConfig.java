@@ -6,15 +6,11 @@ import java.util.Map.Entry;
 
 import org.apache.lucene.document.FieldType.NumericType;
 
-import abacus.search.facets.FastDocValuesAtomicReader.MemType;
-
 public class FacetsConfig {
-  private final MemType memType;
   private final FacetType facetType;
   private final NumericType numericType;
   
-  FacetsConfig(MemType memType, FacetType facetType, NumericType numericType) {
-    this.memType = memType;
+  FacetsConfig(FacetType facetType, NumericType numericType) {
     this.facetType = facetType;
     if (facetType == FacetType.NUMERIC) {
       if (numericType == null) {
@@ -30,16 +26,11 @@ public class FacetsConfig {
 	return numericType;
   }
 
-  public MemType getMemType() {
-    return memType;
-  }
-
   public FacetType getFacetType() {
     return facetType;
   }
   
   private static final String PREFIX = "__$abacus.";
-  private static final String PARAM_MEM_TYPE = "mem_type";
   private static final String PARAM_FACET_TYPE = "facet_type";
   private static final String PARAM_NUMERIC_TYPE = "numeric_type";
   
@@ -48,7 +39,6 @@ public class FacetsConfig {
     for (Entry<String, FacetsConfig> entry : configMap.entrySet()) {
       String name = entry.getKey();
       FacetsConfig config = entry.getValue();
-      flattenMap.put(PREFIX + name + "." + PARAM_MEM_TYPE, config.getMemType().toString());
       flattenMap.put(PREFIX + name + "." + PARAM_FACET_TYPE, config.getFacetType().toString());
       flattenMap.put(PREFIX + name + "." + PARAM_NUMERIC_TYPE, config.getNumericType().toString());
     }
@@ -76,9 +66,7 @@ public class FacetsConfig {
           builderMap.put(name, builder);
         }
         String val = entry.getValue();
-        if (PARAM_MEM_TYPE.equals(configType)) {
-          builder.withMemType(MemType.valueOf(val));
-        } else if (PARAM_FACET_TYPE.equals(configType)) {
+        if (PARAM_FACET_TYPE.equals(configType)) {
           builder.withFacetType(FacetType.valueOf(val));
         } else if (PARAM_NUMERIC_TYPE.endsWith(configType)) {
           builder.withNumericType(NumericType.valueOf(val));

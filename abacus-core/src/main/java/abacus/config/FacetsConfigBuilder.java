@@ -2,11 +2,7 @@ package abacus.config;
 
 import org.apache.lucene.document.FieldType.NumericType;
 
-import abacus.search.facets.FastDocValuesAtomicReader.MemType;
-
-public class FacetsConfigBuilder {
-  
-  private MemType memType = null;
+public class FacetsConfigBuilder {  
   private FacetType facetType = null;
   private NumericType numericType = null;
   
@@ -15,17 +11,12 @@ public class FacetsConfigBuilder {
 	return this;
   }
   
-  public FacetsConfigBuilder withMemType(MemType memType) {
-    this.memType = memType;
-    return this;
-  }
-  
   public FacetsConfigBuilder withFacetType(FacetType facetType) {
     this.facetType = facetType;
     return this;
   }
 
   public FacetsConfig build() {
-    return new FacetsConfig(memType, facetType, numericType);
+    return new FacetsConfig(facetType, numericType);
   }
 }

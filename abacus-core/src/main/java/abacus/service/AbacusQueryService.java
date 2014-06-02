@@ -53,6 +53,10 @@ public class AbacusQueryService implements Closeable {
   private final QueryParser queryParser;
   
   public AbacusQueryService(Directory idxDir, QueryParser queryParser) throws IOException {
+	this(idxDir, queryParser, null);
+  }
+  
+  public AbacusQueryService(Directory idxDir, QueryParser queryParser, Map<String, MemType> loadOptions) throws IOException {
     DirectoryReader dirReader = DirectoryReader.open(idxDir);
     configMap = IndexDirectoryFacetsConfigReader.readerFacetsConfig(dirReader);
     attrReaderState = new HashMap<String, SortedSetDocValuesReaderState>();
@@ -61,7 +65,7 @@ public class AbacusQueryService implements Closeable {
     int i = 0;
     for (AtomicReaderContext leaf : leaves) {
       AtomicReader atomicReader = leaf.reader();
-      subreaders[i++] = new FastDocValuesAtomicReader(atomicReader, configMap, MemType.Default);
+      subreaders[i++] = new FastDocValuesAtomicReader(atomicReader, loadOptions, MemType.Default);
     }
     
     reader = new MultiReader(subreaders, true);
