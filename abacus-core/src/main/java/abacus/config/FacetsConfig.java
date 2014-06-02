@@ -22,8 +22,18 @@ public class FacetsConfig {
     }
   }
   
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder();
+    buf.append("facettype: " + facetType);
+    if (numericType != null) {
+      buf.append("\tnumericType: " + numericType);
+    }
+    return buf.toString();
+  }
+  
   public NumericType getNumericType() {
-	return numericType;
+	  return numericType;
   }
 
   public FacetType getFacetType() {
@@ -39,8 +49,10 @@ public class FacetsConfig {
     for (Entry<String, FacetsConfig> entry : configMap.entrySet()) {
       String name = entry.getKey();
       FacetsConfig config = entry.getValue();
-      flattenMap.put(PREFIX + name + "." + PARAM_FACET_TYPE, config.getFacetType().toString());
-      flattenMap.put(PREFIX + name + "." + PARAM_NUMERIC_TYPE, config.getNumericType().toString());
+      flattenMap.put(PREFIX + name + "." + PARAM_FACET_TYPE, String.valueOf(config.getFacetType()));
+      if (config.getNumericType() != null) {
+        flattenMap.put(PREFIX + name + "." + PARAM_NUMERIC_TYPE, String.valueOf(config.getNumericType()));
+      }
     }
     return flattenMap;
   }
@@ -52,7 +64,7 @@ public class FacetsConfig {
       String key = entry.getKey();
       if (key.startsWith(PREFIX)) {
         String configString = key.substring(PREFIX.length());
-        String[] pair = configString.split(".");
+        String[] pair = configString.split("\\.");
         if (pair.length != 2) {
           throw new IllegalStateException("invalid key: " + key);
         }
