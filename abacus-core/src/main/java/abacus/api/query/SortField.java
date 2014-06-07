@@ -49,7 +49,7 @@ public class SortField implements org.apache.thrift.TBase<SortField, SortField._
    * 
    * @see SortMode
    */
-  public SortMode mode; // required
+  public SortMode mode; // optional
   public String field; // optional
   public boolean reverse; // optional
 
@@ -124,11 +124,11 @@ public class SortField implements org.apache.thrift.TBase<SortField, SortField._
   // isset id assignments
   private static final int __REVERSE_ISSET_ID = 0;
   private byte __isset_bitfield = 0;
-  private _Fields optionals[] = {_Fields.FIELD,_Fields.REVERSE};
+  private _Fields optionals[] = {_Fields.MODE,_Fields.FIELD,_Fields.REVERSE};
   public static final Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> metaDataMap;
   static {
     Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<_Fields, org.apache.thrift.meta_data.FieldMetaData>(_Fields.class);
-    tmpMap.put(_Fields.MODE, new org.apache.thrift.meta_data.FieldMetaData("mode", org.apache.thrift.TFieldRequirementType.REQUIRED, 
+    tmpMap.put(_Fields.MODE, new org.apache.thrift.meta_data.FieldMetaData("mode", org.apache.thrift.TFieldRequirementType.OPTIONAL, 
         new org.apache.thrift.meta_data.EnumMetaData(org.apache.thrift.protocol.TType.ENUM, SortMode.class)));
     tmpMap.put(_Fields.FIELD, new org.apache.thrift.meta_data.FieldMetaData("field", org.apache.thrift.TFieldRequirementType.OPTIONAL, 
         new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING)));
@@ -139,13 +139,8 @@ public class SortField implements org.apache.thrift.TBase<SortField, SortField._
   }
 
   public SortField() {
-  }
+    this.mode = abacus.api.query.SortMode.SCORE;
 
-  public SortField(
-    SortMode mode)
-  {
-    this();
-    this.mode = mode;
   }
 
   /**
@@ -168,7 +163,8 @@ public class SortField implements org.apache.thrift.TBase<SortField, SortField._
 
   @Override
   public void clear() {
-    this.mode = null;
+    this.mode = abacus.api.query.SortMode.SCORE;
+
     this.field = null;
     setReverseIsSet(false);
     this.reverse = false;
@@ -420,13 +416,15 @@ public class SortField implements org.apache.thrift.TBase<SortField, SortField._
     StringBuilder sb = new StringBuilder("SortField(");
     boolean first = true;
 
-    sb.append("mode:");
-    if (this.mode == null) {
-      sb.append("null");
-    } else {
-      sb.append(this.mode);
+    if (isSetMode()) {
+      sb.append("mode:");
+      if (this.mode == null) {
+        sb.append("null");
+      } else {
+        sb.append(this.mode);
+      }
+      first = false;
     }
-    first = false;
     if (isSetField()) {
       if (!first) sb.append(", ");
       sb.append("field:");
@@ -449,9 +447,6 @@ public class SortField implements org.apache.thrift.TBase<SortField, SortField._
 
   public void validate() throws org.apache.thrift.TException {
     // check for required fields
-    if (mode == null) {
-      throw new org.apache.thrift.protocol.TProtocolException("Required field 'mode' was not present! Struct: " + toString());
-    }
     // check for sub-struct validity
   }
 
@@ -531,9 +526,11 @@ public class SortField implements org.apache.thrift.TBase<SortField, SortField._
 
       oprot.writeStructBegin(STRUCT_DESC);
       if (struct.mode != null) {
-        oprot.writeFieldBegin(MODE_FIELD_DESC);
-        oprot.writeI32(struct.mode.getValue());
-        oprot.writeFieldEnd();
+        if (struct.isSetMode()) {
+          oprot.writeFieldBegin(MODE_FIELD_DESC);
+          oprot.writeI32(struct.mode.getValue());
+          oprot.writeFieldEnd();
+        }
       }
       if (struct.field != null) {
         if (struct.isSetField()) {
@@ -564,15 +561,20 @@ public class SortField implements org.apache.thrift.TBase<SortField, SortField._
     @Override
     public void write(org.apache.thrift.protocol.TProtocol prot, SortField struct) throws org.apache.thrift.TException {
       TTupleProtocol oprot = (TTupleProtocol) prot;
-      oprot.writeI32(struct.mode.getValue());
       BitSet optionals = new BitSet();
-      if (struct.isSetField()) {
+      if (struct.isSetMode()) {
         optionals.set(0);
       }
-      if (struct.isSetReverse()) {
+      if (struct.isSetField()) {
         optionals.set(1);
       }
-      oprot.writeBitSet(optionals, 2);
+      if (struct.isSetReverse()) {
+        optionals.set(2);
+      }
+      oprot.writeBitSet(optionals, 3);
+      if (struct.isSetMode()) {
+        oprot.writeI32(struct.mode.getValue());
+      }
       if (struct.isSetField()) {
         oprot.writeString(struct.field);
       }
@@ -584,14 +586,16 @@ public class SortField implements org.apache.thrift.TBase<SortField, SortField._
     @Override
     public void read(org.apache.thrift.protocol.TProtocol prot, SortField struct) throws org.apache.thrift.TException {
       TTupleProtocol iprot = (TTupleProtocol) prot;
-      struct.mode = SortMode.findByValue(iprot.readI32());
-      struct.setModeIsSet(true);
-      BitSet incoming = iprot.readBitSet(2);
+      BitSet incoming = iprot.readBitSet(3);
       if (incoming.get(0)) {
+        struct.mode = SortMode.findByValue(iprot.readI32());
+        struct.setModeIsSet(true);
+      }
+      if (incoming.get(1)) {
         struct.field = iprot.readString();
         struct.setFieldIsSet(true);
       }
-      if (incoming.get(1)) {
+      if (incoming.get(2)) {
         struct.reverse = iprot.readBool();
         struct.setReverseIsSet(true);
       }

@@ -75,17 +75,19 @@ public class Application {
           }
           
           String selLabel = obj.optString("value");
-          if (selLabel != null) {
+          if (selLabel != null && !selLabel.trim().isEmpty()) {
             Selection s = new Selection();
             s.setValues(Arrays.asList(selLabel));
             selList.add(s);
           } else {
-            JSONArray selVals = obj.optJSONArray("values");
-            
-            if (selVals.length() > 0) {            
+            JSONArray selVals = obj.optJSONArray("values");            
+            if (selVals != null && selVals.length() > 0) {            
               List<String> selLabels = new ArrayList<String>();
               for (int k = 0; k < selVals.length(); ++k) {
-                selLabels.add(selVals.getString(k));        
+                String label = selVals.getString(k);
+                if (label != null && !label.trim().isEmpty()) {
+                  selLabels.add(selVals.getString(k));        
+                }
               }
               Selection s = new Selection();
               s.setValues(selLabels);

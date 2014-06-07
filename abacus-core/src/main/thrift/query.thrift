@@ -8,7 +8,7 @@ enum SelectionMode {
 
 struct Selection {
   1: optional list<string> values
-  2: optional SelectionMode mode
+  2: optional SelectionMode mode = SelectionMode.SHOULD
 }
 
 struct PagingParam {
@@ -23,7 +23,7 @@ enum SortMode {
 }
 
 struct SortField {
-  1: required SortMode mode
+  1: optional SortMode mode = SortMode.SCORE
   2: optional string field
   3: optional bool reverse
 }

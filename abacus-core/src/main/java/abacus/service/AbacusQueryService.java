@@ -18,8 +18,12 @@ import org.apache.lucene.index.AtomicReaderContext;
 import org.apache.lucene.index.DirectoryReader;
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.MultiReader;
+import org.apache.lucene.index.Term;
+import org.apache.lucene.queries.BooleanFilter;
+import org.apache.lucene.queries.TermFilter;
 import org.apache.lucene.queryparser.classic.ParseException;
 import org.apache.lucene.search.Collector;
+import org.apache.lucene.search.Filter;
 import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.MatchAllDocsQuery;
 import org.apache.lucene.search.MultiCollector;
@@ -27,6 +31,7 @@ import org.apache.lucene.search.Query;
 import org.apache.lucene.search.ScoreDoc;
 import org.apache.lucene.search.TopDocs;
 import org.apache.lucene.search.TopScoreDocCollector;
+import org.apache.lucene.search.BooleanClause.Occur;
 import org.apache.lucene.store.Directory;
 
 import abacus.api.query.Facet;
@@ -34,6 +39,7 @@ import abacus.api.query.FacetParam;
 import abacus.api.query.Request;
 import abacus.api.query.Result;
 import abacus.api.query.ResultSet;
+import abacus.api.query.Selection;
 import abacus.config.FacetType;
 import abacus.config.FacetsConfig;
 import abacus.config.IndexDirectoryFacetsConfigReader;
@@ -101,6 +107,47 @@ public class AbacusQueryService implements Closeable {
       count = 10;
     }
     
+    Filter filter = null;
+    if (req.isSetSelections()) {
+      Map<String, List<Selection>> selMap = req.getSelections();
+      if (!selMap.isEmpty()) {
+        BooleanFilter bf = new BooleanFilter();
+        for (Entry<String, List<Selection>> entry : selMap.entrySet()) {
+          String field = entry.getKey();
+          List<Selection> selList = entry.getValue();
+          if (!selList.isEmpty()) {            
+            for (Selection sel : selList) {
+              Occur occur;              
+              switch (sel.getMode()) {
+              case MUST:
+                occur = Occur.MUST; break;
+              case SHOULD:
+                occur = Occur.SHOULD; break;
+              // TODO case MUST_NOT:
+              default:
+                occur = Occur.SHOULD;
+              }
+              int valSize = sel.getValuesSize();
+              if (valSize > 0) {
+                if (valSize > 1) {
+                  BooleanFilter valFilter = new BooleanFilter();
+                  for (String selVal : sel.getValues()) {
+                    valFilter.add(new TermFilter(new Term(field, selVal)), occur);
+                  }
+                  bf.add(valFilter, Occur.MUST);
+                } else {
+                  bf.add(new TermFilter(new Term(field, sel.getValues().get(0))), Occur.MUST);
+                }
+              }
+            }
+          }
+        }
+        if (!bf.clauses().isEmpty()) {
+          filter = bf;
+        }
+      }
+    }
+    
     FacetsCollector facetsCollector = null;
     if (req.isSetFacetParams() && req.getFacetParams().size() > 0) {
       facetsCollector = new FacetsCollector();
@@ -113,7 +160,7 @@ public class AbacusQueryService implements Closeable {
     Collector collector = facetsCollector == null ? topDocsCollector :
         MultiCollector.wrap(topDocsCollector, facetsCollector);
     
-    searcher.search(query, collector);
+    searcher.search(query, filter, collector);
     
     TopDocs topDocs = topDocsCollector.topDocs();
     

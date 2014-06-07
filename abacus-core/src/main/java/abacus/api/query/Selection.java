@@ -131,6 +131,8 @@ public class Selection implements org.apache.thrift.TBase<Selection, Selection._
   }
 
   public Selection() {
+    this.mode = abacus.api.query.SelectionMode.SHOULD;
+
   }
 
   /**
@@ -153,7 +155,8 @@ public class Selection implements org.apache.thrift.TBase<Selection, Selection._
   @Override
   public void clear() {
     this.values = null;
-    this.mode = null;
+    this.mode = abacus.api.query.SelectionMode.SHOULD;
+
   }
 
   public int getValuesSize() {
