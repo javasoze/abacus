@@ -137,6 +137,7 @@ public class AbacusQueryService implements Closeable {
       Result res = new Result();
       res.setDocid(sd.doc);
       res.setScore(sd.score);
+      hitResult.add(res);
     }
     return hitResult;
   }
@@ -176,12 +177,14 @@ public class AbacusQueryService implements Closeable {
   Map<String, List<Facet>> buildFacetResults(Map<String, FacetsConfig> configMap,
       Request req,
       FacetsCollector collector) throws IOException {
-    Map<String, FacetParam> facetParams = req.getFacetParams();
-    Map<String, List<Selection>> selections = req.getSelections();
+    Map<String, FacetParam> facetParams = req.getFacetParams();    
     Map<String, List<Facet>> facetsResult = new HashMap<String, List<Facet>>();
     for (Entry<String, FacetsConfig> entry : configMap.entrySet()) {
       String field = entry.getKey();
-      facetsResult.put(field, buildFacetList(entry, selections.get(field), facetParams.get(field),collector));
+      FacetParam fp = facetParams.get(field);
+      if (fp != null) {
+        facetsResult.put(field, buildFacetList(entry, null, facetParams.get(field),collector));
+      }
     }
     return facetsResult;
   }
