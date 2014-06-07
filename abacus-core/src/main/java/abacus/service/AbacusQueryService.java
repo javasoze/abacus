@@ -11,6 +11,7 @@ import java.util.Map.Entry;
 import org.apache.lucene.facet.FacetResult;
 import org.apache.lucene.facet.Facets;
 import org.apache.lucene.facet.FacetsCollector;
+import org.apache.lucene.facet.LabelAndValue;
 import org.apache.lucene.facet.sortedset.DefaultSortedSetDocValuesReaderState;
 import org.apache.lucene.facet.sortedset.SortedSetDocValuesFacetCounts;
 import org.apache.lucene.facet.sortedset.SortedSetDocValuesReaderState;
@@ -35,6 +36,7 @@ import abacus.api.query.FacetParam;
 import abacus.api.query.Request;
 import abacus.api.query.Result;
 import abacus.api.query.ResultSet;
+import abacus.api.query.Selection;
 import abacus.config.FacetType;
 import abacus.config.FacetsConfig;
 import abacus.config.IndexDirectoryFacetsConfigReader;
@@ -118,8 +120,8 @@ public class AbacusQueryService implements Closeable {
     rs.setResultList(buildHitResultList(topDocs));
     rs.setLatencyInMs(System.currentTimeMillis() - start);
     
-    if (facetsCollector != null) {
-      rs.setFacetList(buildFacetResults(configMap, req.getFacetParams(), facetsCollector));
+    if (facetsCollector != null) {      
+      rs.setFacetList(buildFacetResults(configMap, req, facetsCollector));
     }
     
     return rs;
@@ -135,7 +137,8 @@ public class AbacusQueryService implements Closeable {
     return hitResult;
   }
   
-  private List<Facet> buildFacetList(Entry<String, FacetsConfig> configEntry, 
+  private List<Facet> buildFacetList(Entry<String, FacetsConfig> configEntry,
+      List<Selection> selections,
       FacetParam facetParam,
       FacetsCollector collector) throws IOException {
     String field = configEntry.getKey();
@@ -155,17 +158,26 @@ public class AbacusQueryService implements Closeable {
     } else {
       throw new IllegalStateException("invalid facet type: " + type);
     }
-    List<FacetResult> facetResults = facetCounts.getAllDims(facetParam.maxNumValues);
-    return null;
+    FacetResult facetResult = facetCounts.getTopChildren(facetParam.getMaxNumValues(), null, new String[0]);
+    List<Facet> facetList = new ArrayList<Facet>(facetResult.labelValues.length);
+    for (LabelAndValue labelAndVal : facetResult.labelValues) {
+      Facet facet = new Facet();
+      facet.setValue(labelAndVal.label);
+      facet.setCount(labelAndVal.value.longValue());
+      facetList.add(facet);
+    }
+    return facetList;
   }
   
   Map<String, List<Facet>> buildFacetResults(Map<String, FacetsConfig> configMap,
-      Map<String, FacetParam> facetParams,
+      Request req,
       FacetsCollector collector) throws IOException {
+    Map<String, FacetParam> facetParams = req.getFacetParams();
+    Map<String, List<Selection>> selections = req.getSelections();
     Map<String, List<Facet>> facetsResult = new HashMap<String, List<Facet>>();
     for (Entry<String, FacetsConfig> entry : configMap.entrySet()) {
       String field = entry.getKey();
-      facetsResult.put(field, buildFacetList(entry, facetParams.get(field),collector));
+      facetsResult.put(field, buildFacetList(entry, selections.get(field), facetParams.get(field),collector));
     }
     return facetsResult;
   }

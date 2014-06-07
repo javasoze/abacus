@@ -1,7 +1,10 @@
 package abacus.clue.commands;
 
 import java.io.PrintStream;
+import java.util.HashMap;
+import java.util.Map;
 
+import abacus.api.query.FacetParam;
 import abacus.api.query.Request;
 import abacus.api.query.ResultSet;
 import abacus.service.AbacusQueryService;
@@ -19,7 +22,13 @@ public class BQLCommand extends ClueCommand {
   }
   
   private static Request parse(String bql) {
-    return new Request();
+    Request req = new Request();
+    FacetParam fp = new FacetParam();
+    fp.setMaxNumValues(10);
+    Map<String, FacetParam> facetParams = new HashMap<String, FacetParam>();
+    facetParams.put("color", fp);
+    req.setFacetParams(facetParams);
+    return req;
   }
 
   @Override
@@ -32,6 +41,7 @@ public class BQLCommand extends ClueCommand {
     String bql = buf.toString().trim();
     out.println("executing bql: " + bql);
     Request req = parse(bql);
+    out.println("parsed request: " + req);
     ResultSet res = svc.query(req);
     out.println(res);
   }
