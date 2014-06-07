@@ -214,7 +214,10 @@ function renderPage(resultString){
 	    renderPath(name,facets[name]);
 	  }
 	  else{
+		// TODO: handle ranges
+		if (name=='color' || name=='category' || name=='tags') {
 		  renderFacet(name,facets[name],handleSelected,clearSelection);
+		}
 	  }
 	}
 

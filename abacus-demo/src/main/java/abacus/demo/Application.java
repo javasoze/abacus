@@ -1,6 +1,5 @@
 package abacus.demo;
 
-import static spark.Spark.get;
 import static spark.Spark.post;
 import static spark.Spark.staticFileLocation;
 
@@ -11,6 +10,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
@@ -22,6 +22,7 @@ import org.json.JSONObject;
 import spark.Request;
 import spark.Response;
 import spark.Route;
+import abacus.api.query.Facet;
 import abacus.api.query.FacetParam;
 import abacus.api.query.ResultSet;
 import abacus.api.query.Selection;
@@ -111,17 +112,29 @@ public class Application {
         }
       }
     }
-    System.out.println("parsed req: " + abacusReq);
     return abacusReq;
   }
   
   private static final String convert(ResultSet resultSet) {
-    System.out.println("resultset: " + resultSet);
     JSONObject respObj = new JSONObject();
     respObj.put("numhits", resultSet.getNumHits());
     respObj.put("totaldocs", resultSet.getCorpusSize());
     respObj.put("time", resultSet.getLatencyInMs());
-    //respObj.put("facets", value);
+    Map<String, List<Facet>> facetMap = resultSet.getFacetList();
+    if (facetMap != null) {
+      JSONObject facetObj = new JSONObject();
+      respObj.put("facets", facetObj);
+      for (Entry<String, List<Facet>> entry : facetMap.entrySet()) {
+        JSONArray perDimFacetArr = new JSONArray();
+        facetObj.put(entry.getKey(), perDimFacetArr);
+        for (Facet f : entry.getValue()) {
+          JSONObject perDimFacet = new JSONObject();
+          perDimFacet.put("value", f.getValue());
+          perDimFacet.put("count", f.getCount());
+          perDimFacetArr.put(perDimFacet);
+        }
+      }
+    }
     return respObj.toString();
   }
   
@@ -149,9 +162,7 @@ public class Application {
           rs.setNumHits(0L);
         }
   			
-  			String outJson = convert(rs);
-  			System.out.println("output json: " + outJson);
-  			return outJson;
+  			return convert(rs);
   		}
     	
     });
