@@ -39,6 +39,7 @@ public class FacetParam implements org.apache.thrift.TBase<FacetParam, FacetPara
   private static final org.apache.thrift.protocol.TField MAX_NUM_VALUES_FIELD_DESC = new org.apache.thrift.protocol.TField("maxNumValues", org.apache.thrift.protocol.TType.I32, (short)2);
   private static final org.apache.thrift.protocol.TField MIN_COUNT_FIELD_DESC = new org.apache.thrift.protocol.TField("minCount", org.apache.thrift.protocol.TType.I32, (short)3);
   private static final org.apache.thrift.protocol.TField PATH_FIELD_DESC = new org.apache.thrift.protocol.TField("path", org.apache.thrift.protocol.TType.LIST, (short)4);
+  private static final org.apache.thrift.protocol.TField DRILL_SIDEWAYS_FIELD_DESC = new org.apache.thrift.protocol.TField("drillSideways", org.apache.thrift.protocol.TType.BOOL, (short)5);
 
   private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<Class<? extends IScheme>, SchemeFactory>();
   static {
@@ -54,6 +55,7 @@ public class FacetParam implements org.apache.thrift.TBase<FacetParam, FacetPara
   public int maxNumValues; // optional
   public int minCount; // optional
   public List<String> path; // optional
+  public boolean drillSideways; // optional
 
   /** The set of fields this struct contains, along with convenience methods for finding and manipulating them. */
   public enum _Fields implements org.apache.thrift.TFieldIdEnum {
@@ -64,7 +66,8 @@ public class FacetParam implements org.apache.thrift.TBase<FacetParam, FacetPara
     MODE((short)1, "mode"),
     MAX_NUM_VALUES((short)2, "maxNumValues"),
     MIN_COUNT((short)3, "minCount"),
-    PATH((short)4, "path");
+    PATH((short)4, "path"),
+    DRILL_SIDEWAYS((short)5, "drillSideways");
 
     private static final Map<String, _Fields> byName = new HashMap<String, _Fields>();
 
@@ -87,6 +90,8 @@ public class FacetParam implements org.apache.thrift.TBase<FacetParam, FacetPara
           return MIN_COUNT;
         case 4: // PATH
           return PATH;
+        case 5: // DRILL_SIDEWAYS
+          return DRILL_SIDEWAYS;
         default:
           return null;
       }
@@ -129,8 +134,9 @@ public class FacetParam implements org.apache.thrift.TBase<FacetParam, FacetPara
   // isset id assignments
   private static final int __MAXNUMVALUES_ISSET_ID = 0;
   private static final int __MINCOUNT_ISSET_ID = 1;
+  private static final int __DRILLSIDEWAYS_ISSET_ID = 2;
   private byte __isset_bitfield = 0;
-  private _Fields optionals[] = {_Fields.MODE,_Fields.MAX_NUM_VALUES,_Fields.MIN_COUNT,_Fields.PATH};
+  private _Fields optionals[] = {_Fields.MODE,_Fields.MAX_NUM_VALUES,_Fields.MIN_COUNT,_Fields.PATH,_Fields.DRILL_SIDEWAYS};
   public static final Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> metaDataMap;
   static {
     Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<_Fields, org.apache.thrift.meta_data.FieldMetaData>(_Fields.class);
@@ -143,6 +149,8 @@ public class FacetParam implements org.apache.thrift.TBase<FacetParam, FacetPara
     tmpMap.put(_Fields.PATH, new org.apache.thrift.meta_data.FieldMetaData("path", org.apache.thrift.TFieldRequirementType.OPTIONAL, 
         new org.apache.thrift.meta_data.ListMetaData(org.apache.thrift.protocol.TType.LIST, 
             new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING))));
+    tmpMap.put(_Fields.DRILL_SIDEWAYS, new org.apache.thrift.meta_data.FieldMetaData("drillSideways", org.apache.thrift.TFieldRequirementType.OPTIONAL, 
+        new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.BOOL)));
     metaDataMap = Collections.unmodifiableMap(tmpMap);
     org.apache.thrift.meta_data.FieldMetaData.addStructMetaDataMap(FacetParam.class, metaDataMap);
   }
@@ -170,6 +178,7 @@ public class FacetParam implements org.apache.thrift.TBase<FacetParam, FacetPara
       List<String> __this__path = new ArrayList<String>(other.path);
       this.path = __this__path;
     }
+    this.drillSideways = other.drillSideways;
   }
 
   public FacetParam deepCopy() {
@@ -185,6 +194,8 @@ public class FacetParam implements org.apache.thrift.TBase<FacetParam, FacetPara
     this.minCount = 1;
 
     this.path = null;
+    setDrillSidewaysIsSet(false);
+    this.drillSideways = false;
   }
 
   /**
@@ -304,6 +315,29 @@ public class FacetParam implements org.apache.thrift.TBase<FacetParam, FacetPara
     }
   }
 
+  public boolean isDrillSideways() {
+    return this.drillSideways;
+  }
+
+  public FacetParam setDrillSideways(boolean drillSideways) {
+    this.drillSideways = drillSideways;
+    setDrillSidewaysIsSet(true);
+    return this;
+  }
+
+  public void unsetDrillSideways() {
+    __isset_bitfield = EncodingUtils.clearBit(__isset_bitfield, __DRILLSIDEWAYS_ISSET_ID);
+  }
+
+  /** Returns true if field drillSideways is set (has been assigned a value) and false otherwise */
+  public boolean isSetDrillSideways() {
+    return EncodingUtils.testBit(__isset_bitfield, __DRILLSIDEWAYS_ISSET_ID);
+  }
+
+  public void setDrillSidewaysIsSet(boolean value) {
+    __isset_bitfield = EncodingUtils.setBit(__isset_bitfield, __DRILLSIDEWAYS_ISSET_ID, value);
+  }
+
   public void setFieldValue(_Fields field, Object value) {
     switch (field) {
     case MODE:
@@ -338,6 +372,14 @@ public class FacetParam implements org.apache.thrift.TBase<FacetParam, FacetPara
       }
       break;
 
+    case DRILL_SIDEWAYS:
+      if (value == null) {
+        unsetDrillSideways();
+      } else {
+        setDrillSideways((Boolean)value);
+      }
+      break;
+
     }
   }
 
@@ -354,6 +396,9 @@ public class FacetParam implements org.apache.thrift.TBase<FacetParam, FacetPara
 
     case PATH:
       return getPath();
+
+    case DRILL_SIDEWAYS:
+      return Boolean.valueOf(isDrillSideways());
 
     }
     throw new IllegalStateException();
@@ -374,6 +419,8 @@ public class FacetParam implements org.apache.thrift.TBase<FacetParam, FacetPara
       return isSetMinCount();
     case PATH:
       return isSetPath();
+    case DRILL_SIDEWAYS:
+      return isSetDrillSideways();
     }
     throw new IllegalStateException();
   }
@@ -424,6 +471,15 @@ public class FacetParam implements org.apache.thrift.TBase<FacetParam, FacetPara
       if (!(this_present_path && that_present_path))
         return false;
       if (!this.path.equals(that.path))
+        return false;
+    }
+
+    boolean this_present_drillSideways = true && this.isSetDrillSideways();
+    boolean that_present_drillSideways = true && that.isSetDrillSideways();
+    if (this_present_drillSideways || that_present_drillSideways) {
+      if (!(this_present_drillSideways && that_present_drillSideways))
+        return false;
+      if (this.drillSideways != that.drillSideways)
         return false;
     }
 
@@ -483,6 +539,16 @@ public class FacetParam implements org.apache.thrift.TBase<FacetParam, FacetPara
         return lastComparison;
       }
     }
+    lastComparison = Boolean.valueOf(isSetDrillSideways()).compareTo(other.isSetDrillSideways());
+    if (lastComparison != 0) {
+      return lastComparison;
+    }
+    if (isSetDrillSideways()) {
+      lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.drillSideways, other.drillSideways);
+      if (lastComparison != 0) {
+        return lastComparison;
+      }
+    }
     return 0;
   }
 
@@ -532,6 +598,12 @@ public class FacetParam implements org.apache.thrift.TBase<FacetParam, FacetPara
       } else {
         sb.append(this.path);
       }
+      first = false;
+    }
+    if (isSetDrillSideways()) {
+      if (!first) sb.append(", ");
+      sb.append("drillSideways:");
+      sb.append(this.drillSideways);
       first = false;
     }
     sb.append(")");
@@ -621,6 +693,14 @@ public class FacetParam implements org.apache.thrift.TBase<FacetParam, FacetPara
               org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
             }
             break;
+          case 5: // DRILL_SIDEWAYS
+            if (schemeField.type == org.apache.thrift.protocol.TType.BOOL) {
+              struct.drillSideways = iprot.readBool();
+              struct.setDrillSidewaysIsSet(true);
+            } else { 
+              org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
+            }
+            break;
           default:
             org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
         }
@@ -667,6 +747,11 @@ public class FacetParam implements org.apache.thrift.TBase<FacetParam, FacetPara
           oprot.writeFieldEnd();
         }
       }
+      if (struct.isSetDrillSideways()) {
+        oprot.writeFieldBegin(DRILL_SIDEWAYS_FIELD_DESC);
+        oprot.writeBool(struct.drillSideways);
+        oprot.writeFieldEnd();
+      }
       oprot.writeFieldStop();
       oprot.writeStructEnd();
     }
@@ -697,7 +782,10 @@ public class FacetParam implements org.apache.thrift.TBase<FacetParam, FacetPara
       if (struct.isSetPath()) {
         optionals.set(3);
       }
-      oprot.writeBitSet(optionals, 4);
+      if (struct.isSetDrillSideways()) {
+        optionals.set(4);
+      }
+      oprot.writeBitSet(optionals, 5);
       if (struct.isSetMode()) {
         oprot.writeI32(struct.mode.getValue());
       }
@@ -716,12 +804,15 @@ public class FacetParam implements org.apache.thrift.TBase<FacetParam, FacetPara
           }
         }
       }
+      if (struct.isSetDrillSideways()) {
+        oprot.writeBool(struct.drillSideways);
+      }
     }
 
     @Override
     public void read(org.apache.thrift.protocol.TProtocol prot, FacetParam struct) throws org.apache.thrift.TException {
       TTupleProtocol iprot = (TTupleProtocol) prot;
-      BitSet incoming = iprot.readBitSet(4);
+      BitSet incoming = iprot.readBitSet(5);
       if (incoming.get(0)) {
         struct.mode = FacetSortMode.findByValue(iprot.readI32());
         struct.setModeIsSet(true);
@@ -746,6 +837,10 @@ public class FacetParam implements org.apache.thrift.TBase<FacetParam, FacetPara
           }
         }
         struct.setPathIsSet(true);
+      }
+      if (incoming.get(4)) {
+        struct.drillSideways = iprot.readBool();
+        struct.setDrillSidewaysIsSet(true);
       }
     }
   }

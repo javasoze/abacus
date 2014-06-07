@@ -12,7 +12,7 @@ import com.senseidb.clue.ClueContext;
 
 public class AbacusClueContext extends ClueContext {
 
-  private AbacusQueryService svc;
+  private final AbacusQueryService svc;
   private QueryParser qparser;
   public AbacusClueContext(Directory dir, ClueConfiguration config, boolean interactiveMode) 
       throws Exception {

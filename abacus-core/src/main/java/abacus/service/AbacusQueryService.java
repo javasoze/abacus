@@ -34,7 +34,6 @@ import abacus.api.query.FacetParam;
 import abacus.api.query.Request;
 import abacus.api.query.Result;
 import abacus.api.query.ResultSet;
-import abacus.api.query.Selection;
 import abacus.config.FacetType;
 import abacus.config.FacetsConfig;
 import abacus.config.IndexDirectoryFacetsConfigReader;
@@ -52,13 +51,14 @@ public class AbacusQueryService implements Closeable {
   private final Map<String, AttributeSortedSetDocValuesReaderState> attrReaderState;
   private final IndexReader reader;
   private final QueryParser queryParser;
+  private final DirectoryReader dirReader;
   
   public AbacusQueryService(Directory idxDir, QueryParser queryParser) throws IOException {
 	this(idxDir, queryParser, null);
   }
   
   public AbacusQueryService(Directory idxDir, QueryParser queryParser, Map<String, MemType> loadOptions) throws IOException {
-    DirectoryReader dirReader = DirectoryReader.open(idxDir);
+    dirReader = DirectoryReader.open(idxDir);
     configMap = IndexDirectoryFacetsConfigReader.readerFacetsConfig(dirReader);
     attrReaderState = new HashMap<String, AttributeSortedSetDocValuesReaderState>();
     List<AtomicReaderContext> leaves = dirReader.leaves();
@@ -120,6 +120,7 @@ public class AbacusQueryService implements Closeable {
     ResultSet rs = new ResultSet();
     
     rs.setNumHits(topDocsCollector.getTotalHits());
+    rs.setCorpusSize(reader.maxDoc());
     rs.setResultList(buildHitResultList(topDocs));
     rs.setLatencyInMs(System.currentTimeMillis() - start);
     
@@ -199,5 +200,6 @@ public class AbacusQueryService implements Closeable {
   @Override
   public void close() throws IOException {
     reader.close();
+    dirReader.close();
   }
 }

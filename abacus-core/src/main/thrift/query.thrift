@@ -39,7 +39,7 @@ struct FacetParam {
   2: optional i32 maxNumValues = 5
   3: optional i32 minCount = 1
   4: optional list<string> path
-#  4: optional boolean drillSideways  // not yet supported
+  5: optional bool drillSideways
 }
 
 struct Request {
@@ -79,5 +79,6 @@ struct ResultSet {
   2: optional i64 latencyInMs
   3: optional list<Result> resultList
   4: optional map<string, list<Facet>> facetList
+  5: optional i64 corpusSize
 }
 

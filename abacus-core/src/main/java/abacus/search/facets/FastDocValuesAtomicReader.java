@@ -122,7 +122,7 @@ public class FastDocValuesAtomicReader extends FilterAtomicReader {
   }
 
   @Override
-  protected void doClose() throws IOException {
+  protected void doClose() throws IOException {    
     IOUtils.close(closableList);
   }
 }

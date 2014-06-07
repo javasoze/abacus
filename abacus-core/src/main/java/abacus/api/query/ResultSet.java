@@ -39,6 +39,7 @@ public class ResultSet implements org.apache.thrift.TBase<ResultSet, ResultSet._
   private static final org.apache.thrift.protocol.TField LATENCY_IN_MS_FIELD_DESC = new org.apache.thrift.protocol.TField("latencyInMs", org.apache.thrift.protocol.TType.I64, (short)2);
   private static final org.apache.thrift.protocol.TField RESULT_LIST_FIELD_DESC = new org.apache.thrift.protocol.TField("resultList", org.apache.thrift.protocol.TType.LIST, (short)3);
   private static final org.apache.thrift.protocol.TField FACET_LIST_FIELD_DESC = new org.apache.thrift.protocol.TField("facetList", org.apache.thrift.protocol.TType.MAP, (short)4);
+  private static final org.apache.thrift.protocol.TField CORPUS_SIZE_FIELD_DESC = new org.apache.thrift.protocol.TField("corpusSize", org.apache.thrift.protocol.TType.I64, (short)5);
 
   private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<Class<? extends IScheme>, SchemeFactory>();
   static {
@@ -50,13 +51,15 @@ public class ResultSet implements org.apache.thrift.TBase<ResultSet, ResultSet._
   public long latencyInMs; // optional
   public List<Result> resultList; // optional
   public Map<String,List<Facet>> facetList; // optional
+  public long corpusSize; // optional
 
   /** The set of fields this struct contains, along with convenience methods for finding and manipulating them. */
   public enum _Fields implements org.apache.thrift.TFieldIdEnum {
     NUM_HITS((short)1, "numHits"),
     LATENCY_IN_MS((short)2, "latencyInMs"),
     RESULT_LIST((short)3, "resultList"),
-    FACET_LIST((short)4, "facetList");
+    FACET_LIST((short)4, "facetList"),
+    CORPUS_SIZE((short)5, "corpusSize");
 
     private static final Map<String, _Fields> byName = new HashMap<String, _Fields>();
 
@@ -79,6 +82,8 @@ public class ResultSet implements org.apache.thrift.TBase<ResultSet, ResultSet._
           return RESULT_LIST;
         case 4: // FACET_LIST
           return FACET_LIST;
+        case 5: // CORPUS_SIZE
+          return CORPUS_SIZE;
         default:
           return null;
       }
@@ -121,8 +126,9 @@ public class ResultSet implements org.apache.thrift.TBase<ResultSet, ResultSet._
   // isset id assignments
   private static final int __NUMHITS_ISSET_ID = 0;
   private static final int __LATENCYINMS_ISSET_ID = 1;
+  private static final int __CORPUSSIZE_ISSET_ID = 2;
   private byte __isset_bitfield = 0;
-  private _Fields optionals[] = {_Fields.NUM_HITS,_Fields.LATENCY_IN_MS,_Fields.RESULT_LIST,_Fields.FACET_LIST};
+  private _Fields optionals[] = {_Fields.NUM_HITS,_Fields.LATENCY_IN_MS,_Fields.RESULT_LIST,_Fields.FACET_LIST,_Fields.CORPUS_SIZE};
   public static final Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> metaDataMap;
   static {
     Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<_Fields, org.apache.thrift.meta_data.FieldMetaData>(_Fields.class);
@@ -138,6 +144,8 @@ public class ResultSet implements org.apache.thrift.TBase<ResultSet, ResultSet._
             new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING), 
             new org.apache.thrift.meta_data.ListMetaData(org.apache.thrift.protocol.TType.LIST, 
                 new org.apache.thrift.meta_data.StructMetaData(org.apache.thrift.protocol.TType.STRUCT, Facet.class)))));
+    tmpMap.put(_Fields.CORPUS_SIZE, new org.apache.thrift.meta_data.FieldMetaData("corpusSize", org.apache.thrift.TFieldRequirementType.OPTIONAL, 
+        new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I64)));
     metaDataMap = Collections.unmodifiableMap(tmpMap);
     org.apache.thrift.meta_data.FieldMetaData.addStructMetaDataMap(ResultSet.class, metaDataMap);
   }
@@ -177,6 +185,7 @@ public class ResultSet implements org.apache.thrift.TBase<ResultSet, ResultSet._
       }
       this.facetList = __this__facetList;
     }
+    this.corpusSize = other.corpusSize;
   }
 
   public ResultSet deepCopy() {
@@ -191,6 +200,8 @@ public class ResultSet implements org.apache.thrift.TBase<ResultSet, ResultSet._
     this.latencyInMs = 0;
     this.resultList = null;
     this.facetList = null;
+    setCorpusSizeIsSet(false);
+    this.corpusSize = 0;
   }
 
   public long getNumHits() {
@@ -313,6 +324,29 @@ public class ResultSet implements org.apache.thrift.TBase<ResultSet, ResultSet._
     }
   }
 
+  public long getCorpusSize() {
+    return this.corpusSize;
+  }
+
+  public ResultSet setCorpusSize(long corpusSize) {
+    this.corpusSize = corpusSize;
+    setCorpusSizeIsSet(true);
+    return this;
+  }
+
+  public void unsetCorpusSize() {
+    __isset_bitfield = EncodingUtils.clearBit(__isset_bitfield, __CORPUSSIZE_ISSET_ID);
+  }
+
+  /** Returns true if field corpusSize is set (has been assigned a value) and false otherwise */
+  public boolean isSetCorpusSize() {
+    return EncodingUtils.testBit(__isset_bitfield, __CORPUSSIZE_ISSET_ID);
+  }
+
+  public void setCorpusSizeIsSet(boolean value) {
+    __isset_bitfield = EncodingUtils.setBit(__isset_bitfield, __CORPUSSIZE_ISSET_ID, value);
+  }
+
   public void setFieldValue(_Fields field, Object value) {
     switch (field) {
     case NUM_HITS:
@@ -347,6 +381,14 @@ public class ResultSet implements org.apache.thrift.TBase<ResultSet, ResultSet._
       }
       break;
 
+    case CORPUS_SIZE:
+      if (value == null) {
+        unsetCorpusSize();
+      } else {
+        setCorpusSize((Long)value);
+      }
+      break;
+
     }
   }
 
@@ -363,6 +405,9 @@ public class ResultSet implements org.apache.thrift.TBase<ResultSet, ResultSet._
 
     case FACET_LIST:
       return getFacetList();
+
+    case CORPUS_SIZE:
+      return Long.valueOf(getCorpusSize());
 
     }
     throw new IllegalStateException();
@@ -383,6 +428,8 @@ public class ResultSet implements org.apache.thrift.TBase<ResultSet, ResultSet._
       return isSetResultList();
     case FACET_LIST:
       return isSetFacetList();
+    case CORPUS_SIZE:
+      return isSetCorpusSize();
     }
     throw new IllegalStateException();
   }
@@ -433,6 +480,15 @@ public class ResultSet implements org.apache.thrift.TBase<ResultSet, ResultSet._
       if (!(this_present_facetList && that_present_facetList))
         return false;
       if (!this.facetList.equals(that.facetList))
+        return false;
+    }
+
+    boolean this_present_corpusSize = true && this.isSetCorpusSize();
+    boolean that_present_corpusSize = true && that.isSetCorpusSize();
+    if (this_present_corpusSize || that_present_corpusSize) {
+      if (!(this_present_corpusSize && that_present_corpusSize))
+        return false;
+      if (this.corpusSize != that.corpusSize)
         return false;
     }
 
@@ -492,6 +548,16 @@ public class ResultSet implements org.apache.thrift.TBase<ResultSet, ResultSet._
         return lastComparison;
       }
     }
+    lastComparison = Boolean.valueOf(isSetCorpusSize()).compareTo(other.isSetCorpusSize());
+    if (lastComparison != 0) {
+      return lastComparison;
+    }
+    if (isSetCorpusSize()) {
+      lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.corpusSize, other.corpusSize);
+      if (lastComparison != 0) {
+        return lastComparison;
+      }
+    }
     return 0;
   }
 
@@ -541,6 +607,12 @@ public class ResultSet implements org.apache.thrift.TBase<ResultSet, ResultSet._
       } else {
         sb.append(this.facetList);
       }
+      first = false;
+    }
+    if (isSetCorpusSize()) {
+      if (!first) sb.append(", ");
+      sb.append("corpusSize:");
+      sb.append(this.corpusSize);
       first = false;
     }
     sb.append(")");
@@ -654,6 +726,14 @@ public class ResultSet implements org.apache.thrift.TBase<ResultSet, ResultSet._
               org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
             }
             break;
+          case 5: // CORPUS_SIZE
+            if (schemeField.type == org.apache.thrift.protocol.TType.I64) {
+              struct.corpusSize = iprot.readI64();
+              struct.setCorpusSizeIsSet(true);
+            } else { 
+              org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
+            }
+            break;
           default:
             org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
         }
@@ -715,6 +795,11 @@ public class ResultSet implements org.apache.thrift.TBase<ResultSet, ResultSet._
           oprot.writeFieldEnd();
         }
       }
+      if (struct.isSetCorpusSize()) {
+        oprot.writeFieldBegin(CORPUS_SIZE_FIELD_DESC);
+        oprot.writeI64(struct.corpusSize);
+        oprot.writeFieldEnd();
+      }
       oprot.writeFieldStop();
       oprot.writeStructEnd();
     }
@@ -745,7 +830,10 @@ public class ResultSet implements org.apache.thrift.TBase<ResultSet, ResultSet._
       if (struct.isSetFacetList()) {
         optionals.set(3);
       }
-      oprot.writeBitSet(optionals, 4);
+      if (struct.isSetCorpusSize()) {
+        optionals.set(4);
+      }
+      oprot.writeBitSet(optionals, 5);
       if (struct.isSetNumHits()) {
         oprot.writeI64(struct.numHits);
       }
@@ -777,12 +865,15 @@ public class ResultSet implements org.apache.thrift.TBase<ResultSet, ResultSet._
           }
         }
       }
+      if (struct.isSetCorpusSize()) {
+        oprot.writeI64(struct.corpusSize);
+      }
     }
 
     @Override
     public void read(org.apache.thrift.protocol.TProtocol prot, ResultSet struct) throws org.apache.thrift.TException {
       TTupleProtocol iprot = (TTupleProtocol) prot;
-      BitSet incoming = iprot.readBitSet(4);
+      BitSet incoming = iprot.readBitSet(5);
       if (incoming.get(0)) {
         struct.numHits = iprot.readI64();
         struct.setNumHitsIsSet(true);
@@ -829,6 +920,10 @@ public class ResultSet implements org.apache.thrift.TBase<ResultSet, ResultSet._
           }
         }
         struct.setFacetListIsSet(true);
+      }
+      if (incoming.get(4)) {
+        struct.corpusSize = iprot.readI64();
+        struct.setCorpusSizeIsSet(true);
       }
     }
   }
