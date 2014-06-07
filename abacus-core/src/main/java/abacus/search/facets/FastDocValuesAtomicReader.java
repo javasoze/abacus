@@ -15,7 +15,6 @@ import org.apache.lucene.index.SortedDocValues;
 import org.apache.lucene.index.SortedSetDocValues;
 import org.apache.lucene.util.IOUtils;
 
-import abacus.config.FacetsConfig;
 import abacus.search.facets.docvalues.ArrayNumericDocValues;
 import abacus.search.facets.docvalues.ArraySortedDocValues;
 import abacus.search.facets.docvalues.ArraySortedSetDocValues;
@@ -41,20 +40,19 @@ public class FastDocValuesAtomicReader extends FilterAtomicReader {
     Native
   };
   
-  public FastDocValuesAtomicReader(AtomicReader in, Map<String, FacetsConfig> configMap) 
+  public FastDocValuesAtomicReader(AtomicReader in, Map<String, MemType> loadOptionsMap) 
       throws IOException {
-    this(in, configMap, MemType.Default);    
+    this(in, loadOptionsMap, MemType.Default);    
   }
   
-  public FastDocValuesAtomicReader(AtomicReader in, Map<String, FacetsConfig> configMap, MemType defaultMemType) 
+  public FastDocValuesAtomicReader(AtomicReader in, Map<String, MemType> loadOptionsMap, MemType defaultMemType) 
       throws IOException {
     super(in);
     cached = new HashMap<String, NumericDocValues>();
     sortedCached = new HashMap<String, SortedDocValues>();
     sortedSetCached = new HashMap<String, SortedSetDocValues>();
     for (FieldInfo finfo : in.getFieldInfos()) {
-      FacetsConfig config = configMap != null ? configMap.get(finfo.name) : null;
-      MemType type = config != null ? config.getMemType() : defaultMemType;
+      MemType type = loadOptionsMap != null ? loadOptionsMap.get(finfo.name) : null;
       if (type == null) {
         type = MemType.Default;
       }

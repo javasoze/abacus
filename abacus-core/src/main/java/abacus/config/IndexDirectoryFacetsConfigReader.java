@@ -1,6 +1,7 @@
 package abacus.config;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.lucene.index.DirectoryReader;
@@ -32,8 +33,12 @@ public class IndexDirectoryFacetsConfigReader implements FacetsConfigReader {
   }
   
   public static void putFacetsConfig(IndexWriter idxWriter, Map<String, FacetsConfig> configMap) 
-      throws IOException {    
-    Map<String, String> commitData = idxWriter.getCommitData();
+      throws IOException {
+    Map<String, String> commitData = new HashMap<String, String>();
+    Map<String, String> srcCommit = idxWriter.getCommitData();
+    if (srcCommit != null) {
+      commitData.putAll(srcCommit);
+    }
     commitData.putAll(FacetsConfig.flatten(configMap));
     idxWriter.setCommitData(commitData);
   }

@@ -56,7 +56,7 @@
         <dependency>
 	        <groupId>com.senseidb.clue</groupId>
 	        <artifactId>clue</artifactId>
-	        <version>0.0.5-SNAPSHOT</version>
+	        <version>0.0.6-SNAPSHOT</version>
         </dependency>
 	</dependencies>
 </project>

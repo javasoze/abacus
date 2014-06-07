@@ -21,6 +21,7 @@ public class AbacusClueApplication extends ClueApplication {
     
     new FacetCommand(ctx);
     new BQLCommand(ctx);
+    new FacetConfigCommand(ctx);
     return ctx;
   }
 

@@ -6,15 +6,11 @@ import java.util.Map.Entry;
 
 import org.apache.lucene.document.FieldType.NumericType;
 
-import abacus.search.facets.FastDocValuesAtomicReader.MemType;
-
 public class FacetsConfig {
-  private final MemType memType;
   private final FacetType facetType;
   private final NumericType numericType;
   
-  FacetsConfig(MemType memType, FacetType facetType, NumericType numericType) {
-    this.memType = memType;
+  FacetsConfig(FacetType facetType, NumericType numericType) {
     this.facetType = facetType;
     if (facetType == FacetType.NUMERIC) {
       if (numericType == null) {
@@ -26,12 +22,18 @@ public class FacetsConfig {
     }
   }
   
-  public NumericType getNumericType() {
-	return numericType;
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder();
+    buf.append("facettype: " + facetType);
+    if (numericType != null) {
+      buf.append("\tnumericType: " + numericType);
+    }
+    return buf.toString();
   }
-
-  public MemType getMemType() {
-    return memType;
+  
+  public NumericType getNumericType() {
+	  return numericType;
   }
 
   public FacetType getFacetType() {
@@ -39,7 +41,6 @@ public class FacetsConfig {
   }
   
   private static final String PREFIX = "__$abacus.";
-  private static final String PARAM_MEM_TYPE = "mem_type";
   private static final String PARAM_FACET_TYPE = "facet_type";
   private static final String PARAM_NUMERIC_TYPE = "numeric_type";
   
@@ -48,9 +49,10 @@ public class FacetsConfig {
     for (Entry<String, FacetsConfig> entry : configMap.entrySet()) {
       String name = entry.getKey();
       FacetsConfig config = entry.getValue();
-      flattenMap.put(PREFIX + name + "." + PARAM_MEM_TYPE, config.getMemType().toString());
-      flattenMap.put(PREFIX + name + "." + PARAM_FACET_TYPE, config.getFacetType().toString());
-      flattenMap.put(PREFIX + name + "." + PARAM_NUMERIC_TYPE, config.getNumericType().toString());
+      flattenMap.put(PREFIX + name + "." + PARAM_FACET_TYPE, String.valueOf(config.getFacetType()));
+      if (config.getNumericType() != null) {
+        flattenMap.put(PREFIX + name + "." + PARAM_NUMERIC_TYPE, String.valueOf(config.getNumericType()));
+      }
     }
     return flattenMap;
   }
@@ -62,7 +64,7 @@ public class FacetsConfig {
       String key = entry.getKey();
       if (key.startsWith(PREFIX)) {
         String configString = key.substring(PREFIX.length());
-        String[] pair = configString.split(".");
+        String[] pair = configString.split("\\.");
         if (pair.length != 2) {
           throw new IllegalStateException("invalid key: " + key);
         }
@@ -76,9 +78,7 @@ public class FacetsConfig {
           builderMap.put(name, builder);
         }
         String val = entry.getValue();
-        if (PARAM_MEM_TYPE.equals(configType)) {
-          builder.withMemType(MemType.valueOf(val));
-        } else if (PARAM_FACET_TYPE.equals(configType)) {
+        if (PARAM_FACET_TYPE.equals(configType)) {
           builder.withFacetType(FacetType.valueOf(val));
         } else if (PARAM_NUMERIC_TYPE.endsWith(configType)) {
           builder.withNumericType(NumericType.valueOf(val));
