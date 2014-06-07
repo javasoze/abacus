@@ -863,26 +863,26 @@ public class Request implements org.apache.thrift.TBase<Request, Request._Fields
           case 2: // SELECTIONS
             if (schemeField.type == org.apache.thrift.protocol.TType.MAP) {
               {
-                org.apache.thrift.protocol.TMap _map8 = iprot.readMapBegin();
-                struct.selections = new HashMap<String,List<Selection>>(2*_map8.size);
-                for (int _i9 = 0; _i9 < _map8.size; ++_i9)
+                org.apache.thrift.protocol.TMap _map16 = iprot.readMapBegin();
+                struct.selections = new HashMap<String,List<Selection>>(2*_map16.size);
+                for (int _i17 = 0; _i17 < _map16.size; ++_i17)
                 {
-                  String _key10;
-                  List<Selection> _val11;
-                  _key10 = iprot.readString();
+                  String _key18;
+                  List<Selection> _val19;
+                  _key18 = iprot.readString();
                   {
-                    org.apache.thrift.protocol.TList _list12 = iprot.readListBegin();
-                    _val11 = new ArrayList<Selection>(_list12.size);
-                    for (int _i13 = 0; _i13 < _list12.size; ++_i13)
+                    org.apache.thrift.protocol.TList _list20 = iprot.readListBegin();
+                    _val19 = new ArrayList<Selection>(_list20.size);
+                    for (int _i21 = 0; _i21 < _list20.size; ++_i21)
                     {
-                      Selection _elem14;
-                      _elem14 = new Selection();
-                      _elem14.read(iprot);
-                      _val11.add(_elem14);
+                      Selection _elem22;
+                      _elem22 = new Selection();
+                      _elem22.read(iprot);
+                      _val19.add(_elem22);
                     }
                     iprot.readListEnd();
                   }
-                  struct.selections.put(_key10, _val11);
+                  struct.selections.put(_key18, _val19);
                 }
                 iprot.readMapEnd();
               }
@@ -894,16 +894,16 @@ public class Request implements org.apache.thrift.TBase<Request, Request._Fields
           case 3: // FACET_PARAMS
             if (schemeField.type == org.apache.thrift.protocol.TType.MAP) {
               {
-                org.apache.thrift.protocol.TMap _map15 = iprot.readMapBegin();
-                struct.facetParams = new HashMap<String,FacetParam>(2*_map15.size);
-                for (int _i16 = 0; _i16 < _map15.size; ++_i16)
+                org.apache.thrift.protocol.TMap _map23 = iprot.readMapBegin();
+                struct.facetParams = new HashMap<String,FacetParam>(2*_map23.size);
+                for (int _i24 = 0; _i24 < _map23.size; ++_i24)
                 {
-                  String _key17;
-                  FacetParam _val18;
-                  _key17 = iprot.readString();
-                  _val18 = new FacetParam();
-                  _val18.read(iprot);
-                  struct.facetParams.put(_key17, _val18);
+                  String _key25;
+                  FacetParam _val26;
+                  _key25 = iprot.readString();
+                  _val26 = new FacetParam();
+                  _val26.read(iprot);
+                  struct.facetParams.put(_key25, _val26);
                 }
                 iprot.readMapEnd();
               }
@@ -924,14 +924,14 @@ public class Request implements org.apache.thrift.TBase<Request, Request._Fields
           case 5: // SORT_FIELDS
             if (schemeField.type == org.apache.thrift.protocol.TType.LIST) {
               {
-                org.apache.thrift.protocol.TList _list19 = iprot.readListBegin();
-                struct.sortFields = new ArrayList<SortField>(_list19.size);
-                for (int _i20 = 0; _i20 < _list19.size; ++_i20)
+                org.apache.thrift.protocol.TList _list27 = iprot.readListBegin();
+                struct.sortFields = new ArrayList<SortField>(_list27.size);
+                for (int _i28 = 0; _i28 < _list27.size; ++_i28)
                 {
-                  SortField _elem21;
-                  _elem21 = new SortField();
-                  _elem21.read(iprot);
-                  struct.sortFields.add(_elem21);
+                  SortField _elem29;
+                  _elem29 = new SortField();
+                  _elem29.read(iprot);
+                  struct.sortFields.add(_elem29);
                 }
                 iprot.readListEnd();
               }
@@ -983,14 +983,14 @@ public class Request implements org.apache.thrift.TBase<Request, Request._Fields
           oprot.writeFieldBegin(SELECTIONS_FIELD_DESC);
           {
             oprot.writeMapBegin(new org.apache.thrift.protocol.TMap(org.apache.thrift.protocol.TType.STRING, org.apache.thrift.protocol.TType.LIST, struct.selections.size()));
-            for (Map.Entry<String, List<Selection>> _iter22 : struct.selections.entrySet())
+            for (Map.Entry<String, List<Selection>> _iter30 : struct.selections.entrySet())
             {
-              oprot.writeString(_iter22.getKey());
+              oprot.writeString(_iter30.getKey());
               {
-                oprot.writeListBegin(new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.STRUCT, _iter22.getValue().size()));
-                for (Selection _iter23 : _iter22.getValue())
+                oprot.writeListBegin(new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.STRUCT, _iter30.getValue().size()));
+                for (Selection _iter31 : _iter30.getValue())
                 {
-                  _iter23.write(oprot);
+                  _iter31.write(oprot);
                 }
                 oprot.writeListEnd();
               }
@@ -1005,10 +1005,10 @@ public class Request implements org.apache.thrift.TBase<Request, Request._Fields
           oprot.writeFieldBegin(FACET_PARAMS_FIELD_DESC);
           {
             oprot.writeMapBegin(new org.apache.thrift.protocol.TMap(org.apache.thrift.protocol.TType.STRING, org.apache.thrift.protocol.TType.STRUCT, struct.facetParams.size()));
-            for (Map.Entry<String, FacetParam> _iter24 : struct.facetParams.entrySet())
+            for (Map.Entry<String, FacetParam> _iter32 : struct.facetParams.entrySet())
             {
-              oprot.writeString(_iter24.getKey());
-              _iter24.getValue().write(oprot);
+              oprot.writeString(_iter32.getKey());
+              _iter32.getValue().write(oprot);
             }
             oprot.writeMapEnd();
           }
@@ -1027,9 +1027,9 @@ public class Request implements org.apache.thrift.TBase<Request, Request._Fields
           oprot.writeFieldBegin(SORT_FIELDS_FIELD_DESC);
           {
             oprot.writeListBegin(new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.STRUCT, struct.sortFields.size()));
-            for (SortField _iter25 : struct.sortFields)
+            for (SortField _iter33 : struct.sortFields)
             {
-              _iter25.write(oprot);
+              _iter33.write(oprot);
             }
             oprot.writeListEnd();
           }
@@ -1094,14 +1094,14 @@ public class Request implements org.apache.thrift.TBase<Request, Request._Fields
       if (struct.isSetSelections()) {
         {
           oprot.writeI32(struct.selections.size());
-          for (Map.Entry<String, List<Selection>> _iter26 : struct.selections.entrySet())
+          for (Map.Entry<String, List<Selection>> _iter34 : struct.selections.entrySet())
           {
-            oprot.writeString(_iter26.getKey());
+            oprot.writeString(_iter34.getKey());
             {
-              oprot.writeI32(_iter26.getValue().size());
-              for (Selection _iter27 : _iter26.getValue())
+              oprot.writeI32(_iter34.getValue().size());
+              for (Selection _iter35 : _iter34.getValue())
               {
-                _iter27.write(oprot);
+                _iter35.write(oprot);
               }
             }
           }
@@ -1110,10 +1110,10 @@ public class Request implements org.apache.thrift.TBase<Request, Request._Fields
       if (struct.isSetFacetParams()) {
         {
           oprot.writeI32(struct.facetParams.size());
-          for (Map.Entry<String, FacetParam> _iter28 : struct.facetParams.entrySet())
+          for (Map.Entry<String, FacetParam> _iter36 : struct.facetParams.entrySet())
           {
-            oprot.writeString(_iter28.getKey());
-            _iter28.getValue().write(oprot);
+            oprot.writeString(_iter36.getKey());
+            _iter36.getValue().write(oprot);
           }
         }
       }
@@ -1123,9 +1123,9 @@ public class Request implements org.apache.thrift.TBase<Request, Request._Fields
       if (struct.isSetSortFields()) {
         {
           oprot.writeI32(struct.sortFields.size());
-          for (SortField _iter29 : struct.sortFields)
+          for (SortField _iter37 : struct.sortFields)
           {
-            _iter29.write(oprot);
+            _iter37.write(oprot);
           }
         }
       }
@@ -1147,41 +1147,41 @@ public class Request implements org.apache.thrift.TBase<Request, Request._Fields
       }
       if (incoming.get(1)) {
         {
-          org.apache.thrift.protocol.TMap _map30 = new org.apache.thrift.protocol.TMap(org.apache.thrift.protocol.TType.STRING, org.apache.thrift.protocol.TType.LIST, iprot.readI32());
-          struct.selections = new HashMap<String,List<Selection>>(2*_map30.size);
-          for (int _i31 = 0; _i31 < _map30.size; ++_i31)
+          org.apache.thrift.protocol.TMap _map38 = new org.apache.thrift.protocol.TMap(org.apache.thrift.protocol.TType.STRING, org.apache.thrift.protocol.TType.LIST, iprot.readI32());
+          struct.selections = new HashMap<String,List<Selection>>(2*_map38.size);
+          for (int _i39 = 0; _i39 < _map38.size; ++_i39)
           {
-            String _key32;
-            List<Selection> _val33;
-            _key32 = iprot.readString();
+            String _key40;
+            List<Selection> _val41;
+            _key40 = iprot.readString();
             {
-              org.apache.thrift.protocol.TList _list34 = new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.STRUCT, iprot.readI32());
-              _val33 = new ArrayList<Selection>(_list34.size);
-              for (int _i35 = 0; _i35 < _list34.size; ++_i35)
+              org.apache.thrift.protocol.TList _list42 = new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.STRUCT, iprot.readI32());
+              _val41 = new ArrayList<Selection>(_list42.size);
+              for (int _i43 = 0; _i43 < _list42.size; ++_i43)
               {
-                Selection _elem36;
-                _elem36 = new Selection();
-                _elem36.read(iprot);
-                _val33.add(_elem36);
+                Selection _elem44;
+                _elem44 = new Selection();
+                _elem44.read(iprot);
+                _val41.add(_elem44);
               }
             }
-            struct.selections.put(_key32, _val33);
+            struct.selections.put(_key40, _val41);
           }
         }
         struct.setSelectionsIsSet(true);
       }
       if (incoming.get(2)) {
         {
-          org.apache.thrift.protocol.TMap _map37 = new org.apache.thrift.protocol.TMap(org.apache.thrift.protocol.TType.STRING, org.apache.thrift.protocol.TType.STRUCT, iprot.readI32());
-          struct.facetParams = new HashMap<String,FacetParam>(2*_map37.size);
-          for (int _i38 = 0; _i38 < _map37.size; ++_i38)
+          org.apache.thrift.protocol.TMap _map45 = new org.apache.thrift.protocol.TMap(org.apache.thrift.protocol.TType.STRING, org.apache.thrift.protocol.TType.STRUCT, iprot.readI32());
+          struct.facetParams = new HashMap<String,FacetParam>(2*_map45.size);
+          for (int _i46 = 0; _i46 < _map45.size; ++_i46)
           {
-            String _key39;
-            FacetParam _val40;
-            _key39 = iprot.readString();
-            _val40 = new FacetParam();
-            _val40.read(iprot);
-            struct.facetParams.put(_key39, _val40);
+            String _key47;
+            FacetParam _val48;
+            _key47 = iprot.readString();
+            _val48 = new FacetParam();
+            _val48.read(iprot);
+            struct.facetParams.put(_key47, _val48);
           }
         }
         struct.setFacetParamsIsSet(true);
@@ -1193,14 +1193,14 @@ public class Request implements org.apache.thrift.TBase<Request, Request._Fields
       }
       if (incoming.get(4)) {
         {
-          org.apache.thrift.protocol.TList _list41 = new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.STRUCT, iprot.readI32());
-          struct.sortFields = new ArrayList<SortField>(_list41.size);
-          for (int _i42 = 0; _i42 < _list41.size; ++_i42)
+          org.apache.thrift.protocol.TList _list49 = new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.STRUCT, iprot.readI32());
+          struct.sortFields = new ArrayList<SortField>(_list49.size);
+          for (int _i50 = 0; _i50 < _list49.size; ++_i50)
           {
-            SortField _elem43;
-            _elem43 = new SortField();
-            _elem43.read(iprot);
-            struct.sortFields.add(_elem43);
+            SortField _elem51;
+            _elem51 = new SortField();
+            _elem51.read(iprot);
+            struct.sortFields.add(_elem51);
           }
         }
         struct.setSortFieldsIsSet(true);

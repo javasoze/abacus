@@ -36,8 +36,9 @@ enum FacetSortMode {
 
 struct FacetParam {
   1: optional FacetSortMode mode = FacetSortMode.HITS_DESC
-  2: optional i32 maxNumValues
+  2: optional i32 maxNumValues = 5
   3: optional i32 minCount = 1
+  4: optional list<string> path
 #  4: optional boolean drillSideways  // not yet supported
 }
 

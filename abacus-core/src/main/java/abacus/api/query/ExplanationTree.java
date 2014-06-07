@@ -426,14 +426,14 @@ public class ExplanationTree implements org.apache.thrift.TBase<ExplanationTree,
           case 2: // CHILDREN
             if (schemeField.type == org.apache.thrift.protocol.TType.LIST) {
               {
-                org.apache.thrift.protocol.TList _list44 = iprot.readListBegin();
-                struct.children = new ArrayList<Explanation>(_list44.size);
-                for (int _i45 = 0; _i45 < _list44.size; ++_i45)
+                org.apache.thrift.protocol.TList _list52 = iprot.readListBegin();
+                struct.children = new ArrayList<Explanation>(_list52.size);
+                for (int _i53 = 0; _i53 < _list52.size; ++_i53)
                 {
-                  Explanation _elem46;
-                  _elem46 = new Explanation();
-                  _elem46.read(iprot);
-                  struct.children.add(_elem46);
+                  Explanation _elem54;
+                  _elem54 = new Explanation();
+                  _elem54.read(iprot);
+                  struct.children.add(_elem54);
                 }
                 iprot.readListEnd();
               }
@@ -469,9 +469,9 @@ public class ExplanationTree implements org.apache.thrift.TBase<ExplanationTree,
           oprot.writeFieldBegin(CHILDREN_FIELD_DESC);
           {
             oprot.writeListBegin(new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.STRUCT, struct.children.size()));
-            for (Explanation _iter47 : struct.children)
+            for (Explanation _iter55 : struct.children)
             {
-              _iter47.write(oprot);
+              _iter55.write(oprot);
             }
             oprot.writeListEnd();
           }
@@ -509,9 +509,9 @@ public class ExplanationTree implements org.apache.thrift.TBase<ExplanationTree,
       if (struct.isSetChildren()) {
         {
           oprot.writeI32(struct.children.size());
-          for (Explanation _iter48 : struct.children)
+          for (Explanation _iter56 : struct.children)
           {
-            _iter48.write(oprot);
+            _iter56.write(oprot);
           }
         }
       }
@@ -528,14 +528,14 @@ public class ExplanationTree implements org.apache.thrift.TBase<ExplanationTree,
       }
       if (incoming.get(1)) {
         {
-          org.apache.thrift.protocol.TList _list49 = new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.STRUCT, iprot.readI32());
-          struct.children = new ArrayList<Explanation>(_list49.size);
-          for (int _i50 = 0; _i50 < _list49.size; ++_i50)
+          org.apache.thrift.protocol.TList _list57 = new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.STRUCT, iprot.readI32());
+          struct.children = new ArrayList<Explanation>(_list57.size);
+          for (int _i58 = 0; _i58 < _list57.size; ++_i58)
           {
-            Explanation _elem51;
-            _elem51 = new Explanation();
-            _elem51.read(iprot);
-            struct.children.add(_elem51);
+            Explanation _elem59;
+            _elem59 = new Explanation();
+            _elem59.read(iprot);
+            struct.children.add(_elem59);
           }
         }
         struct.setChildrenIsSet(true);

@@ -38,6 +38,7 @@ public class FacetParam implements org.apache.thrift.TBase<FacetParam, FacetPara
   private static final org.apache.thrift.protocol.TField MODE_FIELD_DESC = new org.apache.thrift.protocol.TField("mode", org.apache.thrift.protocol.TType.I32, (short)1);
   private static final org.apache.thrift.protocol.TField MAX_NUM_VALUES_FIELD_DESC = new org.apache.thrift.protocol.TField("maxNumValues", org.apache.thrift.protocol.TType.I32, (short)2);
   private static final org.apache.thrift.protocol.TField MIN_COUNT_FIELD_DESC = new org.apache.thrift.protocol.TField("minCount", org.apache.thrift.protocol.TType.I32, (short)3);
+  private static final org.apache.thrift.protocol.TField PATH_FIELD_DESC = new org.apache.thrift.protocol.TField("path", org.apache.thrift.protocol.TType.LIST, (short)4);
 
   private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<Class<? extends IScheme>, SchemeFactory>();
   static {
@@ -52,6 +53,7 @@ public class FacetParam implements org.apache.thrift.TBase<FacetParam, FacetPara
   public FacetSortMode mode; // optional
   public int maxNumValues; // optional
   public int minCount; // optional
+  public List<String> path; // optional
 
   /** The set of fields this struct contains, along with convenience methods for finding and manipulating them. */
   public enum _Fields implements org.apache.thrift.TFieldIdEnum {
@@ -61,7 +63,8 @@ public class FacetParam implements org.apache.thrift.TBase<FacetParam, FacetPara
      */
     MODE((short)1, "mode"),
     MAX_NUM_VALUES((short)2, "maxNumValues"),
-    MIN_COUNT((short)3, "minCount");
+    MIN_COUNT((short)3, "minCount"),
+    PATH((short)4, "path");
 
     private static final Map<String, _Fields> byName = new HashMap<String, _Fields>();
 
@@ -82,6 +85,8 @@ public class FacetParam implements org.apache.thrift.TBase<FacetParam, FacetPara
           return MAX_NUM_VALUES;
         case 3: // MIN_COUNT
           return MIN_COUNT;
+        case 4: // PATH
+          return PATH;
         default:
           return null;
       }
@@ -125,7 +130,7 @@ public class FacetParam implements org.apache.thrift.TBase<FacetParam, FacetPara
   private static final int __MAXNUMVALUES_ISSET_ID = 0;
   private static final int __MINCOUNT_ISSET_ID = 1;
   private byte __isset_bitfield = 0;
-  private _Fields optionals[] = {_Fields.MODE,_Fields.MAX_NUM_VALUES,_Fields.MIN_COUNT};
+  private _Fields optionals[] = {_Fields.MODE,_Fields.MAX_NUM_VALUES,_Fields.MIN_COUNT,_Fields.PATH};
   public static final Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> metaDataMap;
   static {
     Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<_Fields, org.apache.thrift.meta_data.FieldMetaData>(_Fields.class);
@@ -135,12 +140,17 @@ public class FacetParam implements org.apache.thrift.TBase<FacetParam, FacetPara
         new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I32)));
     tmpMap.put(_Fields.MIN_COUNT, new org.apache.thrift.meta_data.FieldMetaData("minCount", org.apache.thrift.TFieldRequirementType.OPTIONAL, 
         new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I32)));
+    tmpMap.put(_Fields.PATH, new org.apache.thrift.meta_data.FieldMetaData("path", org.apache.thrift.TFieldRequirementType.OPTIONAL, 
+        new org.apache.thrift.meta_data.ListMetaData(org.apache.thrift.protocol.TType.LIST, 
+            new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING))));
     metaDataMap = Collections.unmodifiableMap(tmpMap);
     org.apache.thrift.meta_data.FieldMetaData.addStructMetaDataMap(FacetParam.class, metaDataMap);
   }
 
   public FacetParam() {
     this.mode = abacus.api.query.FacetSortMode.HITS_DESC;
+
+    this.maxNumValues = 5;
 
     this.minCount = 1;
 
@@ -156,6 +166,10 @@ public class FacetParam implements org.apache.thrift.TBase<FacetParam, FacetPara
     }
     this.maxNumValues = other.maxNumValues;
     this.minCount = other.minCount;
+    if (other.isSetPath()) {
+      List<String> __this__path = new ArrayList<String>(other.path);
+      this.path = __this__path;
+    }
   }
 
   public FacetParam deepCopy() {
@@ -166,10 +180,11 @@ public class FacetParam implements org.apache.thrift.TBase<FacetParam, FacetPara
   public void clear() {
     this.mode = abacus.api.query.FacetSortMode.HITS_DESC;
 
-    setMaxNumValuesIsSet(false);
-    this.maxNumValues = 0;
+    this.maxNumValues = 5;
+
     this.minCount = 1;
 
+    this.path = null;
   }
 
   /**
@@ -250,6 +265,45 @@ public class FacetParam implements org.apache.thrift.TBase<FacetParam, FacetPara
     __isset_bitfield = EncodingUtils.setBit(__isset_bitfield, __MINCOUNT_ISSET_ID, value);
   }
 
+  public int getPathSize() {
+    return (this.path == null) ? 0 : this.path.size();
+  }
+
+  public java.util.Iterator<String> getPathIterator() {
+    return (this.path == null) ? null : this.path.iterator();
+  }
+
+  public void addToPath(String elem) {
+    if (this.path == null) {
+      this.path = new ArrayList<String>();
+    }
+    this.path.add(elem);
+  }
+
+  public List<String> getPath() {
+    return this.path;
+  }
+
+  public FacetParam setPath(List<String> path) {
+    this.path = path;
+    return this;
+  }
+
+  public void unsetPath() {
+    this.path = null;
+  }
+
+  /** Returns true if field path is set (has been assigned a value) and false otherwise */
+  public boolean isSetPath() {
+    return this.path != null;
+  }
+
+  public void setPathIsSet(boolean value) {
+    if (!value) {
+      this.path = null;
+    }
+  }
+
   public void setFieldValue(_Fields field, Object value) {
     switch (field) {
     case MODE:
@@ -276,6 +330,14 @@ public class FacetParam implements org.apache.thrift.TBase<FacetParam, FacetPara
       }
       break;
 
+    case PATH:
+      if (value == null) {
+        unsetPath();
+      } else {
+        setPath((List<String>)value);
+      }
+      break;
+
     }
   }
 
@@ -289,6 +351,9 @@ public class FacetParam implements org.apache.thrift.TBase<FacetParam, FacetPara
 
     case MIN_COUNT:
       return Integer.valueOf(getMinCount());
+
+    case PATH:
+      return getPath();
 
     }
     throw new IllegalStateException();
@@ -307,6 +372,8 @@ public class FacetParam implements org.apache.thrift.TBase<FacetParam, FacetPara
       return isSetMaxNumValues();
     case MIN_COUNT:
       return isSetMinCount();
+    case PATH:
+      return isSetPath();
     }
     throw new IllegalStateException();
   }
@@ -348,6 +415,15 @@ public class FacetParam implements org.apache.thrift.TBase<FacetParam, FacetPara
       if (!(this_present_minCount && that_present_minCount))
         return false;
       if (this.minCount != that.minCount)
+        return false;
+    }
+
+    boolean this_present_path = true && this.isSetPath();
+    boolean that_present_path = true && that.isSetPath();
+    if (this_present_path || that_present_path) {
+      if (!(this_present_path && that_present_path))
+        return false;
+      if (!this.path.equals(that.path))
         return false;
     }
 
@@ -397,6 +473,16 @@ public class FacetParam implements org.apache.thrift.TBase<FacetParam, FacetPara
         return lastComparison;
       }
     }
+    lastComparison = Boolean.valueOf(isSetPath()).compareTo(other.isSetPath());
+    if (lastComparison != 0) {
+      return lastComparison;
+    }
+    if (isSetPath()) {
+      lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.path, other.path);
+      if (lastComparison != 0) {
+        return lastComparison;
+      }
+    }
     return 0;
   }
 
@@ -436,6 +522,16 @@ public class FacetParam implements org.apache.thrift.TBase<FacetParam, FacetPara
       if (!first) sb.append(", ");
       sb.append("minCount:");
       sb.append(this.minCount);
+      first = false;
+    }
+    if (isSetPath()) {
+      if (!first) sb.append(", ");
+      sb.append("path:");
+      if (this.path == null) {
+        sb.append("null");
+      } else {
+        sb.append(this.path);
+      }
       first = false;
     }
     sb.append(")");
@@ -507,6 +603,24 @@ public class FacetParam implements org.apache.thrift.TBase<FacetParam, FacetPara
               org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
             }
             break;
+          case 4: // PATH
+            if (schemeField.type == org.apache.thrift.protocol.TType.LIST) {
+              {
+                org.apache.thrift.protocol.TList _list8 = iprot.readListBegin();
+                struct.path = new ArrayList<String>(_list8.size);
+                for (int _i9 = 0; _i9 < _list8.size; ++_i9)
+                {
+                  String _elem10;
+                  _elem10 = iprot.readString();
+                  struct.path.add(_elem10);
+                }
+                iprot.readListEnd();
+              }
+              struct.setPathIsSet(true);
+            } else { 
+              org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
+            }
+            break;
           default:
             org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
         }
@@ -539,6 +653,20 @@ public class FacetParam implements org.apache.thrift.TBase<FacetParam, FacetPara
         oprot.writeI32(struct.minCount);
         oprot.writeFieldEnd();
       }
+      if (struct.path != null) {
+        if (struct.isSetPath()) {
+          oprot.writeFieldBegin(PATH_FIELD_DESC);
+          {
+            oprot.writeListBegin(new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.STRING, struct.path.size()));
+            for (String _iter11 : struct.path)
+            {
+              oprot.writeString(_iter11);
+            }
+            oprot.writeListEnd();
+          }
+          oprot.writeFieldEnd();
+        }
+      }
       oprot.writeFieldStop();
       oprot.writeStructEnd();
     }
@@ -566,7 +694,10 @@ public class FacetParam implements org.apache.thrift.TBase<FacetParam, FacetPara
       if (struct.isSetMinCount()) {
         optionals.set(2);
       }
-      oprot.writeBitSet(optionals, 3);
+      if (struct.isSetPath()) {
+        optionals.set(3);
+      }
+      oprot.writeBitSet(optionals, 4);
       if (struct.isSetMode()) {
         oprot.writeI32(struct.mode.getValue());
       }
@@ -576,12 +707,21 @@ public class FacetParam implements org.apache.thrift.TBase<FacetParam, FacetPara
       if (struct.isSetMinCount()) {
         oprot.writeI32(struct.minCount);
       }
+      if (struct.isSetPath()) {
+        {
+          oprot.writeI32(struct.path.size());
+          for (String _iter12 : struct.path)
+          {
+            oprot.writeString(_iter12);
+          }
+        }
+      }
     }
 
     @Override
     public void read(org.apache.thrift.protocol.TProtocol prot, FacetParam struct) throws org.apache.thrift.TException {
       TTupleProtocol iprot = (TTupleProtocol) prot;
-      BitSet incoming = iprot.readBitSet(3);
+      BitSet incoming = iprot.readBitSet(4);
       if (incoming.get(0)) {
         struct.mode = FacetSortMode.findByValue(iprot.readI32());
         struct.setModeIsSet(true);
@@ -593,6 +733,19 @@ public class FacetParam implements org.apache.thrift.TBase<FacetParam, FacetPara
       if (incoming.get(2)) {
         struct.minCount = iprot.readI32();
         struct.setMinCountIsSet(true);
+      }
+      if (incoming.get(3)) {
+        {
+          org.apache.thrift.protocol.TList _list13 = new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.STRING, iprot.readI32());
+          struct.path = new ArrayList<String>(_list13.size);
+          for (int _i14 = 0; _i14 < _list13.size; ++_i14)
+          {
+            String _elem15;
+            _elem15 = iprot.readString();
+            struct.path.add(_elem15);
+          }
+        }
+        struct.setPathIsSet(true);
       }
     }
   }

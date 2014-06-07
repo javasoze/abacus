@@ -12,9 +12,7 @@ import org.apache.lucene.facet.FacetResult;
 import org.apache.lucene.facet.Facets;
 import org.apache.lucene.facet.FacetsCollector;
 import org.apache.lucene.facet.LabelAndValue;
-import org.apache.lucene.facet.sortedset.DefaultSortedSetDocValuesReaderState;
-import org.apache.lucene.facet.sortedset.SortedSetDocValuesFacetCounts;
-import org.apache.lucene.facet.sortedset.SortedSetDocValuesReaderState;
+import org.apache.lucene.facet.sortedset.AbacusAttributeFacetCounts;
 import org.apache.lucene.index.AtomicReader;
 import org.apache.lucene.index.AtomicReaderContext;
 import org.apache.lucene.index.DirectoryReader;
@@ -40,6 +38,7 @@ import abacus.api.query.Selection;
 import abacus.config.FacetType;
 import abacus.config.FacetsConfig;
 import abacus.config.IndexDirectoryFacetsConfigReader;
+import abacus.search.facets.AttributeSortedSetDocValuesReaderState;
 import abacus.search.facets.FastDocValuesAtomicReader;
 import abacus.search.facets.FastDocValuesAtomicReader.MemType;
 import abacus.search.facets.LabelAndOrdFacetCounts;
@@ -50,7 +49,7 @@ import abacus.search.facets.SortedSetDocValuesOrdReader;
 public class AbacusQueryService implements Closeable {
   
   private final Map<String, FacetsConfig> configMap;
-  private final Map<String, SortedSetDocValuesReaderState> attrReaderState;
+  private final Map<String, AttributeSortedSetDocValuesReaderState> attrReaderState;
   private final IndexReader reader;
   private final QueryParser queryParser;
   
@@ -61,7 +60,7 @@ public class AbacusQueryService implements Closeable {
   public AbacusQueryService(Directory idxDir, QueryParser queryParser, Map<String, MemType> loadOptions) throws IOException {
     DirectoryReader dirReader = DirectoryReader.open(idxDir);
     configMap = IndexDirectoryFacetsConfigReader.readerFacetsConfig(dirReader);
-    attrReaderState = new HashMap<String, SortedSetDocValuesReaderState>();
+    attrReaderState = new HashMap<String, AttributeSortedSetDocValuesReaderState>();
     List<AtomicReaderContext> leaves = dirReader.leaves();
     AtomicReader[] subreaders = new AtomicReader[leaves.size()];
     int i = 0;
@@ -76,7 +75,7 @@ public class AbacusQueryService implements Closeable {
       String name = entry.getKey();
       FacetsConfig config = entry.getValue();
       if (FacetType.ATTRIBUTE.equals(config.getFacetType())) {
-        SortedSetDocValuesReaderState readerState = new DefaultSortedSetDocValuesReaderState(reader);
+        AttributeSortedSetDocValuesReaderState readerState = new AttributeSortedSetDocValuesReaderState(reader, name);
         attrReaderState.put(name, readerState);
       }
      }
@@ -143,7 +142,6 @@ public class AbacusQueryService implements Closeable {
   }
   
   private List<Facet> buildFacetList(Entry<String, FacetsConfig> configEntry,
-      List<Selection> selections,
       FacetParam facetParam,
       FacetsCollector collector) throws IOException {
     String field = configEntry.getKey();
@@ -159,11 +157,20 @@ public class AbacusQueryService implements Closeable {
       SortedSetDocValuesOrdReader ordReader = new SortedSetDocValuesOrdReader(field);
       facetCounts = new LabelAndOrdFacetCounts(field, ordReader, collector);
     } else if (FacetType.ATTRIBUTE == type) {
-      facetCounts = new SortedSetDocValuesFacetCounts(attrReaderState.get(field), collector);
+      facetCounts = new AbacusAttributeFacetCounts(attrReaderState.get(field), collector);
     } else {
       throw new IllegalStateException("invalid facet type: " + type);
     }
-    FacetResult facetResult = facetCounts.getTopChildren(facetParam.getMaxNumValues(), null, new String[0]);
+    
+    String path = null;
+    if (facetParam.isSetPath()) {
+      List<String> pathList = facetParam.getPath();
+      if (pathList != null && !pathList.isEmpty()) {
+        path = pathList.get(0);
+      }
+    }
+    
+    FacetResult facetResult = facetCounts.getTopChildren(facetParam.getMaxNumValues(), path, new String[0]);
     List<Facet> facetList = new ArrayList<Facet>(facetResult.labelValues.length);
     for (LabelAndValue labelAndVal : facetResult.labelValues) {
       Facet facet = new Facet();
@@ -183,7 +190,7 @@ public class AbacusQueryService implements Closeable {
       String field = entry.getKey();
       FacetParam fp = facetParams.get(field);
       if (fp != null) {
-        facetsResult.put(field, buildFacetList(entry, null, facetParams.get(field),collector));
+        facetsResult.put(field, buildFacetList(entry, facetParams.get(field),collector));
       }
     }
     return facetsResult;

@@ -3,7 +3,6 @@ package abacus.search.facets;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -14,7 +13,6 @@ import org.apache.lucene.document.FieldType.NumericType;
 import org.apache.lucene.document.NumericDocValuesField;
 import org.apache.lucene.document.TextField;
 import org.apache.lucene.index.DirectoryReader;
-import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.IndexWriterConfig;
 import org.apache.lucene.store.Directory;
@@ -34,7 +32,7 @@ public class IndexGenerator {
   static void addMetaString(Document doc, String field, String value) {
     if (value != null) {
       AbacusIndexer.addFacetTermField(doc, field, value, false);
-      AbacusIndexer.addAttributeField(doc, "$facets", field, value);
+      AbacusIndexer.addAttributeField(doc, "attribute", field, value);
     }
   }
 
@@ -73,6 +71,11 @@ public class IndexGenerator {
       builder.withFacetType(FacetType.MULTI);
       configMap.put("tags", builder.build());
     }
+    {
+      FacetsConfigBuilder builder = new FacetsConfigBuilder();
+      builder.withFacetType(FacetType.ATTRIBUTE);
+      configMap.put("attribute", builder.build());
+    }
     return configMap;
   }
 
@@ -88,17 +91,17 @@ public class IndexGenerator {
     // range fields
     double price = json.optDouble("price");
     AbacusIndexer.addNumericField(doc, "price", price);
-    AbacusIndexer.addAttributeField(doc, "$facets", "price",
+    AbacusIndexer.addAttributeField(doc, "attribute", "price",
         String.valueOf(price));
 
     int year = json.optInt("year");
     AbacusIndexer.addNumericField(doc, "year", year);
-    AbacusIndexer.addAttributeField(doc, "$facets", "year",
+    AbacusIndexer.addAttributeField(doc, "attribute", "year",
         String.valueOf(year));
 
     int miles = json.optInt("mileage");
     AbacusIndexer.addNumericField(doc, "mileage", miles);
-    AbacusIndexer.addAttributeField(doc, "$facets", "mileage",
+    AbacusIndexer.addAttributeField(doc, "attribute", "mileage",
         String.valueOf(miles));
 
     addMetaString(doc, "color", json.optString("color"));
@@ -111,7 +114,7 @@ public class IndexGenerator {
       if (parts != null && parts.length > 0) {
         for (String part : parts) {
           AbacusIndexer.addFacetTermField(doc, "tags", part, true);
-          AbacusIndexer.addAttributeField(doc, "$facets", "tags", part);
+          AbacusIndexer.addAttributeField(doc, "attribute", "tags", part);
         }
       }
     }

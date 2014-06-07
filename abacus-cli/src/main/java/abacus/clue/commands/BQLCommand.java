@@ -33,7 +33,11 @@ public class BQLCommand extends ClueCommand {
     Map<String, FacetParam> facetParams = new HashMap<String, FacetParam>();
     facetParams.put("color", fp);
     facetParams.put("tags", fp);
-    facetParams.put("category", fp);
+    
+    FacetParam attrParam = new FacetParam();
+    attrParam.addToPath("color");
+    facetParams.put("attribute", attrParam);    
+    
     req.setFacetParams(facetParams);
     return req;
   }

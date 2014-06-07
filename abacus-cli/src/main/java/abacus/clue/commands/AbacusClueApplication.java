@@ -19,7 +19,6 @@ public class AbacusClueApplication extends ClueApplication {
 
     AbacusClueContext ctx =  new AbacusClueContext(dir, config, interactiveMode);
     
-    new FacetCommand(ctx);
     new BQLCommand(ctx);
     new FacetConfigCommand(ctx);
     return ctx;
