@@ -3,11 +3,13 @@ package abacus.service;
 import java.io.Closeable;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.apache.lucene.document.FieldType.NumericType;
 import org.apache.lucene.facet.FacetResult;
 import org.apache.lucene.facet.Facets;
 import org.apache.lucene.facet.FacetsCollector;
@@ -37,17 +39,21 @@ import org.apache.lucene.store.Directory;
 
 import abacus.api.query.Facet;
 import abacus.api.query.FacetParam;
+import abacus.api.query.FacetType;
 import abacus.api.query.Request;
 import abacus.api.query.Result;
 import abacus.api.query.ResultSet;
 import abacus.api.query.Selection;
-import abacus.config.FacetType;
+import abacus.config.FacetIndexedType;
 import abacus.config.FacetsConfig;
 import abacus.config.IndexDirectoryFacetsConfigReader;
 import abacus.search.facets.AttributeSortedSetDocValuesReaderState;
+import abacus.search.facets.FacetBucket;
+import abacus.search.facets.FacetRangeBuilder;
 import abacus.search.facets.FastDocValuesAtomicReader;
 import abacus.search.facets.FastDocValuesAtomicReader.MemType;
 import abacus.search.facets.LabelAndOrdFacetCounts;
+import abacus.search.facets.NumericBucketFacetCounts;
 import abacus.search.facets.NumericFacetCounts;
 import abacus.search.facets.SortedDocValuesOrdReader;
 import abacus.search.facets.SortedSetDocValuesOrdReader;
@@ -81,7 +87,7 @@ public class AbacusQueryService implements Closeable {
     for (Entry<String, FacetsConfig> entry : configMap.entrySet()) {
       String name = entry.getKey();
       FacetsConfig config = entry.getValue();
-      if (FacetType.ATTRIBUTE.equals(config.getFacetType())) {
+      if (FacetIndexedType.ATTRIBUTE.equals(config.getFacetType())) {
         AttributeSortedSetDocValuesReaderState readerState = new AttributeSortedSetDocValuesReaderState(reader, name);
         attrReaderState.put(name, readerState);
       }
@@ -202,18 +208,30 @@ public class AbacusQueryService implements Closeable {
       FacetParam facetParam,
       FacetsCollector collector) throws IOException {
     String field = configEntry.getKey();
-    FacetsConfig config = configEntry.getValue();
-    FacetType type = config.getFacetType();
-    Facets facetCounts;
-    if (FacetType.NUMERIC == type) {  // numeric
-      facetCounts = new NumericFacetCounts(configEntry.getKey(), collector);      
-    } else if (FacetType.SINGLE == type) {
+    FacetsConfig config = configEntry.getValue();    
+    FacetIndexedType type = config.getFacetType();
+    Facets facetCounts = null;
+    if (FacetIndexedType.NUMERIC == type) {  // numeric
+      NumericType numericType = config.getNumericType();
+      if (FacetType.RANGE == facetParam.type) {        
+        if (facetParam.isSetRanges() && facetParam.getRangesSize() > 0) {         
+          List<FacetBucket> buckets = new ArrayList<FacetBucket>(facetParam.getRangesSize());
+          for (String range : facetParam.getRanges()) {
+            buckets.add(FacetRangeBuilder.buildFacetRangeBucket(range, numericType));
+          }
+          facetCounts = new NumericBucketFacetCounts(configEntry.getKey(), buckets.toArray(
+              new FacetBucket[buckets.size()]), collector);
+        }
+      } else {
+        facetCounts = new NumericFacetCounts(configEntry.getKey(), collector);
+      }
+    } else if (FacetIndexedType.SINGLE == type) {
       SortedDocValuesOrdReader ordReader = new SortedDocValuesOrdReader(field);
       facetCounts = new LabelAndOrdFacetCounts(field, ordReader, collector);      
-    } else if (FacetType.MULTI == type) {
+    } else if (FacetIndexedType.MULTI == type) {
       SortedSetDocValuesOrdReader ordReader = new SortedSetDocValuesOrdReader(field);
       facetCounts = new LabelAndOrdFacetCounts(field, ordReader, collector);
-    } else if (FacetType.ATTRIBUTE == type) {
+    } else if (FacetIndexedType.ATTRIBUTE == type) {
       facetCounts = new AbacusAttributeFacetCounts(attrReaderState.get(field), collector);
     } else {
       throw new IllegalStateException("invalid facet type: " + type);
@@ -227,15 +245,19 @@ public class AbacusQueryService implements Closeable {
       }
     }
     
-    FacetResult facetResult = facetCounts.getTopChildren(facetParam.getMaxNumValues(), path, new String[0]);
-    List<Facet> facetList = new ArrayList<Facet>(facetResult.labelValues.length);
-    for (LabelAndValue labelAndVal : facetResult.labelValues) {
-      Facet facet = new Facet();
-      facet.setValue(labelAndVal.label);
-      facet.setCount(labelAndVal.value.longValue());
-      facetList.add(facet);
+    if (facetCounts != null) {
+      FacetResult facetResult = facetCounts.getTopChildren(facetParam.getMaxNumValues(), path, new String[0]);
+      List<Facet> facetList = new ArrayList<Facet>(facetResult.labelValues.length);
+      for (LabelAndValue labelAndVal : facetResult.labelValues) {
+        Facet facet = new Facet();
+        facet.setValue(labelAndVal.label);
+        facet.setCount(labelAndVal.value.longValue());
+        facetList.add(facet);
+      }
+      return facetList;
+    } else {
+      return Collections.EMPTY_LIST;
     }
-    return facetList;
   }
   
   Map<String, List<Facet>> buildFacetResults(Map<String, FacetsConfig> configMap,

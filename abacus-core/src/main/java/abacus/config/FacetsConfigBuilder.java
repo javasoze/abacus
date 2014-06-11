@@ -3,7 +3,7 @@ package abacus.config;
 import org.apache.lucene.document.FieldType.NumericType;
 
 public class FacetsConfigBuilder {  
-  private FacetType facetType = null;
+  private FacetIndexedType facetType = null;
   private NumericType numericType = null;
   
   public FacetsConfigBuilder withNumericType(NumericType numericType) {
@@ -11,7 +11,7 @@ public class FacetsConfigBuilder {
 	return this;
   }
   
-  public FacetsConfigBuilder withFacetType(FacetType facetType) {
+  public FacetsConfigBuilder withFacetIndexedType(FacetIndexedType facetType) {
     this.facetType = facetType;
     return this;
   }

@@ -1,6 +1,6 @@
 package abacus.config;
 
-public enum FacetType {
+public enum FacetIndexedType {
   NUMERIC,
   SINGLE,
   MULTI,

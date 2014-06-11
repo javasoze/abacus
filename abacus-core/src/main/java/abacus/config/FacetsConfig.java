@@ -7,12 +7,12 @@ import java.util.Map.Entry;
 import org.apache.lucene.document.FieldType.NumericType;
 
 public class FacetsConfig {
-  private final FacetType facetType;
+  private final FacetIndexedType facetType;
   private final NumericType numericType;
   
-  FacetsConfig(FacetType facetType, NumericType numericType) {
+  FacetsConfig(FacetIndexedType facetType, NumericType numericType) {
     this.facetType = facetType;
-    if (facetType == FacetType.NUMERIC) {
+    if (facetType == FacetIndexedType.NUMERIC) {
       if (numericType == null) {
     	throw new IllegalArgumentException("numeric type not specified");
       }
@@ -36,7 +36,7 @@ public class FacetsConfig {
 	  return numericType;
   }
 
-  public FacetType getFacetType() {
+  public FacetIndexedType getFacetType() {
     return facetType;
   }
   
@@ -79,7 +79,7 @@ public class FacetsConfig {
         }
         String val = entry.getValue();
         if (PARAM_FACET_TYPE.equals(configType)) {
-          builder.withFacetType(FacetType.valueOf(val));
+          builder.withFacetIndexedType(FacetIndexedType.valueOf(val));
         } else if (PARAM_NUMERIC_TYPE.endsWith(configType)) {
           builder.withNumericType(NumericType.valueOf(val));
         } else {

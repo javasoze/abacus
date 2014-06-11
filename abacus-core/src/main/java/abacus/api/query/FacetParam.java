@@ -38,8 +38,10 @@ public class FacetParam implements org.apache.thrift.TBase<FacetParam, FacetPara
   private static final org.apache.thrift.protocol.TField MODE_FIELD_DESC = new org.apache.thrift.protocol.TField("mode", org.apache.thrift.protocol.TType.I32, (short)1);
   private static final org.apache.thrift.protocol.TField MAX_NUM_VALUES_FIELD_DESC = new org.apache.thrift.protocol.TField("maxNumValues", org.apache.thrift.protocol.TType.I32, (short)2);
   private static final org.apache.thrift.protocol.TField MIN_COUNT_FIELD_DESC = new org.apache.thrift.protocol.TField("minCount", org.apache.thrift.protocol.TType.I32, (short)3);
-  private static final org.apache.thrift.protocol.TField PATH_FIELD_DESC = new org.apache.thrift.protocol.TField("path", org.apache.thrift.protocol.TType.LIST, (short)4);
-  private static final org.apache.thrift.protocol.TField DRILL_SIDEWAYS_FIELD_DESC = new org.apache.thrift.protocol.TField("drillSideways", org.apache.thrift.protocol.TType.BOOL, (short)5);
+  private static final org.apache.thrift.protocol.TField TYPE_FIELD_DESC = new org.apache.thrift.protocol.TField("type", org.apache.thrift.protocol.TType.I32, (short)4);
+  private static final org.apache.thrift.protocol.TField RANGES_FIELD_DESC = new org.apache.thrift.protocol.TField("ranges", org.apache.thrift.protocol.TType.LIST, (short)5);
+  private static final org.apache.thrift.protocol.TField PATH_FIELD_DESC = new org.apache.thrift.protocol.TField("path", org.apache.thrift.protocol.TType.LIST, (short)6);
+  private static final org.apache.thrift.protocol.TField DRILL_SIDEWAYS_FIELD_DESC = new org.apache.thrift.protocol.TField("drillSideways", org.apache.thrift.protocol.TType.BOOL, (short)7);
 
   private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<Class<? extends IScheme>, SchemeFactory>();
   static {
@@ -54,6 +56,12 @@ public class FacetParam implements org.apache.thrift.TBase<FacetParam, FacetPara
   public FacetSortMode mode; // optional
   public int maxNumValues; // optional
   public int minCount; // optional
+  /**
+   * 
+   * @see FacetType
+   */
+  public FacetType type; // optional
+  public List<String> ranges; // optional
   public List<String> path; // optional
   public boolean drillSideways; // optional
 
@@ -66,8 +74,14 @@ public class FacetParam implements org.apache.thrift.TBase<FacetParam, FacetPara
     MODE((short)1, "mode"),
     MAX_NUM_VALUES((short)2, "maxNumValues"),
     MIN_COUNT((short)3, "minCount"),
-    PATH((short)4, "path"),
-    DRILL_SIDEWAYS((short)5, "drillSideways");
+    /**
+     * 
+     * @see FacetType
+     */
+    TYPE((short)4, "type"),
+    RANGES((short)5, "ranges"),
+    PATH((short)6, "path"),
+    DRILL_SIDEWAYS((short)7, "drillSideways");
 
     private static final Map<String, _Fields> byName = new HashMap<String, _Fields>();
 
@@ -88,9 +102,13 @@ public class FacetParam implements org.apache.thrift.TBase<FacetParam, FacetPara
           return MAX_NUM_VALUES;
         case 3: // MIN_COUNT
           return MIN_COUNT;
-        case 4: // PATH
+        case 4: // TYPE
+          return TYPE;
+        case 5: // RANGES
+          return RANGES;
+        case 6: // PATH
           return PATH;
-        case 5: // DRILL_SIDEWAYS
+        case 7: // DRILL_SIDEWAYS
           return DRILL_SIDEWAYS;
         default:
           return null;
@@ -136,7 +154,7 @@ public class FacetParam implements org.apache.thrift.TBase<FacetParam, FacetPara
   private static final int __MINCOUNT_ISSET_ID = 1;
   private static final int __DRILLSIDEWAYS_ISSET_ID = 2;
   private byte __isset_bitfield = 0;
-  private _Fields optionals[] = {_Fields.MODE,_Fields.MAX_NUM_VALUES,_Fields.MIN_COUNT,_Fields.PATH,_Fields.DRILL_SIDEWAYS};
+  private _Fields optionals[] = {_Fields.MODE,_Fields.MAX_NUM_VALUES,_Fields.MIN_COUNT,_Fields.TYPE,_Fields.RANGES,_Fields.PATH,_Fields.DRILL_SIDEWAYS};
   public static final Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> metaDataMap;
   static {
     Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<_Fields, org.apache.thrift.meta_data.FieldMetaData>(_Fields.class);
@@ -146,6 +164,11 @@ public class FacetParam implements org.apache.thrift.TBase<FacetParam, FacetPara
         new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I32)));
     tmpMap.put(_Fields.MIN_COUNT, new org.apache.thrift.meta_data.FieldMetaData("minCount", org.apache.thrift.TFieldRequirementType.OPTIONAL, 
         new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I32)));
+    tmpMap.put(_Fields.TYPE, new org.apache.thrift.meta_data.FieldMetaData("type", org.apache.thrift.TFieldRequirementType.OPTIONAL, 
+        new org.apache.thrift.meta_data.EnumMetaData(org.apache.thrift.protocol.TType.ENUM, FacetType.class)));
+    tmpMap.put(_Fields.RANGES, new org.apache.thrift.meta_data.FieldMetaData("ranges", org.apache.thrift.TFieldRequirementType.OPTIONAL, 
+        new org.apache.thrift.meta_data.ListMetaData(org.apache.thrift.protocol.TType.LIST, 
+            new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING))));
     tmpMap.put(_Fields.PATH, new org.apache.thrift.meta_data.FieldMetaData("path", org.apache.thrift.TFieldRequirementType.OPTIONAL, 
         new org.apache.thrift.meta_data.ListMetaData(org.apache.thrift.protocol.TType.LIST, 
             new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING))));
@@ -162,6 +185,8 @@ public class FacetParam implements org.apache.thrift.TBase<FacetParam, FacetPara
 
     this.minCount = 1;
 
+    this.type = abacus.api.query.FacetType.DEFAULT;
+
   }
 
   /**
@@ -174,6 +199,13 @@ public class FacetParam implements org.apache.thrift.TBase<FacetParam, FacetPara
     }
     this.maxNumValues = other.maxNumValues;
     this.minCount = other.minCount;
+    if (other.isSetType()) {
+      this.type = other.type;
+    }
+    if (other.isSetRanges()) {
+      List<String> __this__ranges = new ArrayList<String>(other.ranges);
+      this.ranges = __this__ranges;
+    }
     if (other.isSetPath()) {
       List<String> __this__path = new ArrayList<String>(other.path);
       this.path = __this__path;
@@ -193,6 +225,9 @@ public class FacetParam implements org.apache.thrift.TBase<FacetParam, FacetPara
 
     this.minCount = 1;
 
+    this.type = abacus.api.query.FacetType.DEFAULT;
+
+    this.ranges = null;
     this.path = null;
     setDrillSidewaysIsSet(false);
     this.drillSideways = false;
@@ -274,6 +309,77 @@ public class FacetParam implements org.apache.thrift.TBase<FacetParam, FacetPara
 
   public void setMinCountIsSet(boolean value) {
     __isset_bitfield = EncodingUtils.setBit(__isset_bitfield, __MINCOUNT_ISSET_ID, value);
+  }
+
+  /**
+   * 
+   * @see FacetType
+   */
+  public FacetType getType() {
+    return this.type;
+  }
+
+  /**
+   * 
+   * @see FacetType
+   */
+  public FacetParam setType(FacetType type) {
+    this.type = type;
+    return this;
+  }
+
+  public void unsetType() {
+    this.type = null;
+  }
+
+  /** Returns true if field type is set (has been assigned a value) and false otherwise */
+  public boolean isSetType() {
+    return this.type != null;
+  }
+
+  public void setTypeIsSet(boolean value) {
+    if (!value) {
+      this.type = null;
+    }
+  }
+
+  public int getRangesSize() {
+    return (this.ranges == null) ? 0 : this.ranges.size();
+  }
+
+  public java.util.Iterator<String> getRangesIterator() {
+    return (this.ranges == null) ? null : this.ranges.iterator();
+  }
+
+  public void addToRanges(String elem) {
+    if (this.ranges == null) {
+      this.ranges = new ArrayList<String>();
+    }
+    this.ranges.add(elem);
+  }
+
+  public List<String> getRanges() {
+    return this.ranges;
+  }
+
+  public FacetParam setRanges(List<String> ranges) {
+    this.ranges = ranges;
+    return this;
+  }
+
+  public void unsetRanges() {
+    this.ranges = null;
+  }
+
+  /** Returns true if field ranges is set (has been assigned a value) and false otherwise */
+  public boolean isSetRanges() {
+    return this.ranges != null;
+  }
+
+  public void setRangesIsSet(boolean value) {
+    if (!value) {
+      this.ranges = null;
+    }
   }
 
   public int getPathSize() {
@@ -364,6 +470,22 @@ public class FacetParam implements org.apache.thrift.TBase<FacetParam, FacetPara
       }
       break;
 
+    case TYPE:
+      if (value == null) {
+        unsetType();
+      } else {
+        setType((FacetType)value);
+      }
+      break;
+
+    case RANGES:
+      if (value == null) {
+        unsetRanges();
+      } else {
+        setRanges((List<String>)value);
+      }
+      break;
+
     case PATH:
       if (value == null) {
         unsetPath();
@@ -394,6 +516,12 @@ public class FacetParam implements org.apache.thrift.TBase<FacetParam, FacetPara
     case MIN_COUNT:
       return Integer.valueOf(getMinCount());
 
+    case TYPE:
+      return getType();
+
+    case RANGES:
+      return getRanges();
+
     case PATH:
       return getPath();
 
@@ -417,6 +545,10 @@ public class FacetParam implements org.apache.thrift.TBase<FacetParam, FacetPara
       return isSetMaxNumValues();
     case MIN_COUNT:
       return isSetMinCount();
+    case TYPE:
+      return isSetType();
+    case RANGES:
+      return isSetRanges();
     case PATH:
       return isSetPath();
     case DRILL_SIDEWAYS:
@@ -462,6 +594,24 @@ public class FacetParam implements org.apache.thrift.TBase<FacetParam, FacetPara
       if (!(this_present_minCount && that_present_minCount))
         return false;
       if (this.minCount != that.minCount)
+        return false;
+    }
+
+    boolean this_present_type = true && this.isSetType();
+    boolean that_present_type = true && that.isSetType();
+    if (this_present_type || that_present_type) {
+      if (!(this_present_type && that_present_type))
+        return false;
+      if (!this.type.equals(that.type))
+        return false;
+    }
+
+    boolean this_present_ranges = true && this.isSetRanges();
+    boolean that_present_ranges = true && that.isSetRanges();
+    if (this_present_ranges || that_present_ranges) {
+      if (!(this_present_ranges && that_present_ranges))
+        return false;
+      if (!this.ranges.equals(that.ranges))
         return false;
     }
 
@@ -529,6 +679,26 @@ public class FacetParam implements org.apache.thrift.TBase<FacetParam, FacetPara
         return lastComparison;
       }
     }
+    lastComparison = Boolean.valueOf(isSetType()).compareTo(other.isSetType());
+    if (lastComparison != 0) {
+      return lastComparison;
+    }
+    if (isSetType()) {
+      lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.type, other.type);
+      if (lastComparison != 0) {
+        return lastComparison;
+      }
+    }
+    lastComparison = Boolean.valueOf(isSetRanges()).compareTo(other.isSetRanges());
+    if (lastComparison != 0) {
+      return lastComparison;
+    }
+    if (isSetRanges()) {
+      lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.ranges, other.ranges);
+      if (lastComparison != 0) {
+        return lastComparison;
+      }
+    }
     lastComparison = Boolean.valueOf(isSetPath()).compareTo(other.isSetPath());
     if (lastComparison != 0) {
       return lastComparison;
@@ -588,6 +758,26 @@ public class FacetParam implements org.apache.thrift.TBase<FacetParam, FacetPara
       if (!first) sb.append(", ");
       sb.append("minCount:");
       sb.append(this.minCount);
+      first = false;
+    }
+    if (isSetType()) {
+      if (!first) sb.append(", ");
+      sb.append("type:");
+      if (this.type == null) {
+        sb.append("null");
+      } else {
+        sb.append(this.type);
+      }
+      first = false;
+    }
+    if (isSetRanges()) {
+      if (!first) sb.append(", ");
+      sb.append("ranges:");
+      if (this.ranges == null) {
+        sb.append("null");
+      } else {
+        sb.append(this.ranges);
+      }
       first = false;
     }
     if (isSetPath()) {
@@ -675,16 +865,42 @@ public class FacetParam implements org.apache.thrift.TBase<FacetParam, FacetPara
               org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
             }
             break;
-          case 4: // PATH
+          case 4: // TYPE
+            if (schemeField.type == org.apache.thrift.protocol.TType.I32) {
+              struct.type = FacetType.findByValue(iprot.readI32());
+              struct.setTypeIsSet(true);
+            } else { 
+              org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
+            }
+            break;
+          case 5: // RANGES
             if (schemeField.type == org.apache.thrift.protocol.TType.LIST) {
               {
                 org.apache.thrift.protocol.TList _list8 = iprot.readListBegin();
-                struct.path = new ArrayList<String>(_list8.size);
+                struct.ranges = new ArrayList<String>(_list8.size);
                 for (int _i9 = 0; _i9 < _list8.size; ++_i9)
                 {
                   String _elem10;
                   _elem10 = iprot.readString();
-                  struct.path.add(_elem10);
+                  struct.ranges.add(_elem10);
+                }
+                iprot.readListEnd();
+              }
+              struct.setRangesIsSet(true);
+            } else { 
+              org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
+            }
+            break;
+          case 6: // PATH
+            if (schemeField.type == org.apache.thrift.protocol.TType.LIST) {
+              {
+                org.apache.thrift.protocol.TList _list11 = iprot.readListBegin();
+                struct.path = new ArrayList<String>(_list11.size);
+                for (int _i12 = 0; _i12 < _list11.size; ++_i12)
+                {
+                  String _elem13;
+                  _elem13 = iprot.readString();
+                  struct.path.add(_elem13);
                 }
                 iprot.readListEnd();
               }
@@ -693,7 +909,7 @@ public class FacetParam implements org.apache.thrift.TBase<FacetParam, FacetPara
               org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
             }
             break;
-          case 5: // DRILL_SIDEWAYS
+          case 7: // DRILL_SIDEWAYS
             if (schemeField.type == org.apache.thrift.protocol.TType.BOOL) {
               struct.drillSideways = iprot.readBool();
               struct.setDrillSidewaysIsSet(true);
@@ -733,14 +949,35 @@ public class FacetParam implements org.apache.thrift.TBase<FacetParam, FacetPara
         oprot.writeI32(struct.minCount);
         oprot.writeFieldEnd();
       }
+      if (struct.type != null) {
+        if (struct.isSetType()) {
+          oprot.writeFieldBegin(TYPE_FIELD_DESC);
+          oprot.writeI32(struct.type.getValue());
+          oprot.writeFieldEnd();
+        }
+      }
+      if (struct.ranges != null) {
+        if (struct.isSetRanges()) {
+          oprot.writeFieldBegin(RANGES_FIELD_DESC);
+          {
+            oprot.writeListBegin(new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.STRING, struct.ranges.size()));
+            for (String _iter14 : struct.ranges)
+            {
+              oprot.writeString(_iter14);
+            }
+            oprot.writeListEnd();
+          }
+          oprot.writeFieldEnd();
+        }
+      }
       if (struct.path != null) {
         if (struct.isSetPath()) {
           oprot.writeFieldBegin(PATH_FIELD_DESC);
           {
             oprot.writeListBegin(new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.STRING, struct.path.size()));
-            for (String _iter11 : struct.path)
+            for (String _iter15 : struct.path)
             {
-              oprot.writeString(_iter11);
+              oprot.writeString(_iter15);
             }
             oprot.writeListEnd();
           }
@@ -779,13 +1016,19 @@ public class FacetParam implements org.apache.thrift.TBase<FacetParam, FacetPara
       if (struct.isSetMinCount()) {
         optionals.set(2);
       }
-      if (struct.isSetPath()) {
+      if (struct.isSetType()) {
         optionals.set(3);
       }
-      if (struct.isSetDrillSideways()) {
+      if (struct.isSetRanges()) {
         optionals.set(4);
       }
-      oprot.writeBitSet(optionals, 5);
+      if (struct.isSetPath()) {
+        optionals.set(5);
+      }
+      if (struct.isSetDrillSideways()) {
+        optionals.set(6);
+      }
+      oprot.writeBitSet(optionals, 7);
       if (struct.isSetMode()) {
         oprot.writeI32(struct.mode.getValue());
       }
@@ -795,12 +1038,24 @@ public class FacetParam implements org.apache.thrift.TBase<FacetParam, FacetPara
       if (struct.isSetMinCount()) {
         oprot.writeI32(struct.minCount);
       }
+      if (struct.isSetType()) {
+        oprot.writeI32(struct.type.getValue());
+      }
+      if (struct.isSetRanges()) {
+        {
+          oprot.writeI32(struct.ranges.size());
+          for (String _iter16 : struct.ranges)
+          {
+            oprot.writeString(_iter16);
+          }
+        }
+      }
       if (struct.isSetPath()) {
         {
           oprot.writeI32(struct.path.size());
-          for (String _iter12 : struct.path)
+          for (String _iter17 : struct.path)
           {
-            oprot.writeString(_iter12);
+            oprot.writeString(_iter17);
           }
         }
       }
@@ -812,7 +1067,7 @@ public class FacetParam implements org.apache.thrift.TBase<FacetParam, FacetPara
     @Override
     public void read(org.apache.thrift.protocol.TProtocol prot, FacetParam struct) throws org.apache.thrift.TException {
       TTupleProtocol iprot = (TTupleProtocol) prot;
-      BitSet incoming = iprot.readBitSet(5);
+      BitSet incoming = iprot.readBitSet(7);
       if (incoming.get(0)) {
         struct.mode = FacetSortMode.findByValue(iprot.readI32());
         struct.setModeIsSet(true);
@@ -826,19 +1081,36 @@ public class FacetParam implements org.apache.thrift.TBase<FacetParam, FacetPara
         struct.setMinCountIsSet(true);
       }
       if (incoming.get(3)) {
+        struct.type = FacetType.findByValue(iprot.readI32());
+        struct.setTypeIsSet(true);
+      }
+      if (incoming.get(4)) {
         {
-          org.apache.thrift.protocol.TList _list13 = new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.STRING, iprot.readI32());
-          struct.path = new ArrayList<String>(_list13.size);
-          for (int _i14 = 0; _i14 < _list13.size; ++_i14)
+          org.apache.thrift.protocol.TList _list18 = new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.STRING, iprot.readI32());
+          struct.ranges = new ArrayList<String>(_list18.size);
+          for (int _i19 = 0; _i19 < _list18.size; ++_i19)
           {
-            String _elem15;
-            _elem15 = iprot.readString();
-            struct.path.add(_elem15);
+            String _elem20;
+            _elem20 = iprot.readString();
+            struct.ranges.add(_elem20);
+          }
+        }
+        struct.setRangesIsSet(true);
+      }
+      if (incoming.get(5)) {
+        {
+          org.apache.thrift.protocol.TList _list21 = new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.STRING, iprot.readI32());
+          struct.path = new ArrayList<String>(_list21.size);
+          for (int _i22 = 0; _i22 < _list21.size; ++_i22)
+          {
+            String _elem23;
+            _elem23 = iprot.readString();
+            struct.path.add(_elem23);
           }
         }
         struct.setPathIsSet(true);
       }
-      if (incoming.get(4)) {
+      if (incoming.get(6)) {
         struct.drillSideways = iprot.readBool();
         struct.setDrillSidewaysIsSet(true);
       }

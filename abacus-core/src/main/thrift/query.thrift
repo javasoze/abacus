@@ -34,22 +34,29 @@ enum FacetSortMode {
   CUSTOM = 2
 }
 
+enum FacetType {
+  DEFAULT = 0,
+  RANGE = 1,  
+  PATH = 2
+}
+
 struct FacetParam {
   1: optional FacetSortMode mode = FacetSortMode.HITS_DESC
   2: optional i32 maxNumValues = 5
   3: optional i32 minCount = 1
-  4: optional list<string> path
-  5: optional bool drillSideways
+  4: optional FacetType type = FacetType.DEFAULT
+  5: optional list<string> ranges
+  6: optional list<string> path
+  7: optional bool drillSideways
 }
 
-struct Request {
-  1: optional string routingKey
-  2: optional map<string,list<Selection>> selections
-  3: optional map<string,FacetParam> facetParams
-  4: optional PagingParam pagingParam
-  5: optional list<SortField> sortFields
-  6: optional string queryString
-  7: optional bool explain
+struct Request {  
+  1: optional map<string,list<Selection>> selections
+  2: optional map<string,FacetParam> facetParams
+  3: optional PagingParam pagingParam
+  4: optional list<SortField> sortFields
+  5: optional string queryString
+  6: optional bool explain
 }
 
 struct Result {

@@ -21,7 +21,7 @@ import org.apache.lucene.store.RAMDirectory;
 import org.apache.lucene.util.Version;
 import org.json.JSONObject;
 
-import abacus.config.FacetType;
+import abacus.config.FacetIndexedType;
 import abacus.config.FacetsConfig;
 import abacus.config.FacetsConfigBuilder;
 import abacus.config.IndexDirectoryFacetsConfigReader;
@@ -40,40 +40,40 @@ public class IndexGenerator {
     Map<String, FacetsConfig> configMap = new HashMap<String, FacetsConfig>();
     {
       FacetsConfigBuilder builder = new FacetsConfigBuilder();
-      builder.withFacetType(FacetType.NUMERIC);
+      builder.withFacetIndexedType(FacetIndexedType.NUMERIC);
       builder.withNumericType(NumericType.DOUBLE);
       configMap.put("price", builder.build());
     }
     {
       FacetsConfigBuilder builder = new FacetsConfigBuilder();
-      builder.withFacetType(FacetType.NUMERIC);
+      builder.withFacetIndexedType(FacetIndexedType.NUMERIC);
       builder.withNumericType(NumericType.INT);
       configMap.put("year", builder.build());
     }
     {
       FacetsConfigBuilder builder = new FacetsConfigBuilder();
-      builder.withFacetType(FacetType.NUMERIC);
+      builder.withFacetIndexedType(FacetIndexedType.NUMERIC);
       builder.withNumericType(NumericType.INT);
       configMap.put("mileage", builder.build());
     }
     {
       FacetsConfigBuilder builder = new FacetsConfigBuilder();
-      builder.withFacetType(FacetType.SINGLE);
+      builder.withFacetIndexedType(FacetIndexedType.SINGLE);
       configMap.put("color", builder.build());
     }
     {
       FacetsConfigBuilder builder = new FacetsConfigBuilder();
-      builder.withFacetType(FacetType.SINGLE);
+      builder.withFacetIndexedType(FacetIndexedType.SINGLE);
       configMap.put("category", builder.build());
     }
     {
       FacetsConfigBuilder builder = new FacetsConfigBuilder();
-      builder.withFacetType(FacetType.MULTI);
+      builder.withFacetIndexedType(FacetIndexedType.MULTI);
       configMap.put("tags", builder.build());
     }
     {
       FacetsConfigBuilder builder = new FacetsConfigBuilder();
-      builder.withFacetType(FacetType.ATTRIBUTE);
+      builder.withFacetIndexedType(FacetIndexedType.ATTRIBUTE);
       configMap.put("attribute", builder.build());
     }
     return configMap;
