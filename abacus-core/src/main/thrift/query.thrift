@@ -52,21 +52,11 @@ struct Request {
   7: optional bool explain
 }
 
-struct Explanation {
-  1: optional string description
-  2: optional double value
-}
-
-struct ExplanationTree {
-  1: optional Explanation explanation
-  2: optional list<Explanation> children
-}
-
 struct Result {
   1: optional i64 docid
   2: optional double score
   3: optional map<string, list<string>> fields
-  4: optional ExplanationTree explanationTree
+  4: optional string explanation
 }
 
 struct Facet {

@@ -38,7 +38,7 @@ public class Result implements org.apache.thrift.TBase<Result, Result._Fields>, 
   private static final org.apache.thrift.protocol.TField DOCID_FIELD_DESC = new org.apache.thrift.protocol.TField("docid", org.apache.thrift.protocol.TType.I64, (short)1);
   private static final org.apache.thrift.protocol.TField SCORE_FIELD_DESC = new org.apache.thrift.protocol.TField("score", org.apache.thrift.protocol.TType.DOUBLE, (short)2);
   private static final org.apache.thrift.protocol.TField FIELDS_FIELD_DESC = new org.apache.thrift.protocol.TField("fields", org.apache.thrift.protocol.TType.MAP, (short)3);
-  private static final org.apache.thrift.protocol.TField EXPLANATION_TREE_FIELD_DESC = new org.apache.thrift.protocol.TField("explanationTree", org.apache.thrift.protocol.TType.STRUCT, (short)4);
+  private static final org.apache.thrift.protocol.TField EXPLANATION_FIELD_DESC = new org.apache.thrift.protocol.TField("explanation", org.apache.thrift.protocol.TType.STRING, (short)4);
 
   private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<Class<? extends IScheme>, SchemeFactory>();
   static {
@@ -49,14 +49,14 @@ public class Result implements org.apache.thrift.TBase<Result, Result._Fields>, 
   public long docid; // optional
   public double score; // optional
   public Map<String,List<String>> fields; // optional
-  public ExplanationTree explanationTree; // optional
+  public String explanation; // optional
 
   /** The set of fields this struct contains, along with convenience methods for finding and manipulating them. */
   public enum _Fields implements org.apache.thrift.TFieldIdEnum {
     DOCID((short)1, "docid"),
     SCORE((short)2, "score"),
     FIELDS((short)3, "fields"),
-    EXPLANATION_TREE((short)4, "explanationTree");
+    EXPLANATION((short)4, "explanation");
 
     private static final Map<String, _Fields> byName = new HashMap<String, _Fields>();
 
@@ -77,8 +77,8 @@ public class Result implements org.apache.thrift.TBase<Result, Result._Fields>, 
           return SCORE;
         case 3: // FIELDS
           return FIELDS;
-        case 4: // EXPLANATION_TREE
-          return EXPLANATION_TREE;
+        case 4: // EXPLANATION
+          return EXPLANATION;
         default:
           return null;
       }
@@ -122,7 +122,7 @@ public class Result implements org.apache.thrift.TBase<Result, Result._Fields>, 
   private static final int __DOCID_ISSET_ID = 0;
   private static final int __SCORE_ISSET_ID = 1;
   private byte __isset_bitfield = 0;
-  private _Fields optionals[] = {_Fields.DOCID,_Fields.SCORE,_Fields.FIELDS,_Fields.EXPLANATION_TREE};
+  private _Fields optionals[] = {_Fields.DOCID,_Fields.SCORE,_Fields.FIELDS,_Fields.EXPLANATION};
   public static final Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> metaDataMap;
   static {
     Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<_Fields, org.apache.thrift.meta_data.FieldMetaData>(_Fields.class);
@@ -135,8 +135,8 @@ public class Result implements org.apache.thrift.TBase<Result, Result._Fields>, 
             new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING), 
             new org.apache.thrift.meta_data.ListMetaData(org.apache.thrift.protocol.TType.LIST, 
                 new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING)))));
-    tmpMap.put(_Fields.EXPLANATION_TREE, new org.apache.thrift.meta_data.FieldMetaData("explanationTree", org.apache.thrift.TFieldRequirementType.OPTIONAL, 
-        new org.apache.thrift.meta_data.StructMetaData(org.apache.thrift.protocol.TType.STRUCT, ExplanationTree.class)));
+    tmpMap.put(_Fields.EXPLANATION, new org.apache.thrift.meta_data.FieldMetaData("explanation", org.apache.thrift.TFieldRequirementType.OPTIONAL, 
+        new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING)));
     metaDataMap = Collections.unmodifiableMap(tmpMap);
     org.apache.thrift.meta_data.FieldMetaData.addStructMetaDataMap(Result.class, metaDataMap);
   }
@@ -166,8 +166,8 @@ public class Result implements org.apache.thrift.TBase<Result, Result._Fields>, 
       }
       this.fields = __this__fields;
     }
-    if (other.isSetExplanationTree()) {
-      this.explanationTree = new ExplanationTree(other.explanationTree);
+    if (other.isSetExplanation()) {
+      this.explanation = other.explanation;
     }
   }
 
@@ -182,7 +182,7 @@ public class Result implements org.apache.thrift.TBase<Result, Result._Fields>, 
     setScoreIsSet(false);
     this.score = 0.0;
     this.fields = null;
-    this.explanationTree = null;
+    this.explanation = null;
   }
 
   public long getDocid() {
@@ -266,27 +266,27 @@ public class Result implements org.apache.thrift.TBase<Result, Result._Fields>, 
     }
   }
 
-  public ExplanationTree getExplanationTree() {
-    return this.explanationTree;
+  public String getExplanation() {
+    return this.explanation;
   }
 
-  public Result setExplanationTree(ExplanationTree explanationTree) {
-    this.explanationTree = explanationTree;
+  public Result setExplanation(String explanation) {
+    this.explanation = explanation;
     return this;
   }
 
-  public void unsetExplanationTree() {
-    this.explanationTree = null;
+  public void unsetExplanation() {
+    this.explanation = null;
   }
 
-  /** Returns true if field explanationTree is set (has been assigned a value) and false otherwise */
-  public boolean isSetExplanationTree() {
-    return this.explanationTree != null;
+  /** Returns true if field explanation is set (has been assigned a value) and false otherwise */
+  public boolean isSetExplanation() {
+    return this.explanation != null;
   }
 
-  public void setExplanationTreeIsSet(boolean value) {
+  public void setExplanationIsSet(boolean value) {
     if (!value) {
-      this.explanationTree = null;
+      this.explanation = null;
     }
   }
 
@@ -316,11 +316,11 @@ public class Result implements org.apache.thrift.TBase<Result, Result._Fields>, 
       }
       break;
 
-    case EXPLANATION_TREE:
+    case EXPLANATION:
       if (value == null) {
-        unsetExplanationTree();
+        unsetExplanation();
       } else {
-        setExplanationTree((ExplanationTree)value);
+        setExplanation((String)value);
       }
       break;
 
@@ -338,8 +338,8 @@ public class Result implements org.apache.thrift.TBase<Result, Result._Fields>, 
     case FIELDS:
       return getFields();
 
-    case EXPLANATION_TREE:
-      return getExplanationTree();
+    case EXPLANATION:
+      return getExplanation();
 
     }
     throw new IllegalStateException();
@@ -358,8 +358,8 @@ public class Result implements org.apache.thrift.TBase<Result, Result._Fields>, 
       return isSetScore();
     case FIELDS:
       return isSetFields();
-    case EXPLANATION_TREE:
-      return isSetExplanationTree();
+    case EXPLANATION:
+      return isSetExplanation();
     }
     throw new IllegalStateException();
   }
@@ -404,12 +404,12 @@ public class Result implements org.apache.thrift.TBase<Result, Result._Fields>, 
         return false;
     }
 
-    boolean this_present_explanationTree = true && this.isSetExplanationTree();
-    boolean that_present_explanationTree = true && that.isSetExplanationTree();
-    if (this_present_explanationTree || that_present_explanationTree) {
-      if (!(this_present_explanationTree && that_present_explanationTree))
+    boolean this_present_explanation = true && this.isSetExplanation();
+    boolean that_present_explanation = true && that.isSetExplanation();
+    if (this_present_explanation || that_present_explanation) {
+      if (!(this_present_explanation && that_present_explanation))
         return false;
-      if (!this.explanationTree.equals(that.explanationTree))
+      if (!this.explanation.equals(that.explanation))
         return false;
     }
 
@@ -459,12 +459,12 @@ public class Result implements org.apache.thrift.TBase<Result, Result._Fields>, 
         return lastComparison;
       }
     }
-    lastComparison = Boolean.valueOf(isSetExplanationTree()).compareTo(other.isSetExplanationTree());
+    lastComparison = Boolean.valueOf(isSetExplanation()).compareTo(other.isSetExplanation());
     if (lastComparison != 0) {
       return lastComparison;
     }
-    if (isSetExplanationTree()) {
-      lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.explanationTree, other.explanationTree);
+    if (isSetExplanation()) {
+      lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.explanation, other.explanation);
       if (lastComparison != 0) {
         return lastComparison;
       }
@@ -510,13 +510,13 @@ public class Result implements org.apache.thrift.TBase<Result, Result._Fields>, 
       }
       first = false;
     }
-    if (isSetExplanationTree()) {
+    if (isSetExplanation()) {
       if (!first) sb.append(", ");
-      sb.append("explanationTree:");
-      if (this.explanationTree == null) {
+      sb.append("explanation:");
+      if (this.explanation == null) {
         sb.append("null");
       } else {
-        sb.append(this.explanationTree);
+        sb.append(this.explanation);
       }
       first = false;
     }
@@ -527,9 +527,6 @@ public class Result implements org.apache.thrift.TBase<Result, Result._Fields>, 
   public void validate() throws org.apache.thrift.TException {
     // check for required fields
     // check for sub-struct validity
-    if (explanationTree != null) {
-      explanationTree.validate();
-    }
   }
 
   private void writeObject(java.io.ObjectOutputStream out) throws java.io.IOException {
@@ -587,25 +584,25 @@ public class Result implements org.apache.thrift.TBase<Result, Result._Fields>, 
           case 3: // FIELDS
             if (schemeField.type == org.apache.thrift.protocol.TType.MAP) {
               {
-                org.apache.thrift.protocol.TMap _map60 = iprot.readMapBegin();
-                struct.fields = new HashMap<String,List<String>>(2*_map60.size);
-                for (int _i61 = 0; _i61 < _map60.size; ++_i61)
+                org.apache.thrift.protocol.TMap _map52 = iprot.readMapBegin();
+                struct.fields = new HashMap<String,List<String>>(2*_map52.size);
+                for (int _i53 = 0; _i53 < _map52.size; ++_i53)
                 {
-                  String _key62;
-                  List<String> _val63;
-                  _key62 = iprot.readString();
+                  String _key54;
+                  List<String> _val55;
+                  _key54 = iprot.readString();
                   {
-                    org.apache.thrift.protocol.TList _list64 = iprot.readListBegin();
-                    _val63 = new ArrayList<String>(_list64.size);
-                    for (int _i65 = 0; _i65 < _list64.size; ++_i65)
+                    org.apache.thrift.protocol.TList _list56 = iprot.readListBegin();
+                    _val55 = new ArrayList<String>(_list56.size);
+                    for (int _i57 = 0; _i57 < _list56.size; ++_i57)
                     {
-                      String _elem66;
-                      _elem66 = iprot.readString();
-                      _val63.add(_elem66);
+                      String _elem58;
+                      _elem58 = iprot.readString();
+                      _val55.add(_elem58);
                     }
                     iprot.readListEnd();
                   }
-                  struct.fields.put(_key62, _val63);
+                  struct.fields.put(_key54, _val55);
                 }
                 iprot.readMapEnd();
               }
@@ -614,11 +611,10 @@ public class Result implements org.apache.thrift.TBase<Result, Result._Fields>, 
               org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
             }
             break;
-          case 4: // EXPLANATION_TREE
-            if (schemeField.type == org.apache.thrift.protocol.TType.STRUCT) {
-              struct.explanationTree = new ExplanationTree();
-              struct.explanationTree.read(iprot);
-              struct.setExplanationTreeIsSet(true);
+          case 4: // EXPLANATION
+            if (schemeField.type == org.apache.thrift.protocol.TType.STRING) {
+              struct.explanation = iprot.readString();
+              struct.setExplanationIsSet(true);
             } else { 
               org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
             }
@@ -653,14 +649,14 @@ public class Result implements org.apache.thrift.TBase<Result, Result._Fields>, 
           oprot.writeFieldBegin(FIELDS_FIELD_DESC);
           {
             oprot.writeMapBegin(new org.apache.thrift.protocol.TMap(org.apache.thrift.protocol.TType.STRING, org.apache.thrift.protocol.TType.LIST, struct.fields.size()));
-            for (Map.Entry<String, List<String>> _iter67 : struct.fields.entrySet())
+            for (Map.Entry<String, List<String>> _iter59 : struct.fields.entrySet())
             {
-              oprot.writeString(_iter67.getKey());
+              oprot.writeString(_iter59.getKey());
               {
-                oprot.writeListBegin(new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.STRING, _iter67.getValue().size()));
-                for (String _iter68 : _iter67.getValue())
+                oprot.writeListBegin(new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.STRING, _iter59.getValue().size()));
+                for (String _iter60 : _iter59.getValue())
                 {
-                  oprot.writeString(_iter68);
+                  oprot.writeString(_iter60);
                 }
                 oprot.writeListEnd();
               }
@@ -670,10 +666,10 @@ public class Result implements org.apache.thrift.TBase<Result, Result._Fields>, 
           oprot.writeFieldEnd();
         }
       }
-      if (struct.explanationTree != null) {
-        if (struct.isSetExplanationTree()) {
-          oprot.writeFieldBegin(EXPLANATION_TREE_FIELD_DESC);
-          struct.explanationTree.write(oprot);
+      if (struct.explanation != null) {
+        if (struct.isSetExplanation()) {
+          oprot.writeFieldBegin(EXPLANATION_FIELD_DESC);
+          oprot.writeString(struct.explanation);
           oprot.writeFieldEnd();
         }
       }
@@ -704,7 +700,7 @@ public class Result implements org.apache.thrift.TBase<Result, Result._Fields>, 
       if (struct.isSetFields()) {
         optionals.set(2);
       }
-      if (struct.isSetExplanationTree()) {
+      if (struct.isSetExplanation()) {
         optionals.set(3);
       }
       oprot.writeBitSet(optionals, 4);
@@ -717,21 +713,21 @@ public class Result implements org.apache.thrift.TBase<Result, Result._Fields>, 
       if (struct.isSetFields()) {
         {
           oprot.writeI32(struct.fields.size());
-          for (Map.Entry<String, List<String>> _iter69 : struct.fields.entrySet())
+          for (Map.Entry<String, List<String>> _iter61 : struct.fields.entrySet())
           {
-            oprot.writeString(_iter69.getKey());
+            oprot.writeString(_iter61.getKey());
             {
-              oprot.writeI32(_iter69.getValue().size());
-              for (String _iter70 : _iter69.getValue())
+              oprot.writeI32(_iter61.getValue().size());
+              for (String _iter62 : _iter61.getValue())
               {
-                oprot.writeString(_iter70);
+                oprot.writeString(_iter62);
               }
             }
           }
         }
       }
-      if (struct.isSetExplanationTree()) {
-        struct.explanationTree.write(oprot);
+      if (struct.isSetExplanation()) {
+        oprot.writeString(struct.explanation);
       }
     }
 
@@ -749,32 +745,31 @@ public class Result implements org.apache.thrift.TBase<Result, Result._Fields>, 
       }
       if (incoming.get(2)) {
         {
-          org.apache.thrift.protocol.TMap _map71 = new org.apache.thrift.protocol.TMap(org.apache.thrift.protocol.TType.STRING, org.apache.thrift.protocol.TType.LIST, iprot.readI32());
-          struct.fields = new HashMap<String,List<String>>(2*_map71.size);
-          for (int _i72 = 0; _i72 < _map71.size; ++_i72)
+          org.apache.thrift.protocol.TMap _map63 = new org.apache.thrift.protocol.TMap(org.apache.thrift.protocol.TType.STRING, org.apache.thrift.protocol.TType.LIST, iprot.readI32());
+          struct.fields = new HashMap<String,List<String>>(2*_map63.size);
+          for (int _i64 = 0; _i64 < _map63.size; ++_i64)
           {
-            String _key73;
-            List<String> _val74;
-            _key73 = iprot.readString();
+            String _key65;
+            List<String> _val66;
+            _key65 = iprot.readString();
             {
-              org.apache.thrift.protocol.TList _list75 = new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.STRING, iprot.readI32());
-              _val74 = new ArrayList<String>(_list75.size);
-              for (int _i76 = 0; _i76 < _list75.size; ++_i76)
+              org.apache.thrift.protocol.TList _list67 = new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.STRING, iprot.readI32());
+              _val66 = new ArrayList<String>(_list67.size);
+              for (int _i68 = 0; _i68 < _list67.size; ++_i68)
               {
-                String _elem77;
-                _elem77 = iprot.readString();
-                _val74.add(_elem77);
+                String _elem69;
+                _elem69 = iprot.readString();
+                _val66.add(_elem69);
               }
             }
-            struct.fields.put(_key73, _val74);
+            struct.fields.put(_key65, _val66);
           }
         }
         struct.setFieldsIsSet(true);
       }
       if (incoming.get(3)) {
-        struct.explanationTree = new ExplanationTree();
-        struct.explanationTree.read(iprot);
-        struct.setExplanationTreeIsSet(true);
+        struct.explanation = iprot.readString();
+        struct.setExplanationIsSet(true);
       }
     }
   }

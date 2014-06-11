@@ -679,14 +679,14 @@ public class ResultSet implements org.apache.thrift.TBase<ResultSet, ResultSet._
           case 3: // RESULT_LIST
             if (schemeField.type == org.apache.thrift.protocol.TType.LIST) {
               {
-                org.apache.thrift.protocol.TList _list78 = iprot.readListBegin();
-                struct.resultList = new ArrayList<Result>(_list78.size);
-                for (int _i79 = 0; _i79 < _list78.size; ++_i79)
+                org.apache.thrift.protocol.TList _list70 = iprot.readListBegin();
+                struct.resultList = new ArrayList<Result>(_list70.size);
+                for (int _i71 = 0; _i71 < _list70.size; ++_i71)
                 {
-                  Result _elem80;
-                  _elem80 = new Result();
-                  _elem80.read(iprot);
-                  struct.resultList.add(_elem80);
+                  Result _elem72;
+                  _elem72 = new Result();
+                  _elem72.read(iprot);
+                  struct.resultList.add(_elem72);
                 }
                 iprot.readListEnd();
               }
@@ -698,26 +698,26 @@ public class ResultSet implements org.apache.thrift.TBase<ResultSet, ResultSet._
           case 4: // FACET_LIST
             if (schemeField.type == org.apache.thrift.protocol.TType.MAP) {
               {
-                org.apache.thrift.protocol.TMap _map81 = iprot.readMapBegin();
-                struct.facetList = new HashMap<String,List<Facet>>(2*_map81.size);
-                for (int _i82 = 0; _i82 < _map81.size; ++_i82)
+                org.apache.thrift.protocol.TMap _map73 = iprot.readMapBegin();
+                struct.facetList = new HashMap<String,List<Facet>>(2*_map73.size);
+                for (int _i74 = 0; _i74 < _map73.size; ++_i74)
                 {
-                  String _key83;
-                  List<Facet> _val84;
-                  _key83 = iprot.readString();
+                  String _key75;
+                  List<Facet> _val76;
+                  _key75 = iprot.readString();
                   {
-                    org.apache.thrift.protocol.TList _list85 = iprot.readListBegin();
-                    _val84 = new ArrayList<Facet>(_list85.size);
-                    for (int _i86 = 0; _i86 < _list85.size; ++_i86)
+                    org.apache.thrift.protocol.TList _list77 = iprot.readListBegin();
+                    _val76 = new ArrayList<Facet>(_list77.size);
+                    for (int _i78 = 0; _i78 < _list77.size; ++_i78)
                     {
-                      Facet _elem87;
-                      _elem87 = new Facet();
-                      _elem87.read(iprot);
-                      _val84.add(_elem87);
+                      Facet _elem79;
+                      _elem79 = new Facet();
+                      _elem79.read(iprot);
+                      _val76.add(_elem79);
                     }
                     iprot.readListEnd();
                   }
-                  struct.facetList.put(_key83, _val84);
+                  struct.facetList.put(_key75, _val76);
                 }
                 iprot.readMapEnd();
               }
@@ -764,9 +764,9 @@ public class ResultSet implements org.apache.thrift.TBase<ResultSet, ResultSet._
           oprot.writeFieldBegin(RESULT_LIST_FIELD_DESC);
           {
             oprot.writeListBegin(new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.STRUCT, struct.resultList.size()));
-            for (Result _iter88 : struct.resultList)
+            for (Result _iter80 : struct.resultList)
             {
-              _iter88.write(oprot);
+              _iter80.write(oprot);
             }
             oprot.writeListEnd();
           }
@@ -778,14 +778,14 @@ public class ResultSet implements org.apache.thrift.TBase<ResultSet, ResultSet._
           oprot.writeFieldBegin(FACET_LIST_FIELD_DESC);
           {
             oprot.writeMapBegin(new org.apache.thrift.protocol.TMap(org.apache.thrift.protocol.TType.STRING, org.apache.thrift.protocol.TType.LIST, struct.facetList.size()));
-            for (Map.Entry<String, List<Facet>> _iter89 : struct.facetList.entrySet())
+            for (Map.Entry<String, List<Facet>> _iter81 : struct.facetList.entrySet())
             {
-              oprot.writeString(_iter89.getKey());
+              oprot.writeString(_iter81.getKey());
               {
-                oprot.writeListBegin(new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.STRUCT, _iter89.getValue().size()));
-                for (Facet _iter90 : _iter89.getValue())
+                oprot.writeListBegin(new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.STRUCT, _iter81.getValue().size()));
+                for (Facet _iter82 : _iter81.getValue())
                 {
-                  _iter90.write(oprot);
+                  _iter82.write(oprot);
                 }
                 oprot.writeListEnd();
               }
@@ -843,23 +843,23 @@ public class ResultSet implements org.apache.thrift.TBase<ResultSet, ResultSet._
       if (struct.isSetResultList()) {
         {
           oprot.writeI32(struct.resultList.size());
-          for (Result _iter91 : struct.resultList)
+          for (Result _iter83 : struct.resultList)
           {
-            _iter91.write(oprot);
+            _iter83.write(oprot);
           }
         }
       }
       if (struct.isSetFacetList()) {
         {
           oprot.writeI32(struct.facetList.size());
-          for (Map.Entry<String, List<Facet>> _iter92 : struct.facetList.entrySet())
+          for (Map.Entry<String, List<Facet>> _iter84 : struct.facetList.entrySet())
           {
-            oprot.writeString(_iter92.getKey());
+            oprot.writeString(_iter84.getKey());
             {
-              oprot.writeI32(_iter92.getValue().size());
-              for (Facet _iter93 : _iter92.getValue())
+              oprot.writeI32(_iter84.getValue().size());
+              for (Facet _iter85 : _iter84.getValue())
               {
-                _iter93.write(oprot);
+                _iter85.write(oprot);
               }
             }
           }
@@ -884,39 +884,39 @@ public class ResultSet implements org.apache.thrift.TBase<ResultSet, ResultSet._
       }
       if (incoming.get(2)) {
         {
-          org.apache.thrift.protocol.TList _list94 = new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.STRUCT, iprot.readI32());
-          struct.resultList = new ArrayList<Result>(_list94.size);
-          for (int _i95 = 0; _i95 < _list94.size; ++_i95)
+          org.apache.thrift.protocol.TList _list86 = new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.STRUCT, iprot.readI32());
+          struct.resultList = new ArrayList<Result>(_list86.size);
+          for (int _i87 = 0; _i87 < _list86.size; ++_i87)
           {
-            Result _elem96;
-            _elem96 = new Result();
-            _elem96.read(iprot);
-            struct.resultList.add(_elem96);
+            Result _elem88;
+            _elem88 = new Result();
+            _elem88.read(iprot);
+            struct.resultList.add(_elem88);
           }
         }
         struct.setResultListIsSet(true);
       }
       if (incoming.get(3)) {
         {
-          org.apache.thrift.protocol.TMap _map97 = new org.apache.thrift.protocol.TMap(org.apache.thrift.protocol.TType.STRING, org.apache.thrift.protocol.TType.LIST, iprot.readI32());
-          struct.facetList = new HashMap<String,List<Facet>>(2*_map97.size);
-          for (int _i98 = 0; _i98 < _map97.size; ++_i98)
+          org.apache.thrift.protocol.TMap _map89 = new org.apache.thrift.protocol.TMap(org.apache.thrift.protocol.TType.STRING, org.apache.thrift.protocol.TType.LIST, iprot.readI32());
+          struct.facetList = new HashMap<String,List<Facet>>(2*_map89.size);
+          for (int _i90 = 0; _i90 < _map89.size; ++_i90)
           {
-            String _key99;
-            List<Facet> _val100;
-            _key99 = iprot.readString();
+            String _key91;
+            List<Facet> _val92;
+            _key91 = iprot.readString();
             {
-              org.apache.thrift.protocol.TList _list101 = new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.STRUCT, iprot.readI32());
-              _val100 = new ArrayList<Facet>(_list101.size);
-              for (int _i102 = 0; _i102 < _list101.size; ++_i102)
+              org.apache.thrift.protocol.TList _list93 = new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.STRUCT, iprot.readI32());
+              _val92 = new ArrayList<Facet>(_list93.size);
+              for (int _i94 = 0; _i94 < _list93.size; ++_i94)
               {
-                Facet _elem103;
-                _elem103 = new Facet();
-                _elem103.read(iprot);
-                _val100.add(_elem103);
+                Facet _elem95;
+                _elem95 = new Facet();
+                _elem95.read(iprot);
+                _val92.add(_elem95);
               }
             }
-            struct.facetList.put(_key99, _val100);
+            struct.facetList.put(_key91, _val92);
           }
         }
         struct.setFacetListIsSet(true);

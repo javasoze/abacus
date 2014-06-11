@@ -22,7 +22,9 @@ import org.apache.lucene.index.Term;
 import org.apache.lucene.queries.BooleanFilter;
 import org.apache.lucene.queries.TermFilter;
 import org.apache.lucene.queryparser.classic.ParseException;
+import org.apache.lucene.search.BooleanClause.Occur;
 import org.apache.lucene.search.Collector;
+import org.apache.lucene.search.Explanation;
 import org.apache.lucene.search.Filter;
 import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.MatchAllDocsQuery;
@@ -31,7 +33,6 @@ import org.apache.lucene.search.Query;
 import org.apache.lucene.search.ScoreDoc;
 import org.apache.lucene.search.TopDocs;
 import org.apache.lucene.search.TopScoreDocCollector;
-import org.apache.lucene.search.BooleanClause.Occur;
 import org.apache.lucene.store.Directory;
 
 import abacus.api.query.Facet;
@@ -168,7 +169,15 @@ public class AbacusQueryService implements Closeable {
     
     rs.setNumHits(topDocsCollector.getTotalHits());
     rs.setCorpusSize(reader.maxDoc());
-    rs.setResultList(buildHitResultList(topDocs));
+    
+    List<Result> resList = buildHitResultList(topDocs);
+    if (req.isExplain()) {
+      for (Result res : resList) {
+        Explanation expl = searcher.explain(query, (int) res.getDocid());
+        res.setExplanation(String.valueOf(expl));
+      }
+    }
+    rs.setResultList(resList);
     rs.setLatencyInMs(System.currentTimeMillis() - start);
     
     if (facetsCollector != null) {      
@@ -184,7 +193,7 @@ public class AbacusQueryService implements Closeable {
       Result res = new Result();
       res.setDocid(sd.doc);
       res.setScore(sd.score);
-      hitResult.add(res);
+      hitResult.add(res);      
     }
     return hitResult;
   }
