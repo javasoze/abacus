@@ -25,6 +25,7 @@ import spark.Route;
 import abacus.api.query.Facet;
 import abacus.api.query.FacetParam;
 import abacus.api.query.FacetType;
+import abacus.api.query.Result;
 import abacus.api.query.ResultSet;
 import abacus.api.query.Selection;
 import abacus.api.query.SelectionType;
@@ -147,6 +148,17 @@ public class Application {
     respObj.put("numhits", resultSet.getNumHits());
     respObj.put("totaldocs", resultSet.getCorpusSize());
     respObj.put("time", resultSet.getLatencyInMs());
+    List<Result> resultList = resultSet.getResultList();
+    if (resultList != null) {
+      JSONArray hitsArray = new JSONArray();
+      respObj.put("hits", hitsArray);
+      for (Result result : resultList) {
+        JSONObject hitObj = new JSONObject();
+        hitsArray.put(hitObj);
+        hitObj.put("_uid", result.getDocid());
+        hitObj.put("_score", result.getScore());        
+      }
+    }
     Map<String, List<Facet>> facetMap = resultSet.getFacetList();
     if (facetMap != null) {
       JSONObject facetObj = new JSONObject();

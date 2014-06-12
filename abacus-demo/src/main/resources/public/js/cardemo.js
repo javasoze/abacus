@@ -171,12 +171,13 @@ function renderHits(hits){
     	var hit = hits[i];
 
     	var score = hit._score;
+console.log(hit +":"+score)
     	var id = hit._uid;
-    	var color = hit.color[0];
-    	var category = hit.category[0];
-    	var year = hit.year[0];
-    	var price = hit.price[0];
-    	var mileage = hit.mileage[0];
+    	var color = "color";//hit.color[0];
+    	var category = "category";//hit.category[0];
+    	var year = 2000;//hit.year[0];
+    	var price = 10000;//hit.price[0];
+    	var mileage = 12000;//hit.mileage[0];
 
 		html += '<td>'+id+'</td>';
 		html += '<td>'+color+'</td>';
