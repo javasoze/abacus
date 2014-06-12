@@ -29,6 +29,7 @@ import abacus.api.query.Result;
 import abacus.api.query.ResultSet;
 import abacus.api.query.Selection;
 import abacus.api.query.SelectionType;
+import abacus.search.facets.FastDocValuesAtomicReader.MemType;
 import abacus.service.AbacusQueryService;
 import abacus.service.QueryParser;
 
@@ -182,7 +183,8 @@ public class Application {
 	  File idxDir = new File(args[0]);
 	  
 	  final AbacusQueryService svc = new AbacusQueryService(FSDirectory.open(idxDir), 
-	      new QueryParser.DefaultQueryParser("contents", new StandardAnalyzer(Version.LUCENE_48)));	  
+	      new QueryParser.DefaultQueryParser("contents", new StandardAnalyzer(Version.LUCENE_48)), 
+	      null, MemType.Native);	  
 	  
     // Will serve all static file are under "/public" in classpath if the route isn't consumed by others routes.
     // When using Maven, the "/public" folder is assumed to be in "/main/resources"

@@ -69,10 +69,10 @@ public class AbacusQueryService implements Closeable {
   private final DirectoryReader dirReader;
   
   public AbacusQueryService(Directory idxDir, QueryParser queryParser) throws IOException {
-	this(idxDir, queryParser, null);
+	this(idxDir, queryParser, null, MemType.Default);
   }
   
-  public AbacusQueryService(Directory idxDir, QueryParser queryParser, Map<String, MemType> loadOptions) throws IOException {
+  public AbacusQueryService(Directory idxDir, QueryParser queryParser, Map<String, MemType> loadOptions, MemType defaultMemType) throws IOException {
     dirReader = DirectoryReader.open(idxDir);
     configMap = IndexDirectoryFacetsConfigReader.readerFacetsConfig(dirReader);
     attrReaderState = new HashMap<String, AttributeSortedSetDocValuesReaderState>();
@@ -81,7 +81,7 @@ public class AbacusQueryService implements Closeable {
     int i = 0;
     for (AtomicReaderContext leaf : leaves) {
       AtomicReader atomicReader = leaf.reader();
-      subreaders[i++] = new FastDocValuesAtomicReader(atomicReader, loadOptions, MemType.Default);
+      subreaders[i++] = new FastDocValuesAtomicReader(atomicReader, loadOptions, defaultMemType);
     }
     
     reader = new MultiReader(subreaders, true);
@@ -227,12 +227,13 @@ public class AbacusQueryService implements Closeable {
         res.setExplanation(String.valueOf(expl));
       }
     }
-    rs.setResultList(resList);
-    rs.setLatencyInMs(System.currentTimeMillis() - start);
+    rs.setResultList(resList);    
     
     if (facetsCollector != null) {      
       rs.setFacetList(buildFacetResults(configMap, req, facetsCollector));
-    }
+    }    
+    
+    rs.setLatencyInMs(System.currentTimeMillis() - start);
     
     return rs;
   }
