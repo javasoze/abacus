@@ -30,6 +30,7 @@ import org.apache.lucene.search.Filter;
 import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.MatchAllDocsQuery;
 import org.apache.lucene.search.MultiCollector;
+import org.apache.lucene.search.NumericRangeFilter;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.ScoreDoc;
 import org.apache.lucene.search.TopDocs;
@@ -43,12 +44,14 @@ import abacus.api.query.Request;
 import abacus.api.query.Result;
 import abacus.api.query.ResultSet;
 import abacus.api.query.Selection;
+import abacus.api.query.SelectionType;
 import abacus.config.FacetIndexedType;
 import abacus.config.FacetsConfig;
 import abacus.config.IndexDirectoryFacetsConfigReader;
 import abacus.search.facets.AttributeSortedSetDocValuesReaderState;
 import abacus.search.facets.FacetBucket;
 import abacus.search.facets.FacetRangeBuilder;
+import abacus.search.facets.FacetRangeBuilder.FacetRange;
 import abacus.search.facets.FastDocValuesAtomicReader;
 import abacus.search.facets.FastDocValuesAtomicReader.MemType;
 import abacus.search.facets.LabelAndOrdFacetCounts;
@@ -94,7 +97,44 @@ public class AbacusQueryService implements Closeable {
     
     
     this.queryParser = queryParser;
-  }  
+  }
+  
+  
+  
+  private Filter buildFilter(String field, String val, SelectionType type, FacetsConfig config) 
+      throws java.text.ParseException {
+    
+    if (SelectionType.RANGE.equals(type)) {
+      FacetRange facetRange = FacetRangeBuilder.buildFacetRangeBucket(val, config.getNumericType());
+      return facetRange.buildRangeFilter(field);
+    } else if (SelectionType.TERM.equals(type)) {
+      if (config.getNumericType() != null) {
+        switch (config.getNumericType()) {        
+        case DOUBLE: {
+          double doubleVal = Double.parseDouble(val);
+          return NumericRangeFilter.newDoubleRange(field, doubleVal, doubleVal, true, true);
+        }
+        case FLOAT: {
+          float floatVal = Float.parseFloat(val);
+          return NumericRangeFilter.newFloatRange(field, floatVal, floatVal, true, true);
+        }
+        case INT: {
+          int intVal = Integer.parseInt(val);
+          return NumericRangeFilter.newIntRange(field, intVal, intVal, true, true);
+        }
+        case LONG: {
+          long longVal = Long.parseLong(val);
+          return NumericRangeFilter.newLongRange(field, longVal, longVal, true, true);
+        }
+        default: return null;
+        }
+      } else {
+        return new TermFilter(new Term(field, val));
+      }
+    } else {
+      return null;
+    }
+  }
   
   public ResultSet query(Request req) throws ParseException, IOException {
     long start = System.currentTimeMillis();

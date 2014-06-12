@@ -37,6 +37,7 @@ public class Selection implements org.apache.thrift.TBase<Selection, Selection._
 
   private static final org.apache.thrift.protocol.TField VALUES_FIELD_DESC = new org.apache.thrift.protocol.TField("values", org.apache.thrift.protocol.TType.LIST, (short)1);
   private static final org.apache.thrift.protocol.TField MODE_FIELD_DESC = new org.apache.thrift.protocol.TField("mode", org.apache.thrift.protocol.TType.I32, (short)2);
+  private static final org.apache.thrift.protocol.TField TYPE_FIELD_DESC = new org.apache.thrift.protocol.TField("type", org.apache.thrift.protocol.TType.I32, (short)3);
 
   private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<Class<? extends IScheme>, SchemeFactory>();
   static {
@@ -50,6 +51,11 @@ public class Selection implements org.apache.thrift.TBase<Selection, Selection._
    * @see SelectionMode
    */
   public SelectionMode mode; // optional
+  /**
+   * 
+   * @see SelectionType
+   */
+  public SelectionType type; // optional
 
   /** The set of fields this struct contains, along with convenience methods for finding and manipulating them. */
   public enum _Fields implements org.apache.thrift.TFieldIdEnum {
@@ -58,7 +64,12 @@ public class Selection implements org.apache.thrift.TBase<Selection, Selection._
      * 
      * @see SelectionMode
      */
-    MODE((short)2, "mode");
+    MODE((short)2, "mode"),
+    /**
+     * 
+     * @see SelectionType
+     */
+    TYPE((short)3, "type");
 
     private static final Map<String, _Fields> byName = new HashMap<String, _Fields>();
 
@@ -77,6 +88,8 @@ public class Selection implements org.apache.thrift.TBase<Selection, Selection._
           return VALUES;
         case 2: // MODE
           return MODE;
+        case 3: // TYPE
+          return TYPE;
         default:
           return null;
       }
@@ -117,7 +130,7 @@ public class Selection implements org.apache.thrift.TBase<Selection, Selection._
   }
 
   // isset id assignments
-  private _Fields optionals[] = {_Fields.VALUES,_Fields.MODE};
+  private _Fields optionals[] = {_Fields.VALUES,_Fields.MODE,_Fields.TYPE};
   public static final Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> metaDataMap;
   static {
     Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<_Fields, org.apache.thrift.meta_data.FieldMetaData>(_Fields.class);
@@ -126,12 +139,16 @@ public class Selection implements org.apache.thrift.TBase<Selection, Selection._
             new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING))));
     tmpMap.put(_Fields.MODE, new org.apache.thrift.meta_data.FieldMetaData("mode", org.apache.thrift.TFieldRequirementType.OPTIONAL, 
         new org.apache.thrift.meta_data.EnumMetaData(org.apache.thrift.protocol.TType.ENUM, SelectionMode.class)));
+    tmpMap.put(_Fields.TYPE, new org.apache.thrift.meta_data.FieldMetaData("type", org.apache.thrift.TFieldRequirementType.OPTIONAL, 
+        new org.apache.thrift.meta_data.EnumMetaData(org.apache.thrift.protocol.TType.ENUM, SelectionType.class)));
     metaDataMap = Collections.unmodifiableMap(tmpMap);
     org.apache.thrift.meta_data.FieldMetaData.addStructMetaDataMap(Selection.class, metaDataMap);
   }
 
   public Selection() {
     this.mode = abacus.api.query.SelectionMode.SHOULD;
+
+    this.type = abacus.api.query.SelectionType.TERM;
 
   }
 
@@ -146,6 +163,9 @@ public class Selection implements org.apache.thrift.TBase<Selection, Selection._
     if (other.isSetMode()) {
       this.mode = other.mode;
     }
+    if (other.isSetType()) {
+      this.type = other.type;
+    }
   }
 
   public Selection deepCopy() {
@@ -156,6 +176,8 @@ public class Selection implements org.apache.thrift.TBase<Selection, Selection._
   public void clear() {
     this.values = null;
     this.mode = abacus.api.query.SelectionMode.SHOULD;
+
+    this.type = abacus.api.query.SelectionType.TERM;
 
   }
 
@@ -230,6 +252,38 @@ public class Selection implements org.apache.thrift.TBase<Selection, Selection._
     }
   }
 
+  /**
+   * 
+   * @see SelectionType
+   */
+  public SelectionType getType() {
+    return this.type;
+  }
+
+  /**
+   * 
+   * @see SelectionType
+   */
+  public Selection setType(SelectionType type) {
+    this.type = type;
+    return this;
+  }
+
+  public void unsetType() {
+    this.type = null;
+  }
+
+  /** Returns true if field type is set (has been assigned a value) and false otherwise */
+  public boolean isSetType() {
+    return this.type != null;
+  }
+
+  public void setTypeIsSet(boolean value) {
+    if (!value) {
+      this.type = null;
+    }
+  }
+
   public void setFieldValue(_Fields field, Object value) {
     switch (field) {
     case VALUES:
@@ -248,6 +302,14 @@ public class Selection implements org.apache.thrift.TBase<Selection, Selection._
       }
       break;
 
+    case TYPE:
+      if (value == null) {
+        unsetType();
+      } else {
+        setType((SelectionType)value);
+      }
+      break;
+
     }
   }
 
@@ -258,6 +320,9 @@ public class Selection implements org.apache.thrift.TBase<Selection, Selection._
 
     case MODE:
       return getMode();
+
+    case TYPE:
+      return getType();
 
     }
     throw new IllegalStateException();
@@ -274,6 +339,8 @@ public class Selection implements org.apache.thrift.TBase<Selection, Selection._
       return isSetValues();
     case MODE:
       return isSetMode();
+    case TYPE:
+      return isSetType();
     }
     throw new IllegalStateException();
   }
@@ -309,6 +376,15 @@ public class Selection implements org.apache.thrift.TBase<Selection, Selection._
         return false;
     }
 
+    boolean this_present_type = true && this.isSetType();
+    boolean that_present_type = true && that.isSetType();
+    if (this_present_type || that_present_type) {
+      if (!(this_present_type && that_present_type))
+        return false;
+      if (!this.type.equals(that.type))
+        return false;
+    }
+
     return true;
   }
 
@@ -341,6 +417,16 @@ public class Selection implements org.apache.thrift.TBase<Selection, Selection._
     }
     if (isSetMode()) {
       lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.mode, other.mode);
+      if (lastComparison != 0) {
+        return lastComparison;
+      }
+    }
+    lastComparison = Boolean.valueOf(isSetType()).compareTo(other.isSetType());
+    if (lastComparison != 0) {
+      return lastComparison;
+    }
+    if (isSetType()) {
+      lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.type, other.type);
       if (lastComparison != 0) {
         return lastComparison;
       }
@@ -381,6 +467,16 @@ public class Selection implements org.apache.thrift.TBase<Selection, Selection._
         sb.append("null");
       } else {
         sb.append(this.mode);
+      }
+      first = false;
+    }
+    if (isSetType()) {
+      if (!first) sb.append(", ");
+      sb.append("type:");
+      if (this.type == null) {
+        sb.append("null");
+      } else {
+        sb.append(this.type);
       }
       first = false;
     }
@@ -453,6 +549,14 @@ public class Selection implements org.apache.thrift.TBase<Selection, Selection._
               org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
             }
             break;
+          case 3: // TYPE
+            if (schemeField.type == org.apache.thrift.protocol.TType.I32) {
+              struct.type = SelectionType.findByValue(iprot.readI32());
+              struct.setTypeIsSet(true);
+            } else { 
+              org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
+            }
+            break;
           default:
             org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
         }
@@ -489,6 +593,13 @@ public class Selection implements org.apache.thrift.TBase<Selection, Selection._
           oprot.writeFieldEnd();
         }
       }
+      if (struct.type != null) {
+        if (struct.isSetType()) {
+          oprot.writeFieldBegin(TYPE_FIELD_DESC);
+          oprot.writeI32(struct.type.getValue());
+          oprot.writeFieldEnd();
+        }
+      }
       oprot.writeFieldStop();
       oprot.writeStructEnd();
     }
@@ -513,7 +624,10 @@ public class Selection implements org.apache.thrift.TBase<Selection, Selection._
       if (struct.isSetMode()) {
         optionals.set(1);
       }
-      oprot.writeBitSet(optionals, 2);
+      if (struct.isSetType()) {
+        optionals.set(2);
+      }
+      oprot.writeBitSet(optionals, 3);
       if (struct.isSetValues()) {
         {
           oprot.writeI32(struct.values.size());
@@ -526,12 +640,15 @@ public class Selection implements org.apache.thrift.TBase<Selection, Selection._
       if (struct.isSetMode()) {
         oprot.writeI32(struct.mode.getValue());
       }
+      if (struct.isSetType()) {
+        oprot.writeI32(struct.type.getValue());
+      }
     }
 
     @Override
     public void read(org.apache.thrift.protocol.TProtocol prot, Selection struct) throws org.apache.thrift.TException {
       TTupleProtocol iprot = (TTupleProtocol) prot;
-      BitSet incoming = iprot.readBitSet(2);
+      BitSet incoming = iprot.readBitSet(3);
       if (incoming.get(0)) {
         {
           org.apache.thrift.protocol.TList _list5 = new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.STRING, iprot.readI32());
@@ -548,6 +665,10 @@ public class Selection implements org.apache.thrift.TBase<Selection, Selection._
       if (incoming.get(1)) {
         struct.mode = SelectionMode.findByValue(iprot.readI32());
         struct.setModeIsSet(true);
+      }
+      if (incoming.get(2)) {
+        struct.type = SelectionType.findByValue(iprot.readI32());
+        struct.setTypeIsSet(true);
       }
     }
   }

@@ -6,9 +6,15 @@ enum SelectionMode {
   MUST_NOT = 2
 }
 
+enum SelectionType {
+  TERM = 0,
+  RANGE = 1
+}
+
 struct Selection {
   1: optional list<string> values
   2: optional SelectionMode mode = SelectionMode.SHOULD
+  3: optional SelectionType type = SelectionType.TERM
 }
 
 struct PagingParam {
