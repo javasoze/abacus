@@ -29,17 +29,17 @@ senseiReq.selections = [
   }
 },
 {
-  "terms":{
+  "range":{
     "price":priceSel
   }
 },
 {
-  "terms":{
+  "range":{
     "year":yearSel
   }
 },
 {
-  "terms":{
+  "range":{
     "mileage":mileageSel
   }
 },
@@ -68,11 +68,11 @@ senseiReq.facets.color={"expand":true};
 
 senseiReq.facets.category={"expand":true};
 
-senseiReq.facets.year={"expand":true};
+senseiReq.facets.year={"expand":true, "type":"range"};
 
-senseiReq.facets.price={"expand":true};
+senseiReq.facets.price={"expand":true, "type":"range"};
 
-senseiReq.facets.mileage={"expand":true};
+senseiReq.facets.mileage={"expand":true, "type":"range"};
 
 senseiReq.facets.tags={"expand":true};
 
@@ -195,7 +195,6 @@ function renderPage(resultString){
 	senseiResult = JSON.parse(resultString)
 	console.log(senseiResult.numhits);
 
-
 	$("#numhits").empty();
 	$("#numhits").append(senseiResult.numhits);
 
@@ -204,23 +203,20 @@ function renderPage(resultString){
 	$("#totaldocs").append(senseiResult.totaldocs);
 
 	$("#time").empty();
-	$("#time").append(senseiResult.time/1000);
+	$("#time").append(senseiResult.time);
 
 
 	var facets = senseiResult.facets;
 
 	for (var name in facets){
+	  console.log("facet: " + name);
 	  if (name=='makemodel' || name=='city'){
 	    renderPath(name,facets[name]);
 	  }
 	  else{
-		// TODO: handle ranges
-		if (name=='color' || name=='category' || name=='tags') {
-		  renderFacet(name,facets[name],handleSelected,clearSelection);
-		}
+		renderFacet(name,facets[name],handleSelected,clearSelection);
 	  }
 	}
-
     renderHits(senseiResult.hits);
 }
 

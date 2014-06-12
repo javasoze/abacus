@@ -51,12 +51,19 @@ public class IndexGenerator {
       FacetsConfigBuilder builder = new FacetsConfigBuilder();
       builder.withFacetIndexedType(FacetIndexedType.NUMERIC);
       builder.withNumericType(NumericType.INT);
+      builder.withFacetIndexedRangeStrings(
+          "(* TO 1994]", "[1995 TO 1996]",
+          "[1997 TO 1998]", "[1999 TO 2000]", "[2001 TO 2002]");
       configMap.put("year", builder.build());
     }
     {
       FacetsConfigBuilder builder = new FacetsConfigBuilder();
       builder.withFacetIndexedType(FacetIndexedType.NUMERIC);
       builder.withNumericType(NumericType.FLOAT);
+      builder.withFacetIndexedRangeStrings(
+          "(* TO 12500]", "(12500 TO 15000]",
+          "(15000 TO 17500]", "(17500 TO *)"
+          );
       configMap.put("mileage", builder.build());
     }
     {

@@ -1,8 +1,8 @@
 package abacus.search.facets;
 
-import java.text.ParseException;
 
 import org.apache.lucene.document.FieldType.NumericType;
+import org.apache.lucene.queryparser.classic.ParseException;
 import org.apache.lucene.search.Filter;
 import org.apache.lucene.search.NumericRangeFilter;
 
@@ -34,7 +34,7 @@ public class FacetRangeBuilder {
       
       int index2 = rangeString.indexOf(" TO ");
       if (index2 == -1) {
-        throw new ParseException("cannot parse: " + rangeString, -1);
+        throw new ParseException("cannot parse: " + rangeString);
       }
       boolean incLower = true, incUpper = true;
 

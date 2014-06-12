@@ -13,7 +13,8 @@ import org.apache.thrift.TEnum;
 
 public enum SelectionType implements org.apache.thrift.TEnum {
   TERM(0),
-  RANGE(1);
+  RANGE(1),
+  PATH(2);
 
   private final int value;
 
@@ -38,6 +39,8 @@ public enum SelectionType implements org.apache.thrift.TEnum {
         return TERM;
       case 1:
         return RANGE;
+      case 2:
+        return PATH;
       default:
         return null;
     }

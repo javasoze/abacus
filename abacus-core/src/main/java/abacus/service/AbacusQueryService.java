@@ -93,16 +93,14 @@ public class AbacusQueryService implements Closeable {
         AttributeSortedSetDocValuesReaderState readerState = new AttributeSortedSetDocValuesReaderState(reader, name);
         attrReaderState.put(name, readerState);
       }
-     }
-    
-    
+     }    
     this.queryParser = queryParser;
   }
   
   
   
   private Filter buildFilter(String field, String val, SelectionType type, FacetsConfig config) 
-      throws java.text.ParseException {
+      throws ParseException {
     
     if (SelectionType.RANGE.equals(type)) {
       FacetRange facetRange = FacetRangeBuilder.buildFacetRangeBucket(val, config.getNumericType());
@@ -160,6 +158,7 @@ public class AbacusQueryService implements Closeable {
         BooleanFilter bf = new BooleanFilter();
         for (Entry<String, List<Selection>> entry : selMap.entrySet()) {
           String field = entry.getKey();
+          FacetsConfig config = configMap.get(field);
           List<Selection> selList = entry.getValue();
           if (!selList.isEmpty()) {            
             for (Selection sel : selList) {
@@ -178,11 +177,17 @@ public class AbacusQueryService implements Closeable {
                 if (valSize > 1) {
                   BooleanFilter valFilter = new BooleanFilter();
                   for (String selVal : sel.getValues()) {
-                    valFilter.add(new TermFilter(new Term(field, selVal)), occur);
+                    Filter f = buildFilter(field, selVal, sel.getType(), config);
+                    if (f != null) {
+                      valFilter.add(f, occur);
+                    }
                   }
                   bf.add(valFilter, Occur.MUST);
                 } else {
-                  bf.add(new TermFilter(new Term(field, sel.getValues().get(0))), Occur.MUST);
+                  Filter f = buildFilter(field, sel.getValues().get(0), sel.getType(), config);
+                  if (f != null) {
+                    bf.add(f, Occur.MUST);
+                  }
                 }
               }
             }
@@ -257,7 +262,7 @@ public class AbacusQueryService implements Closeable {
         for (String range : facetParam.getRanges()) {
           try {
             buckets.add(FacetRangeBuilder.buildFacetRangeBucket(range, config.getNumericType()));
-          } catch (java.text.ParseException pe) {
+          } catch (ParseException pe) {
             throw new IOException(pe.getMessage(), pe);
           }
         }
@@ -268,7 +273,7 @@ public class AbacusQueryService implements Closeable {
           for (String range : defaultRanges) {
             try {
               buckets.add(FacetRangeBuilder.buildFacetRangeBucket(range, config.getNumericType()));
-            } catch (java.text.ParseException pe) {
+            } catch (ParseException pe) {
               throw new IOException(pe.getMessage(), pe);
             }            
           }
@@ -303,7 +308,7 @@ public class AbacusQueryService implements Closeable {
       }
     }
     
-    if (facetCounts != null) {
+    if (facetCounts != null) {      
       FacetResult facetResult = facetCounts.getTopChildren(facetParam.getMaxNumValues(), path, new String[0]);
       List<Facet> facetList = new ArrayList<Facet>(facetResult.labelValues.length);
       for (LabelAndValue labelAndVal : facetResult.labelValues) {

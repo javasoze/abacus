@@ -24,14 +24,52 @@ import spark.Response;
 import spark.Route;
 import abacus.api.query.Facet;
 import abacus.api.query.FacetParam;
+import abacus.api.query.FacetType;
 import abacus.api.query.ResultSet;
 import abacus.api.query.Selection;
+import abacus.api.query.SelectionType;
 import abacus.service.AbacusQueryService;
 import abacus.service.QueryParser;
 
 public class Application {
 
-  private static final int DEFAUT_MAX_FACET_VALS = 100;
+  private static final int DEFAUT_MAX_FACET_VALS = 10;
+  
+  private static void buildSelection(JSONObject selection, 
+      Map<String, List<Selection>> selectionMap, SelectionType type) {
+    for (String key : (Set<String>) selection.keySet()) {
+      JSONObject obj = selection.getJSONObject(key);
+      
+      List<Selection> selList = selectionMap.get(key);
+      if (selList == null) {
+        selList = new ArrayList<Selection>();
+        selectionMap.put(key, selList);
+      }
+      
+      String selLabel = obj.optString("value");
+      if (selLabel != null && !selLabel.trim().isEmpty()) {
+        Selection s = new Selection();
+        s.setValues(Arrays.asList(selLabel));
+        selList.add(s);
+      } else {
+        JSONArray selVals = obj.optJSONArray("values");            
+        if (selVals != null && selVals.length() > 0) {            
+          List<String> selLabels = new ArrayList<String>();
+          for (int k = 0; k < selVals.length(); ++k) {
+            String label = selVals.getString(k);
+            if (label != null && !label.trim().isEmpty()) {
+              selLabels.add(selVals.getString(k));   
+            }
+          }
+          Selection s = new Selection();
+          s.setType(type);
+          s.setValues(selLabels);
+          selList.add(s);
+        }
+      }
+    }
+  }  
+  
   private static final abacus.api.query.Request convert(Request req) {
     String reqBody = req.body();
     System.out.println(reqBody);
@@ -58,43 +96,20 @@ public class Application {
       abacusReq.setSelections(selectionMap);
       for (int i = 0; i < selArray.length(); ++i) {
         JSONObject selObj = selArray.getJSONObject(i);
-        JSONObject selection = selObj.optJSONObject("terms");
-        if (selection == null) {
-          selection = selObj.optJSONObject("path");
-        }
-        if (selection == null) {
-          continue;
-        }
-        for (String key : (Set<String>) selection.keySet()) {
-          JSONObject obj = selection.getJSONObject(key);
-          
-          List<Selection> selList = selectionMap.get(key);
-          if (selList == null) {
-            selList = new ArrayList<Selection>();
-            selectionMap.put(key, selList);
+        for (String key : (Set<String>) selObj.keySet()) {
+          JSONObject selection = selObj.optJSONObject(key);
+          SelectionType selType = null;
+          if ("terms".equals(key)) {     
+            selType = SelectionType.TERM;
+          } else if ("range".equals(key)) {
+            selType = SelectionType.RANGE;
+          } else if ("path".equals(key)) {
+            selType = SelectionType.PATH;
           }
-          
-          String selLabel = obj.optString("value");
-          if (selLabel != null && !selLabel.trim().isEmpty()) {
-            Selection s = new Selection();
-            s.setValues(Arrays.asList(selLabel));
-            selList.add(s);
-          } else {
-            JSONArray selVals = obj.optJSONArray("values");            
-            if (selVals != null && selVals.length() > 0) {            
-              List<String> selLabels = new ArrayList<String>();
-              for (int k = 0; k < selVals.length(); ++k) {
-                String label = selVals.getString(k);
-                if (label != null && !label.trim().isEmpty()) {
-                  selLabels.add(selVals.getString(k));        
-                }
-              }
-              Selection s = new Selection();
-              s.setValues(selLabels);
-              selList.add(s);
-            }
+          if (selType != null) {
+            buildSelection(selection, selectionMap, selType);
           }
-        }
+        }        
       }
     }
     
@@ -107,6 +122,16 @@ public class Application {
         JSONObject perDimObj = facetObj.optJSONObject(key);
         if (perDimObj != null) {
           FacetParam facetParam = new FacetParam();
+          String typeStr = perDimObj.optString("type");
+          if (typeStr != null) {
+            if ("range".equals(typeStr)) {
+              facetParam.setType(FacetType.RANGE);
+            } else if ("path".equals(typeStr)) {
+              facetParam.setType(FacetType.PATH);
+            } else {
+              facetParam.setType(FacetType.DEFAULT);
+            }
+          }
           facetParam.setDrillSideways(perDimObj.optBoolean("expand"));
           facetParam.setMinCount(1);
           facetParam.setMaxNumValues(DEFAUT_MAX_FACET_VALS);
@@ -164,6 +189,7 @@ public class Application {
           rs.setNumHits(0L);
         }
   			
+  			System.out.println("request took: " + rs.getLatencyInMs() + "ms");
   			return convert(rs);
   		}
     	

@@ -8,7 +8,8 @@ enum SelectionMode {
 
 enum SelectionType {
   TERM = 0,
-  RANGE = 1
+  RANGE = 1,
+  PATH = 2
 }
 
 struct Selection {
