@@ -42,6 +42,9 @@ public class IndexGenerator {
       FacetsConfigBuilder builder = new FacetsConfigBuilder();
       builder.withFacetIndexedType(FacetIndexedType.NUMERIC);
       builder.withNumericType(NumericType.DOUBLE);
+      builder.withFacetIndexedRangeStrings(
+          "(* TO 6700]", "[6800 TO 9900]", "[10000 TO 13100]", 
+          "[13200 TO 17300]", "[17400 TO *)");
       configMap.put("price", builder.build());
     }
     {
@@ -53,7 +56,7 @@ public class IndexGenerator {
     {
       FacetsConfigBuilder builder = new FacetsConfigBuilder();
       builder.withFacetIndexedType(FacetIndexedType.NUMERIC);
-      builder.withNumericType(NumericType.INT);
+      builder.withNumericType(NumericType.FLOAT);
       configMap.put("mileage", builder.build());
     }
     {
@@ -99,7 +102,7 @@ public class IndexGenerator {
     AbacusIndexer.addAttributeField(doc, "attribute", "year",
         String.valueOf(year));
 
-    int miles = json.optInt("mileage");
+    float miles = (float) json.optInt("mileage");
     AbacusIndexer.addNumericField(doc, "mileage", miles);
     AbacusIndexer.addAttributeField(doc, "attribute", "mileage",
         String.valueOf(miles));

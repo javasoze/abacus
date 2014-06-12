@@ -8,6 +8,7 @@ import java.util.Map.Entry;
 
 import abacus.api.query.Facet;
 import abacus.api.query.FacetParam;
+import abacus.api.query.FacetType;
 import abacus.api.query.Request;
 import abacus.api.query.Result;
 import abacus.api.query.ResultSet;
@@ -34,7 +35,14 @@ public class BQLCommand extends ClueCommand {
     facetParams.put("color", fp);
     facetParams.put("tags", fp);
     
+    
+    FacetParam rangeFacet = new FacetParam();
+    rangeFacet.setType(FacetType.RANGE);
+    rangeFacet.setMaxNumValues(10);
+    facetParams.put("price", rangeFacet);
+    
     FacetParam attrParam = new FacetParam();
+    attrParam.setType(FacetType.PATH);
     attrParam.addToPath("color");
     facetParams.put("attribute", attrParam);    
     

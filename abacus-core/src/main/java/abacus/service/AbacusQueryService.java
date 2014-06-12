@@ -9,7 +9,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import org.apache.lucene.document.FieldType.NumericType;
 import org.apache.lucene.facet.FacetResult;
 import org.apache.lucene.facet.Facets;
 import org.apache.lucene.facet.FacetsCollector;
@@ -211,17 +210,36 @@ public class AbacusQueryService implements Closeable {
     FacetsConfig config = configEntry.getValue();    
     FacetIndexedType type = config.getFacetType();
     Facets facetCounts = null;
-    if (FacetIndexedType.NUMERIC == type) {  // numeric
-      NumericType numericType = config.getNumericType();
-      if (FacetType.RANGE == facetParam.type) {        
-        if (facetParam.isSetRanges() && facetParam.getRangesSize() > 0) {         
-          List<FacetBucket> buckets = new ArrayList<FacetBucket>(facetParam.getRangesSize());
-          for (String range : facetParam.getRanges()) {
-            buckets.add(FacetRangeBuilder.buildFacetRangeBucket(range, numericType));
+    List<FacetBucket> buckets = null;
+    if (FacetType.RANGE == facetParam.type) {
+      if (facetParam.isSetRanges() && facetParam.getRangesSize() > 0) {         
+        buckets = new ArrayList<FacetBucket>(facetParam.getRangesSize());
+        for (String range : facetParam.getRanges()) {
+          try {
+            buckets.add(FacetRangeBuilder.buildFacetRangeBucket(range, config.getNumericType()));
+          } catch (java.text.ParseException pe) {
+            throw new IOException(pe.getMessage(), pe);
           }
-          facetCounts = new NumericBucketFacetCounts(configEntry.getKey(), buckets.toArray(
-              new FacetBucket[buckets.size()]), collector);
         }
+      } else {
+        String[] defaultRanges = config.getRangeStrings();
+        if (defaultRanges != null && defaultRanges.length > 0) {
+          buckets = new ArrayList<FacetBucket>(defaultRanges.length);
+          for (String range : defaultRanges) {
+            try {
+              buckets.add(FacetRangeBuilder.buildFacetRangeBucket(range, config.getNumericType()));
+            } catch (java.text.ParseException pe) {
+              throw new IOException(pe.getMessage(), pe);
+            }            
+          }
+        }
+      }      
+    }
+    
+    if (FacetIndexedType.NUMERIC == type) {  // numeric
+      if (buckets != null) {        
+        facetCounts = new NumericBucketFacetCounts(configEntry.getKey(), buckets.toArray(
+            new FacetBucket[buckets.size()]), collector); 
       } else {
         facetCounts = new NumericFacetCounts(configEntry.getKey(), collector);
       }

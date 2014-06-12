@@ -1,8 +1,13 @@
 package abacus.indexing;
 
 import org.apache.lucene.document.Document;
+import org.apache.lucene.document.DoubleField;
 import org.apache.lucene.document.Field;
+import org.apache.lucene.document.Field.Store;
 import org.apache.lucene.document.FieldType;
+import org.apache.lucene.document.FloatField;
+import org.apache.lucene.document.IntField;
+import org.apache.lucene.document.LongField;
 import org.apache.lucene.document.NumericDocValuesField;
 import org.apache.lucene.document.SortedDocValuesField;
 import org.apache.lucene.document.SortedSetDocValuesField;
@@ -54,14 +59,37 @@ public class AbacusIndexer {
     return doc;
   }
   
+  public static Document addNumericField(Document doc, String fieldName, int value) {
+    Field indexedPart = new IntField(fieldName, value, Store.NO);
+    doc.add(indexedPart);
+    Field docValPart = new NumericDocValuesField(fieldName, value);    
+    doc.add(docValPart);
+    return doc;
+  }  
+  
+  public static Document addNumericField(Document doc, String fieldName, float value) {
+    Field indexedPart = new FloatField(fieldName, value, Store.NO);
+    doc.add(indexedPart);    
+    int intVal = Float.floatToRawIntBits(value);
+    Field docValPart = new NumericDocValuesField(fieldName, intVal);    
+    doc.add(docValPart);
+    return doc;
+  }  
+  
   public static Document addNumericField(Document doc, String fieldName, long value) {
+    Field indexedPart = new LongField(fieldName, value, Store.NO);
+    doc.add(indexedPart);
     Field docValPart = new NumericDocValuesField(fieldName, value);    
     doc.add(docValPart);
     return doc;
   }  
   
   public static Document addNumericField(Document doc, String fieldName, double value) {
+    Field indexedPart = new DoubleField(fieldName, value, Store.NO);
     long longVal = Double.doubleToRawLongBits(value);
-    return addNumericField(doc, fieldName, longVal);
+    doc.add(indexedPart);
+    Field docValPart = new NumericDocValuesField(fieldName, longVal);    
+    doc.add(docValPart);
+    return doc;
   }
 }

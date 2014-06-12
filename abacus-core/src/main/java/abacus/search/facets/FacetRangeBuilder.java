@@ -1,10 +1,13 @@
 package abacus.search.facets;
 
+import java.text.ParseException;
+
 import org.apache.lucene.document.FieldType.NumericType;
 
 public class FacetRangeBuilder {
 
-  public static FacetBucket buildFacetRangeBucket(String label, NumericType numericType) {
+  public static FacetBucket buildFacetRangeBucket(String label, NumericType numericType) 
+      throws ParseException {
     switch (numericType) {
     case DOUBLE : return new DoubleFacetRange(label);
     case FLOAT : return new FloatFacetRange(label);
@@ -12,7 +15,7 @@ public class FacetRangeBuilder {
     case LONG: return new LongFacetRange(label);
     default: return new LongFacetRange(label);
     }
-  }
+  }  
   
   private static abstract class FacetRange extends FacetBucket {
 
@@ -21,10 +24,13 @@ public class FacetRangeBuilder {
     protected final String lower;
     protected final String upper;
     
-    public FacetRange(String rangeString) {
+    public FacetRange(String rangeString) throws ParseException {
       super(rangeString);
       
       int index2 = rangeString.indexOf(" TO ");
+      if (index2 == -1) {
+        throw new ParseException("cannot parse: " + rangeString, -1);
+      }
       boolean incLower = true, incUpper = true;
 
       if (rangeString.trim().startsWith("(")) {
@@ -48,6 +54,7 @@ public class FacetRangeBuilder {
       } else if (incUpper == false) {
         index3 = rangeString.indexOf(')');
       }
+      
       lower = rangeString.substring(index + 1, index2).trim();
       upper = rangeString.substring(index2 + 4, index3).trim();
       this.incLower = incLower;
@@ -59,7 +66,7 @@ public class FacetRangeBuilder {
 
     private final double lowerVal;
     private final double upperVal;
-    public DoubleFacetRange(String label) {
+    public DoubleFacetRange(String label) throws ParseException {
       super(label);
       lowerVal = "*".equals(lower) ? Double.MIN_VALUE : Double.parseDouble(lower);
       upperVal = "*".equals(upper) ? Double.MAX_VALUE : Double.parseDouble(upper);
@@ -82,7 +89,7 @@ public class FacetRangeBuilder {
   private static class FloatFacetRange extends FacetRange {
     private final float lowerVal;
     private final float upperVal;
-    public FloatFacetRange(String label) {
+    public FloatFacetRange(String label) throws ParseException {
       super(label);
       lowerVal = "*".equals(lower) ? Float.MIN_VALUE : Float.parseFloat(lower);
       upperVal = "*".equals(upper) ? Float.MAX_VALUE : Float.parseFloat(upper);
@@ -106,7 +113,7 @@ public class FacetRangeBuilder {
     private final float lowerVal;
     private final float upperVal;
     
-    public IntFacetRange(String label) {
+    public IntFacetRange(String label) throws ParseException {
       super(label);
       lowerVal = "*".equals(lower) ? Integer.MIN_VALUE : Integer.parseInt(lower);
       upperVal = "*".equals(upper) ? Integer.MAX_VALUE : Integer.parseInt(upper);
@@ -129,7 +136,7 @@ public class FacetRangeBuilder {
   private static class LongFacetRange extends FacetRange {
     private final long lowerVal;
     private final long upperVal;
-    public LongFacetRange(String label) {
+    public LongFacetRange(String label) throws ParseException {
       super(label);
       lowerVal = "*".equals(lower) ? Long.MIN_VALUE : Long.parseLong(lower);
       upperVal = "*".equals(upper) ? Long.MIN_VALUE : Long.parseLong(upper);      
