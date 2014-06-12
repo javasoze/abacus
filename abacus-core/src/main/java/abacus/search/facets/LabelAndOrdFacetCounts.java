@@ -3,6 +3,7 @@ package abacus.search.facets;
 import abacus.search.util.LabelAndValueUtil;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.ints.IntList;
+
 import org.apache.lucene.facet.FacetResult;
 import org.apache.lucene.facet.Facets;
 import org.apache.lucene.facet.FacetsCollector;
@@ -33,7 +34,9 @@ public class LabelAndOrdFacetCounts extends Facets {
     this.ordReader = ordReader;
     List<MatchingDocs> matchingDocs = facetCollector.getMatchingDocs();
     segmentCountList = new ArrayList<PerSegmentFacetCount>(matchingDocs.size());
+    long start = System.currentTimeMillis();
     count(matchingDocs);
+    System.out.println(field + " counting took: " + (System.currentTimeMillis() - start));
   }
 
   protected int[] newCountArray(int numVals) {

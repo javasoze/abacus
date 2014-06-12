@@ -92,11 +92,10 @@ public class FacetRangeBuilder {
     @Override
     public void accumulate(long longVal) {
       double val = Double.longBitsToDouble(longVal);
-      if (val < upperVal && val > lowerVal) {
-        count++;
-      } else if (incLower && val == lowerVal) {
-        count++;
-      } else if (incUpper && val == upperVal) {
+      if (val <= upperVal && val >= lowerVal) {
+        if ((!incLower && val == lowerVal) || (!incUpper && val == upperVal)) {
+          return;
+        } 
         count++;
       }
     }
@@ -120,11 +119,10 @@ public class FacetRangeBuilder {
     @Override
     public void accumulate(long longVal) {
       float val = Float.intBitsToFloat((int) longVal);
-      if (val < upperVal && val > lowerVal) {
-        count++;
-      } else if (incLower && val == lowerVal) {
-        count++;
-      } else if (incUpper && val == upperVal) {
+      if (val <= upperVal && val >= lowerVal) {
+        if ((!incLower && val == lowerVal) || (!incUpper && val == upperVal)) {
+          return;
+        } 
         count++;
       }
     }
@@ -148,12 +146,11 @@ public class FacetRangeBuilder {
 
     @Override
     public void accumulate(long longVal) {
-      int val = (int) longVal;
-      if (val < upperVal && val > lowerVal) {
-        count++;
-      } else if (incLower && val == lowerVal) {
-        count++;
-      } else if (incUpper && val == upperVal) {
+      int val = (int) longVal;      
+      if (val <= upperVal && val >= lowerVal) {
+        if ((!incLower && val == lowerVal) || (!incUpper && val == upperVal)) {
+          return;
+        } 
         count++;
       }
     }
@@ -175,11 +172,10 @@ public class FacetRangeBuilder {
 
     @Override
     public void accumulate(long val) {
-      if (val < upperVal && val > lowerVal) {
-        count++;
-      } else if (incLower && val == lowerVal) {
-        count++;
-      } else if (incUpper && val == upperVal) {
+      if (val <= upperVal && val >= lowerVal) {
+        if ((!incLower && val == lowerVal) || (!incUpper && val == upperVal)) {
+          return;
+        } 
         count++;
       }
     }

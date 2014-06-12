@@ -14,6 +14,7 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
+import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
 import org.apache.lucene.util.Version;
 import org.json.JSONArray;
@@ -29,7 +30,6 @@ import abacus.api.query.Result;
 import abacus.api.query.ResultSet;
 import abacus.api.query.Selection;
 import abacus.api.query.SelectionType;
-import abacus.search.facets.FastDocValuesAtomicReader.MemType;
 import abacus.service.AbacusQueryService;
 import abacus.service.QueryParser;
 
@@ -182,9 +182,10 @@ public class Application {
 	  
 	  File idxDir = new File(args[0]);
 	  
-	  final AbacusQueryService svc = new AbacusQueryService(FSDirectory.open(idxDir), 
-	      new QueryParser.DefaultQueryParser("contents", new StandardAnalyzer(Version.LUCENE_48)), 
-	      null, MemType.Native);	  
+	  Directory fsDir = FSDirectory.open(idxDir);	  
+	  
+	  final AbacusQueryService svc = new AbacusQueryService(fsDir, 
+	      new QueryParser.DefaultQueryParser("contents", new StandardAnalyzer(Version.LUCENE_48)));	  
 	  
     // Will serve all static file are under "/public" in classpath if the route isn't consumed by others routes.
     // When using Maven, the "/public" folder is assumed to be in "/main/resources"

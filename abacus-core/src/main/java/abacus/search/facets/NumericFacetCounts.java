@@ -28,7 +28,9 @@ public class NumericFacetCounts extends Facets {
   public NumericFacetCounts(String field, FacetsCollector hits) throws IOException {
     this.field = field;
     countMap.defaultReturnValue(0);
+    long start = System.currentTimeMillis();
     count(hits.getMatchingDocs());
+    System.out.println(field + " counting took: " + (System.currentTimeMillis() - start));
   }
 
   /** Does all the "real work" of tallying up the counts. */

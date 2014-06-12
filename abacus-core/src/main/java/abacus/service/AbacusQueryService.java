@@ -213,6 +213,15 @@ public class AbacusQueryService implements Closeable {
     
     searcher.search(query, filter, collector);
     
+    System.out.println("search latency: " + (System.currentTimeMillis() - start));
+    
+    Map<String, List<Facet>> facetMap = null;
+    if (facetsCollector != null) {      
+      facetMap = buildFacetResults(configMap, req, facetsCollector);
+    }
+    
+    System.out.println("total latency: " + (System.currentTimeMillis() - start));
+    
     TopDocs topDocs = topDocsCollector.topDocs();
     
     ResultSet rs = new ResultSet();
@@ -228,10 +237,10 @@ public class AbacusQueryService implements Closeable {
       }
     }
     rs.setResultList(resList);    
-    
-    if (facetsCollector != null) {      
-      rs.setFacetList(buildFacetResults(configMap, req, facetsCollector));
-    }    
+       
+    if (facetMap != null) {
+      rs.setFacetList(facetMap);
+    }
     
     rs.setLatencyInMs(System.currentTimeMillis() - start);
     

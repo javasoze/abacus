@@ -1,12 +1,12 @@
 package abacus.search.facets;
 
 import java.io.IOException;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
-import abacus.search.util.LabelAndValueUtil;
 import org.apache.lucene.facet.FacetResult;
 import org.apache.lucene.facet.Facets;
 import org.apache.lucene.facet.FacetsCollector;
@@ -17,6 +17,8 @@ import org.apache.lucene.index.NumericDocValues;
 import org.apache.lucene.search.DocIdSet;
 import org.apache.lucene.search.DocIdSetIterator;
 import org.apache.lucene.util.PriorityQueue;
+
+import abacus.search.util.LabelAndValueUtil;
 
 public class NumericBucketFacetCounts extends Facets {
 
@@ -31,11 +33,14 @@ public class NumericBucketFacetCounts extends Facets {
     for (FacetBucket bucket : buckets) {
       this.bucketMap.put(bucket.getLabel(), bucket);
     }
+    long start = System.currentTimeMillis();
     count(facetCollector.getMatchingDocs());
+    System.out.println(field + " counting took: " + (System.currentTimeMillis() - start));
   }
 
   /** Does all the "real work" of tallying up the counts. */
   private final void count(List<MatchingDocs> matchingDocs) throws IOException {
+    FacetBucket[] buckets = bucketMap.values().toArray(new FacetBucket[bucketMap.size()]);
     for (MatchingDocs hits : matchingDocs) {
 
       AtomicReader reader = hits.context.reader();
@@ -50,7 +55,7 @@ public class NumericBucketFacetCounts extends Facets {
         int docId;
         while ((docId = hitsIter.nextDoc()) != DocIdSetIterator.NO_MORE_DOCS) {
           long val = docValues.get(docId);
-          for (FacetBucket bucket : bucketMap.values()) {
+          for (FacetBucket bucket : buckets) {
             bucket.accumulate(val);
           }
         }
