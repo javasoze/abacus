@@ -6,7 +6,8 @@ import java.util.LinkedList;
 
 import org.apache.lucene.search.DocIdSetIterator;
 
-public class PackedIntsDocIdSetIterator extends DocIdSetIterator {  
+public class
+    PackedIntsDocIdSetIterator extends DocIdSetIterator {
   private int cs = -1;
   private int readCursor;
   private long lastVal;

@@ -54,7 +54,7 @@ public class FastDocValuesAtomicReader extends FilterAtomicReader {
     for (FieldInfo finfo : in.getFieldInfos()) {
       MemType type = loadOptionsMap != null ? loadOptionsMap.get(finfo.name) : null;
       if (type == null) {
-        type = MemType.Default;
+        type = defaultMemType;
       }
       if (finfo.hasDocValues()) {
         switch(finfo.getDocValuesType()) {

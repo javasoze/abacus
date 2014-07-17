@@ -32,29 +32,22 @@ public class AbacusIndexer {
   }  
   
   public static Document addAttributeField(Document doc, String fieldName, String name, String val) {
-    Field indexedPart1 = new Field(fieldName, name, INDEXED_TERM_TYPE);
-    Field indexedPart2 = new Field(fieldName, val, INDEXED_TERM_TYPE);
-    
     FacetLabel cp = new FacetLabel(name, val);
     String fullPath = FacetsConfig.pathToString(cp.components, cp.length);
 
-    // For facet counts:
+    // For facet counts
     Field docValField = new SortedSetDocValuesField(fieldName, new BytesRef(fullPath));
-    doc.add(indexedPart1);
-    doc.add(indexedPart2);
     doc.add(docValField);
     return doc;
   }
   
   public static Document addFacetTermField(Document doc, String fieldName, String val, boolean multi) {    
-    Field indexedPart = new Field(fieldName, val, INDEXED_TERM_TYPE);
     Field docValPart;
     if (multi) {
       docValPart = new SortedSetDocValuesField(fieldName, new BytesRef(val));
     } else {
       docValPart = new SortedDocValuesField(fieldName, new BytesRef(val));
     }
-    doc.add(indexedPart);
     doc.add(docValPart);
     return doc;
   }

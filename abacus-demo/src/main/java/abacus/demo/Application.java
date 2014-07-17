@@ -13,6 +13,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import abacus.search.facets.FastDocValuesAtomicReader;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
@@ -36,31 +37,31 @@ import abacus.service.QueryParser;
 public class Application {
 
   private static final int DEFAUT_MAX_FACET_VALS = 10;
-  
-  private static void buildSelection(JSONObject selection, 
+
+  private static void buildSelection(JSONObject selection,
       Map<String, List<Selection>> selectionMap, SelectionType type) {
     for (String key : (Set<String>) selection.keySet()) {
       JSONObject obj = selection.getJSONObject(key);
-      
+
       List<Selection> selList = selectionMap.get(key);
       if (selList == null) {
         selList = new ArrayList<Selection>();
         selectionMap.put(key, selList);
       }
-      
+
       String selLabel = obj.optString("value");
       if (selLabel != null && !selLabel.trim().isEmpty()) {
         Selection s = new Selection();
         s.setValues(Arrays.asList(selLabel));
         selList.add(s);
       } else {
-        JSONArray selVals = obj.optJSONArray("values");            
-        if (selVals != null && selVals.length() > 0) {            
+        JSONArray selVals = obj.optJSONArray("values");
+        if (selVals != null && selVals.length() > 0) {
           List<String> selLabels = new ArrayList<String>();
           for (int k = 0; k < selVals.length(); ++k) {
             String label = selVals.getString(k);
             if (label != null && !label.trim().isEmpty()) {
-              selLabels.add(selVals.getString(k));   
+              selLabels.add(selVals.getString(k));
             }
           }
           Selection s = new Selection();
@@ -70,8 +71,8 @@ public class Application {
         }
       }
     }
-  }  
-  
+  }
+
   private static final abacus.api.query.Request convert(Request req) {
     String reqBody = req.body();
     System.out.println(reqBody);
@@ -85,12 +86,12 @@ public class Application {
         qString = qstringObj.optString("query");
       }
     }
-    
+
     abacus.api.query.Request abacusReq = new abacus.api.query.Request();
     if (qString != null && !(qString = qString.trim()).isEmpty()) {
       abacusReq.setQueryString(qString);
     }
-    
+
     // get the selections
     JSONArray selArray = json.optJSONArray("selections");
     if (selArray != null) {
@@ -101,7 +102,7 @@ public class Application {
         for (String key : (Set<String>) selObj.keySet()) {
           JSONObject selection = selObj.optJSONObject(key);
           SelectionType selType = null;
-          if ("terms".equals(key)) {     
+          if ("terms".equals(key)) {
             selType = SelectionType.TERM;
           } else if ("range".equals(key)) {
             selType = SelectionType.RANGE;
@@ -111,10 +112,10 @@ public class Application {
           if (selType != null) {
             buildSelection(selection, selectionMap, selType);
           }
-        }        
+        }
       }
     }
-    
+
     // get facet settings
     JSONObject facetObj = json.optJSONObject("facets");
     if (facetObj != null) {
@@ -143,7 +144,7 @@ public class Application {
     }
     return abacusReq;
   }
-  
+
   private static final String convert(ResultSet resultSet) {
     JSONObject respObj = new JSONObject();
     respObj.put("numhits", resultSet.getNumHits());
@@ -157,7 +158,7 @@ public class Application {
         JSONObject hitObj = new JSONObject();
         hitsArray.put(hitObj);
         hitObj.put("_uid", result.getDocid());
-        hitObj.put("_score", result.getScore());        
+        hitObj.put("_score", result.getScore());
       }
     }
     Map<String, List<Facet>> facetMap = resultSet.getFacetList();
@@ -177,40 +178,42 @@ public class Application {
     }
     return respObj.toString();
   }
-  
-	public static void main(String[] args) throws Exception {
-	  
-	  File idxDir = new File(args[0]);
-	  
-	  Directory fsDir = FSDirectory.open(idxDir);	  
-	  
-	  final AbacusQueryService svc = new AbacusQueryService(fsDir, 
-	      new QueryParser.DefaultQueryParser("contents", new StandardAnalyzer(Version.LUCENE_48)));	  
-	  
+
+  public static void main(String[] args) throws Exception {
+
+    File idxDir = new File(args[0]);
+
+    Directory fsDir = FSDirectory.open(idxDir);
+
+    final AbacusQueryService svc = new AbacusQueryService(fsDir,
+        new QueryParser.DefaultQueryParser("contents", new StandardAnalyzer(Version.LUCENE_48)),
+        null, FastDocValuesAtomicReader.MemType.Heap
+    );
+
     // Will serve all static file are under "/public" in classpath if the route isn't consumed by others routes.
     // When using Maven, the "/public" folder is assumed to be in "/main/resources"
     staticFileLocation("/public");
-    
+
     post(new Route("/search", "application/json") {
-		@Override
-  		public Object handle(Request req, Response resp) {
-		  ResultSet rs;
-  			try {
-           rs = svc.query(convert(req));
+      @Override
+      public Object handle(Request req, Response resp) {
+        ResultSet rs;
+        try {
+          rs = svc.query(convert(req));
         } catch (Exception e) {
           e.printStackTrace();
           rs = new ResultSet();
           rs.setLatencyInMs(0L);
           rs.setNumHits(0L);
         }
-  			
-  			System.out.println("request took: " + rs.getLatencyInMs() + "ms");
-  			return convert(rs);
-  		}
-    	
+
+        System.out.println("request took: " + rs.getLatencyInMs() + "ms");
+        return convert(rs);
+      }
+
     });
-    
-    Runtime.getRuntime().addShutdownHook(new Thread(){
+
+    Runtime.getRuntime().addShutdownHook(new Thread() {
       public void run() {
         try {
           svc.close();
@@ -219,5 +222,5 @@ public class Application {
         }
       }
     });
-	}
+  }
 }
