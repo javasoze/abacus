@@ -13,6 +13,8 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import abacus.api.AbacusRequest;
+import abacus.api.AbacusResult;
 import abacus.search.facets.FastDocValuesAtomicReader;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.store.Directory;
@@ -24,20 +26,13 @@ import org.json.JSONObject;
 import spark.Request;
 import spark.Response;
 import spark.Route;
-import abacus.api.query.Facet;
-import abacus.api.query.FacetParam;
-import abacus.api.query.FacetType;
-import abacus.api.query.Result;
-import abacus.api.query.ResultSet;
-import abacus.api.query.Selection;
-import abacus.api.query.SelectionType;
 import abacus.service.AbacusQueryService;
 import abacus.service.QueryParser;
 
 public class Application {
 
   private static final int DEFAUT_MAX_FACET_VALS = 10;
-
+/*
   private static void buildSelection(JSONObject selection,
       Map<String, List<Selection>> selectionMap, SelectionType type) {
     for (String key : (Set<String>) selection.keySet()) {
@@ -72,8 +67,9 @@ public class Application {
       }
     }
   }
-
-  private static final abacus.api.query.Request convert(Request req) {
+*/
+  private static final AbacusRequest convert(Request req) {
+    /*
     String reqBody = req.body();
     System.out.println(reqBody);
     JSONObject json = new JSONObject(reqBody);
@@ -143,9 +139,12 @@ public class Application {
       }
     }
     return abacusReq;
+    */
+    return null;
   }
 
-  private static final String convert(ResultSet resultSet) {
+  private static final String convert(AbacusResult result) {
+    /*
     JSONObject respObj = new JSONObject();
     respObj.put("numhits", resultSet.getNumHits());
     respObj.put("totaldocs", resultSet.getCorpusSize());
@@ -177,6 +176,8 @@ public class Application {
       }
     }
     return respObj.toString();
+    */
+    return null;
   }
 
   public static void main(String[] args) throws Exception {
@@ -197,12 +198,12 @@ public class Application {
     post(new Route("/search", "application/json") {
       @Override
       public Object handle(Request req, Response resp) {
-        ResultSet rs;
+        AbacusResult rs;
         try {
           rs = svc.query(convert(req));
         } catch (Exception e) {
           e.printStackTrace();
-          rs = new ResultSet();
+          rs = new AbacusResult();
           rs.setLatencyInMs(0L);
           rs.setNumHits(0L);
         }

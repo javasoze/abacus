@@ -10,9 +10,11 @@
 	<description>Lucene Facet Extention</description>
 	
 	<modules>
+        <module>abacus-bql</module>
 	    <module>abacus-core</module>
 	    <module>abacus-cli</module>
 	    <module>abacus-demo</module>
+        <module>abacus-thrift</module>
 	</modules>
 	
 	<licenses>

@@ -1,20 +1,10 @@
 package abacus.clue.commands;
 
-import java.io.PrintStream;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-
-import abacus.api.query.Facet;
-import abacus.api.query.FacetParam;
-import abacus.api.query.FacetType;
-import abacus.api.query.Request;
-import abacus.api.query.Result;
-import abacus.api.query.ResultSet;
+import abacus.api.AbacusRequest;
 import abacus.service.AbacusQueryService;
-
 import com.senseidb.clue.commands.ClueCommand;
+
+import java.io.PrintStream;
 
 public class BQLCommand extends ClueCommand {
 
@@ -26,9 +16,10 @@ public class BQLCommand extends ClueCommand {
     svc = ctx.getQueryService();
   }
   
-  private static Request parse(String bql) {
+  private static AbacusRequest parse(String bql) {
+    /*
     // fake a test request for now, TODO: add bql parsing code here
-    Request req = new Request();
+    AbacusRequest req = new AbacusRequest();
     FacetParam fp = new FacetParam();
     fp.setMaxNumValues(3);
     Map<String, FacetParam> facetParams = new HashMap<String, FacetParam>();
@@ -47,11 +38,13 @@ public class BQLCommand extends ClueCommand {
     facetParams.put("attribute", attrParam);    
     
     req.setFacetParams(facetParams);
-    return req;
+    */
+    return null;
   }
 
   @Override
   public void execute(String[] args, PrintStream out) throws Exception {
+    /*
     StringBuilder buf = new StringBuilder();
     for (String arg : args) {
       buf.append(arg);
@@ -77,6 +70,7 @@ public class BQLCommand extends ClueCommand {
       }
     }
     out.flush();
+    */
   }
 
   @Override

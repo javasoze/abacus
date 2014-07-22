@@ -7,7 +7,7 @@
 	    <artifactId>abacus-parent</artifactId>
 	    <version>0.0.1-SNAPSHOT</version>
 	</parent>
-	
+
 	<artifactId>abacus-core</artifactId>
 	<packaging>jar</packaging>
 	<name>Abacus Core</name>
@@ -46,19 +46,13 @@
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 	</properties>
-<!--	<repositories>
-	<repository>
-	        <id>apache-snapshots</id>
-	        <name>Apache Snapshots</name>
-	        <url>https://repository.apache.org/snapshots/</url>
-	        <snapshots>
-	            <enabled>true</enabled>
-	            <updatePolicy>always</updatePolicy>
-	        </snapshots>
-	 </repository>
-	</repositories>
-	-->
+
 	<dependencies>
+        <dependency>
+            <groupId>abacus</groupId>
+            <artifactId>abacus-bql</artifactId>
+            <version>${project.version}</version>
+        </dependency>
 		<dependency>
 			<groupId>org.apache.lucene</groupId>
 			<artifactId>lucene-core</artifactId>
