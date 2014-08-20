@@ -6,20 +6,79 @@ enum AbacusBooleanClauseOccur {
   MUST_NOT,
 }
 
+enum AbacusFieldType {
+  STRING = 0,
+  INT,
+  LONG,
+  FLOAT,
+  DOUBLE,
+}
+
+enum AbacusSortFieldType {
+  SCORE = 0,
+  STRING,
+  INT,
+  LONG,
+  FLOAT,
+  DOUBLE,
+}
+
+struct AbacusRange {
+  1: required string field
+  3: required string startValue
+  4: required string endValue
+  5: required bool startClosed
+  6: required bool endClosed
+  7: required AbacusFieldType fieldType
+}
+
+struct AbacusRangeQuery {
+  1: required AbacusRange range
+}
+
+struct AbacusSearchField {
+  1: required string name
+  2: optional string query
+  3: optional double boost = 1
+}
+
 struct AbacusStringQuery {
   1: required string query
-  2: optional list<string> fields
+  2: optional list<AbacusSearchField> fields
   3: optional AbacusBooleanClauseOccur occur = AbacusBooleanClauseOccur.SHOULD
 }
 
+struct AbacusTermQuery {
+  1: required string field
+  2: required string value
+}
+
 struct AbacusWildcardQuery {
-  1: required string query
-  2: required string field
+  1: required string field
+  2: required string query
+}
+
+// pre-defintion
+struct AbacusBooleanQuery {
 }
 
 struct AbacusQuery {
-  1: optional AbacusStringQuery stringQuery
-  2: optional AbacusWildcardQuery wildcardQuery
+  1: optional AbacusRangeQuery rangeQuery
+  2: optional AbacusStringQuery stringQuery
+  3: optional AbacusTermQuery termQuery
+  4: optional AbacusWildcardQuery wildcardQuery
+  5: optional AbacusBooleanQuery booleanQuery,
+}
+
+struct AbacusBooleanSubQuery {
+  1: optional AbacusBooleanClauseOccur occur = AbacusBooleanClauseOccur.SHOULD
+  2: optional AbacusQuery query
+}
+
+struct AbacusBooleanQuery {
+    1: required list<AbacusBooleanSubQuery> queries,
+    2: required double minMatch = 1,
+    3: required bool disableCoord = 0
 }
 
 struct AbacusQueryFilter {
@@ -34,15 +93,13 @@ struct AbacusTermFilter {
 }
 
 struct AbacusRangeFilter {
-  1: required string field
-  3: required string startValue
-  4: required string endValue
-  5: required bool startClosed
-  6: required bool endClosed
+  1: required AbacusRange range
 }
 
 struct AbacusNullFilter {
   1: required string field
+  2: required AbacusFieldType fieldType
+  3: optional bool reverse = 0
 }
 
 // pre-defintion
@@ -50,11 +107,11 @@ struct AbacusBooleanFilter {
 }
 
 struct AbacusFilter {
-  1: optional AbacusQueryFilter queryFilter
-  2: optional AbacusTermFilter termFilter
-  3: optional AbacusRangeFilter rangeFilter
-  4: optional AbacusNullFilter nullFilter
-  5: optional AbacusBooleanFilter booleanFilter
+  1: optional AbacusBooleanFilter booleanFilter
+  2: optional AbacusNullFilter nullFilter
+  3: optional AbacusQueryFilter queryFilter
+  4: optional AbacusRangeFilter rangeFilter
+  5: optional AbacusTermFilter termFilter
 }
 
 struct AbacusBooleanSubFilter {
@@ -71,26 +128,16 @@ struct PagingParam {
   2: optional i32 count = 10
 }
 
-enum SortMode {
-  SCORE = 0,
-  CUSTOM = 1
-}
-
-struct SortField {
-  1: optional SortMode mode = SortMode.SCORE
-  2: optional string field
+struct AbacusSortField {
+  1: optional string field
+  2: required AbacusSortFieldType type
   3: optional bool reverse
 }
 
-enum FacetSortMode {
-  HITS_DESC = 0,
-  VALUE_ASC = 1
-}
 
 struct FacetParam {
-  1: optional FacetSortMode mode = FacetSortMode.HITS_DESC
-  2: optional i32 maxNumValues = 5
-  3: optional i32 minCount = 1
+  1: optional i32 maxNumValues = 5
+  2: optional list<string> ranges
 }
 
 struct PagingParam {
@@ -106,7 +153,7 @@ struct Facet {
 struct AbacusRequest {
   1: optional AbacusQuery query
   2: optional AbacusFilter filter
-  3: optional list<SortField> sortFields
+  3: optional list<AbacusSortField> sortFields
   4: optional map<string, FacetParam> facetParams
   5: optional PagingParam pagingParam
   6: optional bool fetchSrcData
@@ -116,8 +163,8 @@ struct AbacusRequest {
 struct AbacusHit {
   1: optional i64 docid
   2: optional double score
-  3: optional map<string, list<string>> fields
-  4: optional string explanation
+  3: optional string explanation
+  4: optional string srcData
 }
 
 struct AbacusResult {

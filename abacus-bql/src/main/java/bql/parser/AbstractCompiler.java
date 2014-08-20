@@ -1,5 +1,6 @@
 package bql.parser;
 
+import abacus.api.AbacusRequest;
 import org.antlr.v4.runtime.RecognitionException;
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.json.JSONObject;
@@ -10,7 +11,7 @@ public abstract class AbstractCompiler {
     super();
   }
 
-  public abstract JSONObject compile(String expression) throws RecognitionException;
+  public abstract AbacusRequest compile(String expression) throws RecognitionException;
 
   public abstract String getErrorMessage(RecognitionException error);
 

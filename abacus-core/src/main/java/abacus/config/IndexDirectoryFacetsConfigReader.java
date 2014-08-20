@@ -9,7 +9,7 @@ import org.apache.lucene.index.IndexCommit;
 import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.store.Directory;
 
-public class IndexDirectoryFacetsConfigReader implements FacetsConfigReader {
+public class IndexDirectoryFacetsConfigReader implements FieldConfigReader {
 
   private final Directory idxDir;
   
@@ -17,29 +17,29 @@ public class IndexDirectoryFacetsConfigReader implements FacetsConfigReader {
     this.idxDir = idxDir;
   }
   
-  public static Map<String, FacetsConfig> readerFacetsConfig(DirectoryReader reader) 
+  public static Map<String, FieldConfig> readerFacetsConfig(DirectoryReader reader)
       throws IOException {
     IndexCommit idxCommit = reader.getIndexCommit();
     Map<String, String> commitData = idxCommit.getUserData();
-    return FacetsConfig.deFlatten(commitData);
+    return FieldConfig.deFlatten(commitData);
   }
   
   @Override
-  public Map<String, FacetsConfig> readerFacetsConfig() throws IOException {
+  public Map<String, FieldConfig> readerFacetsConfig() throws IOException {
     DirectoryReader reader = DirectoryReader.open(idxDir);
-    Map<String, FacetsConfig> configMap = readerFacetsConfig(reader);
+    Map<String, FieldConfig> configMap = readerFacetsConfig(reader);
     reader.close();
     return configMap;
   }
   
-  public static void putFacetsConfig(IndexWriter idxWriter, Map<String, FacetsConfig> configMap) 
+  public static void putFacetsConfig(IndexWriter idxWriter, Map<String, FieldConfig> configMap)
       throws IOException {
     Map<String, String> commitData = new HashMap<String, String>();
     Map<String, String> srcCommit = idxWriter.getCommitData();
     if (srcCommit != null) {
       commitData.putAll(srcCommit);
     }
-    commitData.putAll(FacetsConfig.flatten(configMap));
+    commitData.putAll(FieldConfig.flatten(configMap));
     idxWriter.setCommitData(commitData);
   }
 

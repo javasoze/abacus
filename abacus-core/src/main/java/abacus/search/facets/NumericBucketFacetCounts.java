@@ -29,7 +29,7 @@ public class NumericBucketFacetCounts extends Facets {
       FacetsCollector facetCollector)
       throws IOException {
     this.field = field;
-    this.bucketMap = new TreeMap<String, FacetBucket>();
+    this.bucketMap = new TreeMap<>();
     for (FacetBucket bucket : buckets) {
       this.bucketMap.put(bucket.getLabel(), bucket);
     }
@@ -42,7 +42,6 @@ public class NumericBucketFacetCounts extends Facets {
   private final void count(List<MatchingDocs> matchingDocs) throws IOException {
     FacetBucket[] buckets = bucketMap.values().toArray(new FacetBucket[bucketMap.size()]);
     for (MatchingDocs hits : matchingDocs) {
-
       AtomicReader reader = hits.context.reader();
       NumericDocValues docValues = reader.getNumericDocValues(field);
       if (docValues == null) {

@@ -1,37 +1,38 @@
 package abacus.search.facets;
 
-
-import org.apache.lucene.document.FieldType.NumericType;
+import abacus.api.AbacusFieldType;
 import org.apache.lucene.queryparser.classic.ParseException;
 import org.apache.lucene.search.Filter;
 import org.apache.lucene.search.NumericRangeFilter;
 
 public class FacetRangeBuilder {
 
-  public static FacetRange buildFacetRangeBucket(String label, NumericType numericType) 
+  public static FacetRange buildFacetRangeBucket(String label, AbacusFieldType fieldType)
       throws ParseException {
-    if (numericType == null) {
-      return new FacetRange(label);
+    switch (fieldType) {
+    case DOUBLE:
+      return new DoubleFacetRange(label);
+    case FLOAT:
+      return new FloatFacetRange(label);
+    case INT:
+      return new IntFacetRange(label);
+    case LONG:
+      return new LongFacetRange(label);
+    default:
+      return null;
     }
-    switch (numericType) {
-    case DOUBLE : return new DoubleFacetRange(label);
-    case FLOAT : return new FloatFacetRange(label);
-    case INT : return new IntFacetRange(label);
-    case LONG: return new LongFacetRange(label);
-    default: return new LongFacetRange(label);
-    }
-  }  
-  
-  public static class FacetRange extends FacetBucket {
+  }
+
+  public static abstract class FacetRange extends FacetBucket {
 
     protected final boolean incLower;
     protected final boolean incUpper;
     protected final String lower;
     protected final String upper;
-    
+
     public FacetRange(String rangeString) throws ParseException {
       super(rangeString);
-      
+
       int index2 = rangeString.indexOf(" TO ");
       if (index2 == -1) {
         throw new ParseException("cannot parse: " + rangeString);
@@ -59,30 +60,23 @@ public class FacetRangeBuilder {
       } else if (incUpper == false) {
         index3 = rangeString.indexOf(')');
       }
-      
+
       lower = rangeString.substring(index + 1, index2).trim();
       upper = rangeString.substring(index2 + 4, index3).trim();
       this.incLower = incLower;
       this.incUpper = incUpper;
     }
-    
+
     public Filter buildRangeFilter(String field) {
       return null;
     }
-
-    @Override
-    public void accumulate(long val) {
-      // TODO Auto-generated method stub
-      
-    }
-    
   }
-  
+
   private static class DoubleFacetRange extends FacetRange {
 
     private final double lowerVal;
     private final double upperVal;
-    
+
     public DoubleFacetRange(String label) throws ParseException {
       super(label);
       lowerVal = "*".equals(lower) ? Double.MIN_VALUE : Double.parseDouble(lower);
@@ -95,7 +89,7 @@ public class FacetRangeBuilder {
       if (val <= upperVal && val >= lowerVal) {
         if ((!incLower && val == lowerVal) || (!incUpper && val == upperVal)) {
           return;
-        } 
+        }
         count++;
       }
     }
@@ -104,12 +98,13 @@ public class FacetRangeBuilder {
     public Filter buildRangeFilter(String field) {
       return NumericRangeFilter.newDoubleRange(field, lowerVal, upperVal, incLower, incUpper);
     }
-    
+
   }
-  
+
   private static class FloatFacetRange extends FacetRange {
     private final float lowerVal;
     private final float upperVal;
+
     public FloatFacetRange(String label) throws ParseException {
       super(label);
       lowerVal = "*".equals(lower) ? Float.MIN_VALUE : Float.parseFloat(lower);
@@ -122,22 +117,22 @@ public class FacetRangeBuilder {
       if (val <= upperVal && val >= lowerVal) {
         if ((!incLower && val == lowerVal) || (!incUpper && val == upperVal)) {
           return;
-        } 
+        }
         count++;
       }
     }
-    
+
     @Override
     public Filter buildRangeFilter(String field) {
       return NumericRangeFilter.newFloatRange(field, lowerVal, upperVal, incLower, incUpper);
     }
-    
+
   }
-  
+
   private static class IntFacetRange extends FacetRange {
     private final int lowerVal;
     private final int upperVal;
-    
+
     public IntFacetRange(String label) throws ParseException {
       super(label);
       lowerVal = "*".equals(lower) ? Integer.MIN_VALUE : Integer.parseInt(lower);
@@ -146,28 +141,29 @@ public class FacetRangeBuilder {
 
     @Override
     public void accumulate(long longVal) {
-      int val = (int) longVal;      
+      int val = (int) longVal;
       if (val <= upperVal && val >= lowerVal) {
         if ((!incLower && val == lowerVal) || (!incUpper && val == upperVal)) {
           return;
-        } 
+        }
         count++;
       }
     }
-   
+
     @Override
     public Filter buildRangeFilter(String field) {
       return NumericRangeFilter.newIntRange(field, lowerVal, upperVal, incLower, incUpper);
     }
   }
-  
+
   private static class LongFacetRange extends FacetRange {
     private final long lowerVal;
     private final long upperVal;
+
     public LongFacetRange(String label) throws ParseException {
       super(label);
       lowerVal = "*".equals(lower) ? Long.MIN_VALUE : Long.parseLong(lower);
-      upperVal = "*".equals(upper) ? Long.MIN_VALUE : Long.parseLong(upper);      
+      upperVal = "*".equals(upper) ? Long.MIN_VALUE : Long.parseLong(upper);
     }
 
     @Override
@@ -175,16 +171,14 @@ public class FacetRangeBuilder {
       if (val <= upperVal && val >= lowerVal) {
         if ((!incLower && val == lowerVal) || (!incUpper && val == upperVal)) {
           return;
-        } 
+        }
         count++;
       }
     }
-    
+
     @Override
     public Filter buildRangeFilter(String field) {
       return NumericRangeFilter.newLongRange(field, lowerVal, upperVal, incLower, incUpper);
     }
-    
   }
-
 }

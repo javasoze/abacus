@@ -1,9 +1,8 @@
 package abacus.search.facets;
 
-import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
-
+import abacus.indexing.AbacusIndexer;
+import abacus.service.AbacusQueryParser;
+import abacus.service.AbacusQueryParser.DefaultQueryParser;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.NumericDocValuesField;
@@ -18,16 +17,16 @@ import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.RAMDirectory;
 import org.apache.lucene.util.Version;
 
-import abacus.indexing.AbacusIndexer;
-import abacus.service.QueryParser;
-import abacus.service.QueryParser.DefaultQueryParser;
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 
 public class FacetTestUtil {
   //test data set
   private static final List<Document> DOC_LIST = new ArrayList<Document>();
   static final Directory IDX_DIR = new RAMDirectory();
 
-  static final QueryParser QUERY_PARSER = new DefaultQueryParser("contents",
+  static final AbacusQueryParser QUERY_PARSER = new DefaultQueryParser("contents",
       new StandardAnalyzer(Version.LUCENE_48));
 
   static {

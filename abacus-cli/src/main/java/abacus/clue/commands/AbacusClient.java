@@ -10,7 +10,6 @@ public class AbacusClient {
 	  
 	  String idxLocation = args[0];
 		AbacusClueApplication app = new AbacusClueApplication(idxLocation, true);
-		
 		app.run();
 	}
 }

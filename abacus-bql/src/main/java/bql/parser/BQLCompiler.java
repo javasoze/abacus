@@ -1,5 +1,6 @@
 package bql.parser;
 
+import abacus.api.AbacusFieldType;
 import abacus.api.AbacusRequest;
 import bql.BQLLexer;
 import bql.BQLParser;
@@ -16,7 +17,6 @@ import org.antlr.v4.runtime.misc.ParseCancellationException;
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.ParseTreeWalker;
 import org.antlr.v4.runtime.tree.TerminalNode;
-import org.json.JSONObject;
 
 import java.util.ArrayDeque;
 import java.util.Deque;
@@ -25,15 +25,15 @@ import java.util.Map;
 
 public class BQLCompiler extends AbstractCompiler {
   // A map containing facet type and data type info for a facet
-  private Map<String, String[]> _facetInfoMap = new HashMap<String, String[]>();
+  private Map<String, AbacusFieldType> _fieldTypeMap = new HashMap<String, AbacusFieldType>();
   private final ThreadLocal<BQLParser> _parser = new ThreadLocal<BQLParser>();
 
-  public BQLCompiler(Map<String, String[]> facetInfoMap) {
-    _facetInfoMap = facetInfoMap;
+  public BQLCompiler(Map<String, AbacusFieldType> fieldTypeMap) {
+    _fieldTypeMap = fieldTypeMap;
   }
 
   @Override
-  public JSONObject compile(String bqlStmt)
+  public AbacusRequest compile(String bqlStmt)
       throws RecognitionException, ParseCancellationException {
     // Lexer splits input into tokens
     ANTLRInputStream input = new ANTLRInputStream(bqlStmt);
@@ -46,29 +46,9 @@ public class BQLCompiler extends AbstractCompiler {
     parser.setErrorHandler(new BailErrorStrategy());
     BQLParser.StatementContext ret = parser.statement();
 
-    BQLCompilerAnalyzer analyzer = new BQLCompilerAnalyzer(parser, _facetInfoMap);
+    BQLCompilerAnalyzer analyzer = new BQLCompilerAnalyzer(_fieldTypeMap);
     ParseTreeWalker.DEFAULT.walk(analyzer, ret);
-    JSONObject json = (JSONObject) analyzer.getJsonProperty(ret);
-    // printTree(ast);
-    return json;
-  }
-
-  public AbacusRequest compileToThriftRequest(String bqlStmt)
-      throws RecognitionException, ParseCancellationException {
-    // Lexer splits input into tokens
-    ANTLRInputStream input = new ANTLRInputStream(bqlStmt);
-    TokenStream tokens = new CommonTokenStream(new BQLLexer(input));
-
-    // Parser generates abstract syntax tree
-    BQLParser parser = new BQLParser(tokens);
-    _parser.set(parser);
-    parser.removeErrorListeners();
-    parser.setErrorHandler(new BailErrorStrategy());
-    BQLParser.StatementContext ret = parser.statement();
-
-    BQLCompilerAnalyzer analyzer = new BQLCompilerAnalyzer(parser, _facetInfoMap);
-    ParseTreeWalker.DEFAULT.walk(analyzer, ret);
-    return analyzer.getThriftRequest();
+    return analyzer.getAbacusRequest(ret);
   }
 
   @Override
@@ -136,10 +116,6 @@ public class BQLCompiler extends AbstractCompiler {
     }
 
     return error.getMessage();
-  }
-
-  public void setFacetInfoMap(Map<String, String[]> facetInfoMap) {
-    _facetInfoMap = facetInfoMap;
   }
 
   private static TerminalNode getStartNode(ParseTree tree) {

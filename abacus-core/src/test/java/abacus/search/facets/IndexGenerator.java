@@ -1,16 +1,16 @@
 package abacus.search.facets;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.util.HashMap;
-import java.util.Map;
-
+import abacus.api.AbacusFieldType;
+import abacus.config.FacetIndexedType;
+import abacus.config.FieldConfig;
+import abacus.config.FieldConfigBuilder;
+import abacus.config.IndexDirectoryFacetsConfigReader;
+import abacus.indexing.AbacusIndexer;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field.Store;
-import org.apache.lucene.document.FieldType.NumericType;
 import org.apache.lucene.document.NumericDocValuesField;
+import org.apache.lucene.document.StringField;
 import org.apache.lucene.document.TextField;
 import org.apache.lucene.index.DirectoryReader;
 import org.apache.lucene.index.IndexWriter;
@@ -21,11 +21,11 @@ import org.apache.lucene.store.RAMDirectory;
 import org.apache.lucene.util.Version;
 import org.json.JSONObject;
 
-import abacus.config.FacetIndexedType;
-import abacus.config.FacetsConfig;
-import abacus.config.FacetsConfigBuilder;
-import abacus.config.IndexDirectoryFacetsConfigReader;
-import abacus.indexing.AbacusIndexer;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.util.HashMap;
+import java.util.Map;
 
 public class IndexGenerator {
 
@@ -36,54 +36,58 @@ public class IndexGenerator {
     }
   }
 
-  static Map<String, FacetsConfig> buildConfig() {
-    Map<String, FacetsConfig> configMap = new HashMap<String, FacetsConfig>();
+  static Map<String, FieldConfig> buildConfig() {
+    Map<String, FieldConfig> configMap = new HashMap<>();
     {
-      FacetsConfigBuilder builder = new FacetsConfigBuilder();
+      FieldConfigBuilder builder = new FieldConfigBuilder();
       builder.withFacetIndexedType(FacetIndexedType.NUMERIC);
-      builder.withNumericType(NumericType.DOUBLE);
+      builder.withFiledType(AbacusFieldType.DOUBLE);
       builder.withFacetIndexedRangeStrings(
-          "(* TO 6700]", "[6800 TO 9900]", "[10000 TO 13100]", 
+          "(* TO 6700]", "[6800 TO 9900]", "[10000 TO 13100]",
           "[13200 TO 17300]", "[17400 TO *)");
       configMap.put("price", builder.build());
     }
     {
-      FacetsConfigBuilder builder = new FacetsConfigBuilder();
+      FieldConfigBuilder builder = new FieldConfigBuilder();
       builder.withFacetIndexedType(FacetIndexedType.NUMERIC);
-      builder.withNumericType(NumericType.INT);
+      builder.withFiledType(AbacusFieldType.INT);
       builder.withFacetIndexedRangeStrings(
           "(* TO 1994]", "[1995 TO 1996]",
           "[1997 TO 1998]", "[1999 TO 2000]", "[2001 TO 2002]");
       configMap.put("year", builder.build());
     }
     {
-      FacetsConfigBuilder builder = new FacetsConfigBuilder();
+      FieldConfigBuilder builder = new FieldConfigBuilder();
       builder.withFacetIndexedType(FacetIndexedType.NUMERIC);
-      builder.withNumericType(NumericType.FLOAT);
+      builder.withFiledType(AbacusFieldType.FLOAT);
       builder.withFacetIndexedRangeStrings(
           "(* TO 12500]", "(12500 TO 15000]",
           "(15000 TO 17500]", "(17500 TO *)"
-          );
+      );
       configMap.put("mileage", builder.build());
     }
     {
-      FacetsConfigBuilder builder = new FacetsConfigBuilder();
+      FieldConfigBuilder builder = new FieldConfigBuilder();
       builder.withFacetIndexedType(FacetIndexedType.SINGLE);
+      builder.withFiledType(AbacusFieldType.STRING);
       configMap.put("color", builder.build());
     }
     {
-      FacetsConfigBuilder builder = new FacetsConfigBuilder();
+      FieldConfigBuilder builder = new FieldConfigBuilder();
       builder.withFacetIndexedType(FacetIndexedType.SINGLE);
+      builder.withFiledType(AbacusFieldType.STRING);
       configMap.put("category", builder.build());
     }
     {
-      FacetsConfigBuilder builder = new FacetsConfigBuilder();
+      FieldConfigBuilder builder = new FieldConfigBuilder();
       builder.withFacetIndexedType(FacetIndexedType.MULTI);
+      builder.withFiledType(AbacusFieldType.STRING);
       configMap.put("tags", builder.build());
     }
     {
-      FacetsConfigBuilder builder = new FacetsConfigBuilder();
+      FieldConfigBuilder builder = new FieldConfigBuilder();
       builder.withFacetIndexedType(FacetIndexedType.ATTRIBUTE);
+      builder.withFiledType(AbacusFieldType.STRING);
       configMap.put("attribute", builder.build());
     }
     return configMap;
@@ -128,6 +132,8 @@ public class IndexGenerator {
         }
       }
     }
+
+    AbacusIndexer.addSrcDataField(doc, json.toString());
     return doc;
   }
 
@@ -153,8 +159,8 @@ public class IndexGenerator {
     System.out.println(count + " seed docs indexed");
 
     reader.close();
-    
-    Map<String, FacetsConfig> configMap = buildConfig();
+
+    Map<String, FieldConfig> configMap = buildConfig();
     IndexDirectoryFacetsConfigReader.putFacetsConfig(writer, configMap);
     writer.commit();
     writer.close();
@@ -176,8 +182,8 @@ public class IndexGenerator {
       System.out.println((i + 1) * reader.maxDoc() + " docs indexed.");
     }
 
-    System.out.println("merging all segments");    
-    writer.forceMerge(1);    
+    System.out.println("merging all segments");
+    writer.forceMerge(1);
     System.out.println("saving commit data: " + commitData);
     writer.setCommitData(commitData);
     writer.commit();
@@ -189,7 +195,7 @@ public class IndexGenerator {
     if (args.length < 2) {
       System.out.println("usage: source_file index_dir");
     }
-        
+
     File f = new File(args[0]);
     File outDir = new File(args[1]);
 
