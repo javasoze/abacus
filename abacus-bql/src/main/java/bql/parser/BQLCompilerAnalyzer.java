@@ -240,36 +240,35 @@ public class BQLCompilerAnalyzer extends BQLBaseListener {
     String col = ctx.column_name().getText();
     String value = ctx.value().getText();
     AbacusFieldType type = fieldTypeMap.get(col);
-    AbacusFilter filter = null;
-    if (type != null) {
-      switch (type) {
-      case STRING:
-        value = AbacusUtil.trimStringValue(value);
-        filter = AbacusUtil.buildTermFilter(col, value);
-        break;
-      case INT:
-        Integer numI = Integer.valueOf(value);
-        filter = AbacusUtil.buildRangeFilter(col, numI, numI, true, true);
-        break;
-      case LONG:
-        Long num = Long.valueOf(value);
-        filter = AbacusUtil.buildRangeFilter(col, num, num, true, true);
-        break;
-      case FLOAT:
-        Float numF = Float.valueOf(value);
-        filter = AbacusUtil.buildRangeFilter(col, numF, numF, true, true);
-        break;
-      case DOUBLE:
-        Double numD = Double.valueOf(value);
-        filter = AbacusUtil.buildRangeFilter(col, numD, numD, true, true);
-        break;
-      }
-      if (filter != null) {
-        filterProperty.put(ctx, filter);
-      }
-    } else {
+    if (type == null) {
       throw new ParseCancellationException(
           new SemanticException(ctx, "Schema doesn't has field : " + col));
+    }
+    AbacusFilter filter = null;
+    switch (type) {
+    case STRING:
+      value = AbacusUtil.trimStringValue(value);
+      filter = AbacusUtil.buildTermFilter(col, value);
+      break;
+    case INT:
+      Integer numI = Integer.valueOf(value);
+      filter = AbacusUtil.buildRangeFilter(col, numI, numI, true, true);
+      break;
+    case LONG:
+      Long num = Long.valueOf(value);
+      filter = AbacusUtil.buildRangeFilter(col, num, num, true, true);
+      break;
+    case FLOAT:
+      Float numF = Float.valueOf(value);
+      filter = AbacusUtil.buildRangeFilter(col, numF, numF, true, true);
+      break;
+    case DOUBLE:
+      Double numD = Double.valueOf(value);
+      filter = AbacusUtil.buildRangeFilter(col, numD, numD, true, true);
+      break;
+    }
+    if (filter != null) {
+      filterProperty.put(ctx, filter);
     }
   }
 
@@ -278,6 +277,10 @@ public class BQLCompilerAnalyzer extends BQLBaseListener {
     String col = ctx.column_name().getText();
     String value = ctx.value().getText();
     AbacusFieldType type = fieldTypeMap.get(col);
+    if (type == null) {
+      throw new ParseCancellationException(
+          new SemanticException(ctx, "Schema doesn't has field : " + col));
+    }
 
     AbacusFilter filter;
     List<String> values = new ArrayList<String>();
@@ -298,6 +301,10 @@ public class BQLCompilerAnalyzer extends BQLBaseListener {
   public void exitBetween_predicate(BQLParser.Between_predicateContext ctx) {
     String col = ctx.column_name().getText();
     AbacusFieldType type = fieldTypeMap.get(col);
+    if (type == null) {
+      throw new ParseCancellationException(
+          new SemanticException(ctx, "Schema doesn't has field : " + col));
+    }
 
     Object val1 = valProperty.get(ctx.val1);
     Object val2 = valProperty.get(ctx.val2);
@@ -306,83 +313,78 @@ public class BQLCompilerAnalyzer extends BQLBaseListener {
           "Value list for BETWEEN predicate contains incompatible value(s).");
     }
     AbacusFilter filter = null;
-    if (type != null) {
-      if (ctx.not == null) {
-        switch (type) {
-        case STRING:
-          String strVal1 = AbacusUtil.trimStringValue(val1.toString());
-          String strVal2 = AbacusUtil.trimStringValue(val2.toString());
-          filter = AbacusUtil.buildRangeFilter(col, strVal1, strVal2, true, true);
-          break;
-        case INT:
-          Integer integer1 = Integer.valueOf(val1.toString());
-          Integer integer2 = Integer.valueOf(val2.toString());
-          filter = AbacusUtil.buildRangeFilter(col, integer1, integer2, true, true);
-          break;
-        case LONG:
-          Long long1 = Long.valueOf(val1.toString());
-          Long long2 = Long.valueOf(val2.toString());
-          filter = AbacusUtil.buildRangeFilter(col, long1, long2, true, true);
-          break;
-        case FLOAT:
-          Float float1 = Float.valueOf(val1.toString());
-          Float float2 = Float.valueOf(val2.toString());
-          filter = AbacusUtil.buildRangeFilter(col, float1, float2, true, true);
-          break;
-        case DOUBLE:
-          Double double1 = Double.valueOf(val1.toString());
-          Double double2 = Double.valueOf(val2.toString());
-          filter = AbacusUtil.buildRangeFilter(col, double1, double2, true, true);
-          break;
-        }
-      } else {
-        AbacusFilter filter1 = null;
-        AbacusFilter filter2 = null;
-        switch (type) {
-        case STRING:
-          String strVal1 = AbacusUtil.trimStringValue(val1.toString());
-          String strVal2 = AbacusUtil.trimStringValue(val2.toString());
-          filter1 = AbacusUtil.buildRangeFilter(col, null, strVal1, false, false);
-          filter2 = AbacusUtil.buildRangeFilter(col, strVal2, null, false, false);
-          break;
-        case INT:
-          Integer integer1 = Integer.valueOf(val1.toString());
-          Integer integer2 = Integer.valueOf(val2.toString());
-          filter1 = AbacusUtil.buildRangeFilter(col, null, integer1, false, false);
-          filter2 = AbacusUtil.buildRangeFilter(col, integer2, null, false, false);
-          break;
-        case LONG:
-          Long long1 = Long.valueOf(val1.toString());
-          Long long2 = Long.valueOf(val2.toString());
-          filter1 = AbacusUtil.buildRangeFilter(col, null, long1, false, false);
-          filter2 = AbacusUtil.buildRangeFilter(col, long2, null, false, false);
-          break;
-        case FLOAT:
-          Float float1 = Float.valueOf(val1.toString());
-          Float float2 = Float.valueOf(val2.toString());
-          filter1 = AbacusUtil.buildRangeFilter(col, null, float1, false, false);
-          filter2 = AbacusUtil.buildRangeFilter(col, float2, null, false, false);
-          break;
-        case DOUBLE:
-          Double double1 = Double.valueOf(val1.toString());
-          Double double2 = Double.valueOf(val2.toString());
-          filter1 = AbacusUtil.buildRangeFilter(col, null, double1, false, false);
-          filter2 = AbacusUtil.buildRangeFilter(col, double2, null, false, false);
-          break;
-        }
-        AbacusBooleanFilter booleanFilter = new AbacusBooleanFilter();
-        booleanFilter.addToFilters(new AbacusBooleanSubFilter().setFilter(filter1)
-            .setOccur(AbacusBooleanClauseOccur.SHOULD));
-        booleanFilter.addToFilters(new AbacusBooleanSubFilter().setFilter(filter2)
-            .setOccur(AbacusBooleanClauseOccur.SHOULD));
-        filter = new AbacusFilter().setBooleanFilter(booleanFilter);
-      }
-      if (filter != null) {
-        filterProperty.put(ctx, filter);
+    if (ctx.not == null) {
+      switch (type) {
+      case STRING:
+        String strVal1 = AbacusUtil.trimStringValue(val1.toString());
+        String strVal2 = AbacusUtil.trimStringValue(val2.toString());
+        filter = AbacusUtil.buildRangeFilter(col, strVal1, strVal2, true, true);
+        break;
+      case INT:
+        Integer integer1 = Integer.valueOf(val1.toString());
+        Integer integer2 = Integer.valueOf(val2.toString());
+        filter = AbacusUtil.buildRangeFilter(col, integer1, integer2, true, true);
+        break;
+      case LONG:
+        Long long1 = Long.valueOf(val1.toString());
+        Long long2 = Long.valueOf(val2.toString());
+        filter = AbacusUtil.buildRangeFilter(col, long1, long2, true, true);
+        break;
+      case FLOAT:
+        Float float1 = Float.valueOf(val1.toString());
+        Float float2 = Float.valueOf(val2.toString());
+        filter = AbacusUtil.buildRangeFilter(col, float1, float2, true, true);
+        break;
+      case DOUBLE:
+        Double double1 = Double.valueOf(val1.toString());
+        Double double2 = Double.valueOf(val2.toString());
+        filter = AbacusUtil.buildRangeFilter(col, double1, double2, true, true);
+        break;
       }
     } else {
-      throw new ParseCancellationException(
-          new SemanticException(ctx, "Schema doesn't has field : " + col));
+      AbacusFilter filter1 = null;
+      AbacusFilter filter2 = null;
+      switch (type) {
+      case STRING:
+        String strVal1 = AbacusUtil.trimStringValue(val1.toString());
+        String strVal2 = AbacusUtil.trimStringValue(val2.toString());
+        filter1 = AbacusUtil.buildRangeFilter(col, null, strVal1, false, false);
+        filter2 = AbacusUtil.buildRangeFilter(col, strVal2, null, false, false);
+        break;
+      case INT:
+        Integer integer1 = Integer.valueOf(val1.toString());
+        Integer integer2 = Integer.valueOf(val2.toString());
+        filter1 = AbacusUtil.buildRangeFilter(col, null, integer1, false, false);
+        filter2 = AbacusUtil.buildRangeFilter(col, integer2, null, false, false);
+        break;
+      case LONG:
+        Long long1 = Long.valueOf(val1.toString());
+        Long long2 = Long.valueOf(val2.toString());
+        filter1 = AbacusUtil.buildRangeFilter(col, null, long1, false, false);
+        filter2 = AbacusUtil.buildRangeFilter(col, long2, null, false, false);
+        break;
+      case FLOAT:
+        Float float1 = Float.valueOf(val1.toString());
+        Float float2 = Float.valueOf(val2.toString());
+        filter1 = AbacusUtil.buildRangeFilter(col, null, float1, false, false);
+        filter2 = AbacusUtil.buildRangeFilter(col, float2, null, false, false);
+        break;
+      case DOUBLE:
+        Double double1 = Double.valueOf(val1.toString());
+        Double double2 = Double.valueOf(val2.toString());
+        filter1 = AbacusUtil.buildRangeFilter(col, null, double1, false, false);
+        filter2 = AbacusUtil.buildRangeFilter(col, double2, null, false, false);
+        break;
+      }
+      AbacusBooleanFilter booleanFilter = new AbacusBooleanFilter();
+      booleanFilter.addToFilters(new AbacusBooleanSubFilter().setFilter(filter1)
+          .setOccur(AbacusBooleanClauseOccur.SHOULD));
+      booleanFilter.addToFilters(new AbacusBooleanSubFilter().setFilter(filter2)
+          .setOccur(AbacusBooleanClauseOccur.SHOULD));
+      filter = new AbacusFilter().setBooleanFilter(booleanFilter);
+    }
+    if (filter != null) {
+      filterProperty.put(ctx, filter);
     }
   }
 
