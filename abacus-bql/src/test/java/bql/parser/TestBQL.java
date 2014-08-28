@@ -442,11 +442,25 @@ public class TestBQL {
     System.out.println("testBetweenPred");
     System.out.println("==================================================");
 
-    String bql = "SELECT category " + "FROM cars "
+    String bql = "SELECT * " + "FROM cars "
         + "WHERE year BETWEEN 2000 AND 2001";
     AbacusRequest request = _compiler.compile(bql);
     AbacusRequest expected = new AbacusRequest();
     AbacusFilter filter = AbacusUtil.buildRangeFilter("year", 2000, 2001, true, true);
+    expected.setFilter(filter);
+    assertEquals(expected, request);
+  }
+
+  @Test
+  public void testStringBetweenPred() throws Exception {
+    System.out.println("testStringBetweenPred");
+    System.out.println("==================================================");
+
+    String bql = "SELECT * " + "FROM cars "
+        + "WHERE color BETWEEN 'black' AND \"yellow\"";
+    AbacusRequest request = _compiler.compile(bql);
+    AbacusRequest expected = new AbacusRequest();
+    AbacusFilter filter = AbacusUtil.buildRangeFilter("color", "black", "yellow", true, true);
     expected.setFilter(filter);
     assertEquals(expected, request);
   }

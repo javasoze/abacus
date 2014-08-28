@@ -316,8 +316,8 @@ public class BQLCompilerAnalyzer extends BQLBaseListener {
     if (ctx.not == null) {
       switch (type) {
       case STRING:
-        String strVal1 = AbacusUtil.trimStringValue(val1.toString());
-        String strVal2 = AbacusUtil.trimStringValue(val2.toString());
+        String strVal1 = val1.toString();
+        String strVal2 = val2.toString();
         filter = AbacusUtil.buildRangeFilter(col, strVal1, strVal2, true, true);
         break;
       case INT:
@@ -346,8 +346,8 @@ public class BQLCompilerAnalyzer extends BQLBaseListener {
       AbacusFilter filter2 = null;
       switch (type) {
       case STRING:
-        String strVal1 = AbacusUtil.trimStringValue(val1.toString());
-        String strVal2 = AbacusUtil.trimStringValue(val2.toString());
+        String strVal1 = val1.toString();
+        String strVal2 = val2.toString();
         filter1 = AbacusUtil.buildRangeFilter(col, null, strVal1, false, false);
         filter2 = AbacusUtil.buildRangeFilter(col, strVal2, null, false, false);
         break;
