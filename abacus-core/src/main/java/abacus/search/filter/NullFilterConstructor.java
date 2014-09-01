@@ -3,17 +3,12 @@ package abacus.search.filter;
 import abacus.api.AbacusFieldType;
 import abacus.api.AbacusFilter;
 import abacus.api.AbacusNullFilter;
-import abacus.config.FieldConfig;
 import abacus.service.AbacusQueryParser;
-import org.apache.lucene.index.Term;
 import org.apache.lucene.queries.BooleanFilter;
 import org.apache.lucene.search.BooleanClause;
 import org.apache.lucene.search.Filter;
-import org.apache.lucene.search.NumericRangeQuery;
-import org.apache.lucene.search.QueryWrapperFilter;
-import org.apache.lucene.search.WildcardQuery;
-
-import java.util.Map;
+import org.apache.lucene.search.NumericRangeFilter;
+import org.apache.lucene.search.TermRangeFilter;
 
 public class NullFilterConstructor extends FilterConstructor {
   @Override
@@ -24,33 +19,32 @@ public class NullFilterConstructor extends FilterConstructor {
     AbacusNullFilter nullFilter = abacusFilter.getNullFilter();
     AbacusFieldType type = nullFilter.getFieldType();
     String field = nullFilter.getField();
-    QueryWrapperFilter queryFilter = null;
+    Filter filter = null;
     switch (type) {
     case STRING:
-      queryFilter = new QueryWrapperFilter(new WildcardQuery(new Term(field, "*")));
+      filter = new TermRangeFilter(field, null, null, false, false);
       break;
     case INT:
-      queryFilter = new QueryWrapperFilter(NumericRangeQuery.newIntRange(field,
-          Integer.MIN_VALUE, Integer.MAX_VALUE, true, true));
+      filter = NumericRangeFilter
+          .newIntRange(field, Integer.MIN_VALUE, Integer.MAX_VALUE, true, true);
       break;
     case LONG:
-      queryFilter = new QueryWrapperFilter(NumericRangeQuery.newLongRange(field,
-          Long.MIN_VALUE, Long.MAX_VALUE, true, true));
+      filter = NumericRangeFilter.newLongRange(field, Long.MIN_VALUE, Long.MAX_VALUE, true, true);
       break;
     case FLOAT:
-      queryFilter = new QueryWrapperFilter(NumericRangeQuery.newFloatRange(field,
-          Float.MIN_VALUE, Float.MAX_VALUE, true, true));
+      filter = NumericRangeFilter
+          .newFloatRange(field, Float.MIN_VALUE, Float.MAX_VALUE, true, true);
       break;
     case DOUBLE:
-      queryFilter = new QueryWrapperFilter(NumericRangeQuery.newDoubleRange(field,
-          Double.MIN_VALUE, Double.MAX_VALUE, true, true));
+      filter = NumericRangeFilter
+          .newDoubleRange(field, Double.MIN_VALUE, Double.MAX_VALUE, true, true);
       break;
     }
     if (nullFilter.isReverse()) {
-      return queryFilter;
+      return filter;
     }
     BooleanFilter booleanFilter = new BooleanFilter();
-    booleanFilter.add(queryFilter, BooleanClause.Occur.MUST_NOT);
+    booleanFilter.add(filter, BooleanClause.Occur.MUST_NOT);
     return booleanFilter;
   }
 }
