@@ -32,7 +32,7 @@ public class DirectBufferSortedSetDocValues extends SortedSetDocValues {
     
     int numBytes = 0;
     for (int i = 0; i < numValues ; ++i) {
-      BytesRef tempRef = inner.lookupOrd(i);
+      BytesRef tempRef = BytesRef.deepCopyOf(inner.lookupOrd(i));
       numBytes += tempRef.length;
       byteRefArr[i] = tempRef;      
     }
