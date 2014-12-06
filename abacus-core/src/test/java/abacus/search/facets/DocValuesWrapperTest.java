@@ -95,20 +95,17 @@ public class DocValuesWrapperTest {
       int expectedOrd = expected.getOrd(i);
       int gotOrd = wrapped.getOrd(i);
       TestCase.assertEquals(expectedOrd, gotOrd);
-      BytesRef bref1 = new BytesRef();
-      expected.get(i, bref1);
-      BytesRef bref2 = new BytesRef();
-      wrapped.get(i, bref2);
+      BytesRef bref1 = expected.get(i);
+      
+      BytesRef bref2 = wrapped.get(i);
       TestCase.assertEquals("expected: " + bref1.utf8ToString() + ", got: " + bref2.utf8ToString(),
           0, BREF_COMPARATOR.compare(bref1, bref2));
     }
 
     TestCase.assertEquals(expected.getValueCount(), wrapped.getValueCount());
     for (int i = 0; i < expected.getValueCount(); ++i) {
-      BytesRef bref1 = new BytesRef();
-      expected.lookupOrd(i, bref1);
-      BytesRef bref2 = new BytesRef();
-      wrapped.lookupOrd(i, bref2);
+      BytesRef bref1 = expected.lookupOrd(i);
+      BytesRef bref2 = wrapped.lookupOrd(i);
       TestCase.assertEquals("expected: " + bref1.utf8ToString() + ", got: " + bref2.utf8ToString(),
           0, BREF_COMPARATOR.compare(bref1, bref2));
     }
@@ -124,10 +121,8 @@ public class DocValuesWrapperTest {
       while ((expectedOrd = expected.nextOrd()) != SortedSetDocValues.NO_MORE_ORDS) {
         gotOrd = wrapped.nextOrd();
         TestCase.assertEquals(expectedOrd, gotOrd);
-        BytesRef bref1 = new BytesRef();
-        expected.lookupOrd(expectedOrd, bref1);
-        BytesRef bref2 = new BytesRef();
-        wrapped.lookupOrd(gotOrd, bref2);
+        BytesRef bref1 = expected.lookupOrd(expectedOrd);
+        BytesRef bref2 = wrapped.lookupOrd(gotOrd);
         TestCase.assertEquals("expected: " + bref1.utf8ToString() + ", got: " + bref2.utf8ToString(),
             0, BREF_COMPARATOR.compare(bref1, bref2));
       }
@@ -137,10 +132,8 @@ public class DocValuesWrapperTest {
 
     TestCase.assertEquals(expected.getValueCount(), wrapped.getValueCount());
     for (int i = 0; i < expected.getValueCount(); ++i) {
-      BytesRef bref1 = new BytesRef();
-      expected.lookupOrd(i, bref1);
-      BytesRef bref2 = new BytesRef();
-      wrapped.lookupOrd(i, bref2);
+      BytesRef bref1 = expected.lookupOrd(i);
+      BytesRef bref2 = wrapped.lookupOrd(i);
       TestCase.assertEquals("expected: " + bref1.utf8ToString() + ", got: " + bref2.utf8ToString(),
           0, BREF_COMPARATOR.compare(bref1, bref2));
     }

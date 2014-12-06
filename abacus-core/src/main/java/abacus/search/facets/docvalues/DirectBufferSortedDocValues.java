@@ -24,8 +24,7 @@ public class DirectBufferSortedDocValues extends SortedDocValues {
     
     int numBytes = 0;
     for (int i = 0; i < numTerms ; ++i) {
-      BytesRef tempRef = new BytesRef();
-      inner.lookupOrd(i, tempRef);
+      BytesRef tempRef = inner.lookupOrd(i);
       numBytes += tempRef.length;
       byteRefArr[i] = tempRef;      
     }
@@ -46,7 +45,8 @@ public class DirectBufferSortedDocValues extends SortedDocValues {
   }
 
   @Override
-  public void lookupOrd(int ord, BytesRef result) {
+  public BytesRef lookupOrd(int ord) {
+    BytesRef result = new BytesRef();
     int offset = byteRefs.getInt(8 * ord );
     int length = byteRefs.getInt(8 * ord + 4);
     
@@ -56,6 +56,7 @@ public class DirectBufferSortedDocValues extends SortedDocValues {
     for (int i = 0; i < result.length; ++i) {
       result.bytes[i] = buffer.get(offset + i);
     }
+    return result;
   }
 
   @Override

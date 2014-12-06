@@ -27,8 +27,7 @@ public class NativeSortedDocValues extends SortedDocValues
    
     int numBytes = 0;
     for (int i=0; i < numTerms; ++i) {
-      BytesRef tempRef = new BytesRef();
-      inner.lookupOrd(i, tempRef);
+      BytesRef tempRef = inner.lookupOrd(i);
       numBytes+=tempRef.length;
       byteRefs[i] = tempRef;
     }
@@ -56,7 +55,8 @@ public class NativeSortedDocValues extends SortedDocValues
   }
 
   @Override
-  public void lookupOrd(int ord, BytesRef result) {
+  public BytesRef lookupOrd(int ord) {
+    BytesRef result = new BytesRef();
     int offset = HS.getInt(bytesRefPtr, 2 * ord);
     int length = HS.getInt(bytesRefPtr, 2 * ord + 1);
     
@@ -66,6 +66,7 @@ public class NativeSortedDocValues extends SortedDocValues
     for (int i = 0; i < result.length; ++i) {
       result.bytes[i] = HS.unsafe.getByte(bufferPtr + offset + i);  
     }
+    return result;
   }
 
   @Override

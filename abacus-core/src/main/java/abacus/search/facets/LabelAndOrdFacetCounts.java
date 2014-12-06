@@ -1,8 +1,12 @@
 package abacus.search.facets;
 
-import abacus.search.util.LabelAndValueUtil;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.ints.IntList;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 import org.apache.lucene.facet.FacetResult;
 import org.apache.lucene.facet.Facets;
@@ -16,10 +20,7 @@ import org.apache.lucene.util.BytesRef;
 import org.apache.lucene.util.BytesRefHash;
 import org.apache.lucene.util.PriorityQueue;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import abacus.search.util.LabelAndValueUtil;
 
 public class LabelAndOrdFacetCounts extends Facets {
 
@@ -57,8 +58,8 @@ public class LabelAndOrdFacetCounts extends Facets {
       PerSegmentFacetCount segmentCount = new PerSegmentFacetCount(counts) {
 
         @Override
-        public void lookupLabel(int ord, BytesRef result) {
-          ordSegmentReader.lookupLabel(ord, result);
+        public BytesRef lookupLabel(int ord) {
+          return ordSegmentReader.lookupLabel(ord);
         }
 
         @Override
@@ -102,9 +103,9 @@ public class LabelAndOrdFacetCounts extends Facets {
         for (PerSegmentFacetCount segmentCount : segmentCountList) {
           FacetEntryIterator perSegIterator = segmentCount.getFacetEntryIterator();
           ValCountPair pair = new ValCountPair();
-          BytesRef label = new BytesRef();
+          BytesRef label;
           while (perSegIterator.next(pair)) {
-            perSegIterator.lookupLabel(pair.val, label);
+            label = perSegIterator.lookupLabel(pair.val);
             int id;
             if ((id = labelHash.find(label)) < 0) {
               // not found
@@ -131,8 +132,9 @@ public class LabelAndOrdFacetCounts extends Facets {
           }
 
           @Override
-          public void lookupLabel(long ord, BytesRef label) {
-            labelHash.get((int) ord, label);
+          public BytesRef lookupLabel(long ord) {
+            BytesRef labelRef = new BytesRef();
+            return labelHash.get((int) ord, labelRef);
           }
         };
       }
@@ -144,10 +146,11 @@ public class LabelAndOrdFacetCounts extends Facets {
         if (pair.count > 0) {
           sum += pair.count;
           childCount++;
-          BytesRef label = new BytesRef();
-          facetIterator.lookupLabel(pair.val, label);
-          LabelAndValue lv = new LabelAndValue(label.utf8ToString(), pair.count);
-          pq.insertWithOverflow(lv);
+          BytesRef label = facetIterator.lookupLabel(pair.val);
+          if (label != null) {
+            LabelAndValue lv = new LabelAndValue(label.utf8ToString(), pair.count);
+            pq.insertWithOverflow(lv);
+          }
         }
       }
       int numVals = pq.size();

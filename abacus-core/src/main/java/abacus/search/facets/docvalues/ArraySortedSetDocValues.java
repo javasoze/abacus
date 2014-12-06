@@ -33,8 +33,7 @@ public class ArraySortedSetDocValues extends SortedSetDocValues {
     
     int numBytes = 0;
     for (int i=0;i<byteRefs.length;++i) {
-      BytesRef tempRef = new BytesRef();
-      inner.lookupOrd(i, tempRef);
+      BytesRef tempRef = inner.lookupOrd(i);
       numBytes+=tempRef.length;
       byteRefs[i] = tempRef;
     }
@@ -104,10 +103,12 @@ public class ArraySortedSetDocValues extends SortedSetDocValues {
   }
 
   @Override
-  public void lookupOrd(long ord, BytesRef result) {
+  public BytesRef lookupOrd(long ord) {
+    BytesRef result = new BytesRef();
     result.bytes = buffer;
     result.offset = byteRefs[(int)ord].offset;
     result.length = byteRefs[(int)ord].length;
+    return result;
   }
 
   @Override

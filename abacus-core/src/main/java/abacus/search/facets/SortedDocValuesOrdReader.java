@@ -27,8 +27,8 @@ public class SortedDocValuesOrdReader extends FacetOrdReader {
       }
       
       @Override
-      public void lookupLabel(int ord, BytesRef label) {
-        docVals.lookupOrd(ord, label);
+      public BytesRef lookupLabel(int ord) {
+        return docVals.lookupOrd(ord);
       }
       
       @Override

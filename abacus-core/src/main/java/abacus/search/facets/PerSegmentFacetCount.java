@@ -13,7 +13,7 @@ public abstract class PerSegmentFacetCount {
     this.bits = new OpenBitSet(counts.length);
   }
 
-  public abstract void lookupLabel(int ord, BytesRef result);
+  public abstract BytesRef lookupLabel(int ord);
 
   public abstract int getOrd(BytesRef label);
 
@@ -52,9 +52,9 @@ public abstract class PerSegmentFacetCount {
       }
 
       @Override
-      public void lookupLabel(long val, BytesRef label) {
+      public BytesRef lookupLabel(long val) {
         int ord = (int) val;
-        PerSegmentFacetCount.this.lookupLabel(ord, label);
+        return PerSegmentFacetCount.this.lookupLabel(ord);
       }
     };
   }

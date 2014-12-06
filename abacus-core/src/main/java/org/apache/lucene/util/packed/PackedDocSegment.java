@@ -20,18 +20,16 @@ class PackedDocSegment {
   
   static void serialize(PackedDocSegment segment, DataOutput out) throws IOException{
     out.writeVInt(segment.minVal);
+    out.writeVInt(segment.valSet.getBitsPerValue());
     segment.valSet.save(out);
   }
   
   static PackedDocSegment deserialize(DataInput in) throws IOException{
-    int minVal = in.readVInt();    
+    int minVal = in.readVInt();
+    int bitsPerVal = in.readVInt();
     
-    Reader reader = PackedInts.getReader(in);
-    
-    int bitsPerVal = reader.getBitsPerValue();
-    int valCount = reader.size();
-    
-    
+    Reader reader = PackedInts.getReader(in); 
+    int valCount = reader.size(); 
     Mutable valSet = PackedInts.getMutable(valCount, bitsPerVal, Format.PACKED);
     
     PackedDocSegment seg = new PackedDocSegment();

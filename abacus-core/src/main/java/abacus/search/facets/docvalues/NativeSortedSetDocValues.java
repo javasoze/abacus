@@ -36,8 +36,7 @@ public class NativeSortedSetDocValues extends SortedSetDocValues implements Clos
    
     int numBytes = 0;
     for (int i=0; i < numTerms; ++i) {
-      BytesRef tempRef = new BytesRef();
-      inner.lookupOrd(i, tempRef);
+      BytesRef tempRef = inner.lookupOrd(i);
       numBytes+=tempRef.length;
       byteRefs[i] = tempRef;
     }
@@ -128,7 +127,8 @@ public class NativeSortedSetDocValues extends SortedSetDocValues implements Clos
   }
 
   @Override
-  public void lookupOrd(long ord, BytesRef result) {
+  public BytesRef lookupOrd(long ord) {
+    BytesRef result = new BytesRef();
     int offset = HS.getInt(bytesRefPtr, 2 * (int) ord);
     int length = HS.getInt(bytesRefPtr, 2 * (int) ord + 1);
     
@@ -138,6 +138,7 @@ public class NativeSortedSetDocValues extends SortedSetDocValues implements Clos
     for (int i = 0; i < result.length; ++i) {
       result.bytes[i] = HS.unsafe.getByte(bufferPtr + offset + i);  
     }
+    return result;
   }
 
   @Override

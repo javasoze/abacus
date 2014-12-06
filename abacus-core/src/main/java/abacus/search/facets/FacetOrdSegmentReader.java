@@ -5,7 +5,7 @@ import org.apache.lucene.util.BytesRef;
 public abstract class FacetOrdSegmentReader {
 
   public abstract int getValueCount();
-  public abstract void lookupLabel(int ord, BytesRef label);
+  public abstract BytesRef lookupLabel(int ord);
   public abstract void setDocument(int docId);
   public abstract long nextOrd();
   public abstract int lookupOrd(BytesRef label);

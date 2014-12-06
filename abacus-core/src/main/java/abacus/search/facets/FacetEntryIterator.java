@@ -12,10 +12,11 @@ public interface FacetEntryIterator {
     }
 
     @Override
-    public void lookupLabel(long val, BytesRef label) {
+    public BytesRef lookupLabel(long val) {
+      return null;
     }
 
   };
 
-  void lookupLabel(long val, BytesRef label);
+  BytesRef lookupLabel(long val);
 }
