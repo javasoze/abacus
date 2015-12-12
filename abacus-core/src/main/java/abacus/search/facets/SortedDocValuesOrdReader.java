@@ -2,7 +2,7 @@ package abacus.search.facets;
 
 import java.io.IOException;
 
-import org.apache.lucene.index.AtomicReaderContext;
+import org.apache.lucene.index.LeafReaderContext;
 import org.apache.lucene.index.SortedDocValues;
 import org.apache.lucene.util.BytesRef;
 
@@ -15,7 +15,7 @@ public class SortedDocValuesOrdReader extends FacetOrdReader {
   }
   
   @Override
-  public FacetOrdSegmentReader getSegmentOrdReader(final AtomicReaderContext ctx) 
+  public FacetOrdSegmentReader getSegmentOrdReader(final LeafReaderContext ctx) 
       throws IOException {
     
     return new FacetOrdSegmentReader() {

@@ -1,23 +1,25 @@
 package abacus.demo;
 
+import static spark.Spark.post;
+import static spark.Spark.staticFileLocation;
+
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.FileSystems;
+import java.nio.file.Path;
+
+import org.apache.lucene.analysis.standard.StandardAnalyzer;
+import org.apache.lucene.store.Directory;
+import org.apache.lucene.store.FSDirectory;
+
+import spark.Request;
+import spark.Response;
+import spark.Route;
 import abacus.api.AbacusRequest;
 import abacus.api.AbacusResult;
 import abacus.search.facets.FastDocValuesAtomicReader;
 import abacus.service.AbacusQueryParser;
 import abacus.service.AbacusQueryService;
-import org.apache.lucene.analysis.standard.StandardAnalyzer;
-import org.apache.lucene.store.Directory;
-import org.apache.lucene.store.FSDirectory;
-import org.apache.lucene.util.Version;
-import spark.Request;
-import spark.Response;
-import spark.Route;
-
-import java.io.File;
-import java.io.IOException;
-
-import static spark.Spark.post;
-import static spark.Spark.staticFileLocation;
 
 public class Application {
   private static final AbacusRequest convert(Request req) {
@@ -32,11 +34,11 @@ public class Application {
 
     File idxDir = new File(args[0]);
 
-    Directory fsDir = FSDirectory.open(idxDir);
+    Path idxPath = FileSystems.getDefault().getPath(idxDir.getAbsolutePath());
+    Directory fsDir = FSDirectory.open(idxPath);
 
     final AbacusQueryService svc = new AbacusQueryService(fsDir,
-        new AbacusQueryParser.DefaultQueryParser("contents",
-        new StandardAnalyzer(Version.LUCENE_48)),
+        new AbacusQueryParser.DefaultQueryParser("contents", new StandardAnalyzer()),
         null, FastDocValuesAtomicReader.MemType.Heap
     );
 

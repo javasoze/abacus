@@ -1,25 +1,27 @@
 package abacus.search.facets;
 
-import abacus.indexing.AbacusIndexer;
-import abacus.search.facets.docvalues.ArrayNumericDocValues;
-import abacus.search.facets.docvalues.DirectBufferNumericDocValues;
-import abacus.search.facets.docvalues.NativeNumericDocValues;
+import java.io.File;
+import java.nio.file.FileSystems;
+import java.nio.file.Path;
+
 import junit.framework.TestCase;
+
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
 import org.apache.lucene.document.LongField;
-import org.apache.lucene.index.AtomicReader;
 import org.apache.lucene.index.DirectoryReader;
 import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.IndexWriterConfig;
+import org.apache.lucene.index.LeafReader;
 import org.apache.lucene.index.NumericDocValues;
-import org.apache.lucene.search.FieldCache;
 import org.apache.lucene.store.FSDirectory;
-import org.apache.lucene.util.Version;
 import org.junit.Test;
 
-import java.io.File;
+import abacus.indexing.AbacusIndexer;
+import abacus.search.facets.docvalues.ArrayNumericDocValues;
+import abacus.search.facets.docvalues.DirectBufferNumericDocValues;
+import abacus.search.facets.docvalues.NativeNumericDocValues;
 
 /**
  * Created by yozhao on 5/28/14.
@@ -27,16 +29,15 @@ import java.io.File;
 public class NumericDocValuesPerf extends TestCase {
 
   String indexDir = "/tmp/NumericDocValuesPerf";
+  Path idxPath = FileSystems.getDefault().getPath(new File(indexDir).getAbsolutePath());
   int testScale = 1000000;
 
   @Override
   public void setUp() throws Exception {
     File file = new File(indexDir);
     FacetTestUtil.deleteDir(file);
-    IndexWriterConfig config = new IndexWriterConfig(Version.LUCENE_48, new StandardAnalyzer(
-        Version.LUCENE_48));
-    IndexWriter writer = new IndexWriter(
-        FSDirectory.open(new File(indexDir)), config);
+    IndexWriterConfig config = new IndexWriterConfig(new StandardAnalyzer());
+    IndexWriter writer = new IndexWriter(FSDirectory.open(idxPath), config);
     for (int i = 0; i < testScale; ++i) {
       Document doc = new Document();
       Field fieldCache = new LongField("fieldCache", i, Field.Store.NO);
@@ -52,27 +53,9 @@ public class NumericDocValuesPerf extends TestCase {
   }
 
   @Test
-  public void testFieldCache() throws Exception {
-    DirectoryReader directoryReader = DirectoryReader.open(FSDirectory.open(new File(indexDir)));
-    AtomicReader atomicReader = directoryReader.leaves().get(0).reader();
-    long time0 = System.currentTimeMillis();
-    FieldCache.Longs docValues = FieldCache.DEFAULT.getLongs(atomicReader, "fieldCache", false);
-    long time1 = System.currentTimeMillis();
-    for (int i = 0; i < testScale; ++i) {
-      docValues.get(i);
-    }
-    long time2 = System.currentTimeMillis();
-    System.out.println(
-        "Initialize FieldCache took " + (time1 - time0) + "ms");
-    System.out.println(
-        "Traversing all FieldCache took " + (time2 - time1) + "ms");
-    directoryReader.close();
-  }
-
-  @Test
   public void testStoredField() throws Exception {
-    DirectoryReader directoryReader = DirectoryReader.open(FSDirectory.open(new File(indexDir)));
-    AtomicReader atomicReader = directoryReader.leaves().get(0).reader();
+    DirectoryReader directoryReader = DirectoryReader.open(FSDirectory.open(idxPath));
+    LeafReader atomicReader = directoryReader.leaves().get(0).reader();
     long time1 = System.currentTimeMillis();
     for (int i = 0; i < testScale; ++i) {
       atomicReader.document(i).get("stored");
@@ -85,8 +68,8 @@ public class NumericDocValuesPerf extends TestCase {
 
   @Test
   public void testNumericDocValues() throws Exception {
-    DirectoryReader directoryReader = DirectoryReader.open(FSDirectory.open(new File(indexDir)));
-    AtomicReader atomicReader = directoryReader.leaves().get(0).reader();
+    DirectoryReader directoryReader = DirectoryReader.open(FSDirectory.open(idxPath));
+    LeafReader atomicReader = directoryReader.leaves().get(0).reader();
     long time0 = System.currentTimeMillis();
     NumericDocValues docValues = atomicReader.getNumericDocValues("id");
     long time1 = System.currentTimeMillis();
@@ -103,8 +86,8 @@ public class NumericDocValuesPerf extends TestCase {
 
   @Test
   public void testArrayNumericDocValues() throws Exception {
-    DirectoryReader directoryReader = DirectoryReader.open(FSDirectory.open(new File(indexDir)));
-    AtomicReader atomicReader = directoryReader.leaves().get(0).reader();
+    DirectoryReader directoryReader = DirectoryReader.open(FSDirectory.open(idxPath));
+    LeafReader atomicReader = directoryReader.leaves().get(0).reader();
     long time0 = System.currentTimeMillis();
     NumericDocValues docValues = atomicReader.getNumericDocValues("id");
     ArrayNumericDocValues docValuesWrapper = new ArrayNumericDocValues(docValues,
@@ -123,8 +106,8 @@ public class NumericDocValuesPerf extends TestCase {
 
   @Test
   public void testDirectBufferNumericDocValues() throws Exception {
-    DirectoryReader directoryReader = DirectoryReader.open(FSDirectory.open(new File(indexDir)));
-    AtomicReader atomicReader = directoryReader.leaves().get(0).reader();
+    DirectoryReader directoryReader = DirectoryReader.open(FSDirectory.open(idxPath));
+    LeafReader atomicReader = directoryReader.leaves().get(0).reader();
     long time0 = System.currentTimeMillis();
     NumericDocValues docValues = atomicReader.getNumericDocValues("id");
     DirectBufferNumericDocValues docValuesWrapper = new DirectBufferNumericDocValues(docValues,
@@ -143,8 +126,8 @@ public class NumericDocValuesPerf extends TestCase {
 
   @Test
   public void testNativeNumericDocValues() throws Exception {
-    DirectoryReader directoryReader = DirectoryReader.open(FSDirectory.open(new File(indexDir)));
-    AtomicReader atomicReader = directoryReader.leaves().get(0).reader();
+    DirectoryReader directoryReader = DirectoryReader.open(FSDirectory.open(idxPath));
+    LeafReader atomicReader = directoryReader.leaves().get(0).reader();
     long time0 = System.currentTimeMillis();
     NumericDocValues docValues = atomicReader.getNumericDocValues("id");
     NativeNumericDocValues docValuesWrapper = new NativeNumericDocValues(docValues,

@@ -2,6 +2,8 @@ package abacus.search.facets;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.FileSystems;
+import java.nio.file.Path;
 import java.util.Arrays;
 
 import org.apache.lucene.facet.FacetResult;
@@ -118,7 +120,8 @@ public class TestLargeIndex {
   public static void main(String[] args) throws Exception {
     File idxDir = new File(args[0]);
     MemType memType = MemType.Native;
-    Directory dir = FSDirectory.open(idxDir);
+    Path idxPath = FileSystems.getDefault().getPath(idxDir.getAbsolutePath());
+    Directory dir = FSDirectory.open(idxPath);
     IndexReader reader = FacetTestUtil.getIndexReader(dir, memType);
 
     SortedSetDocValuesReaderState state = new DefaultSortedSetDocValuesReaderState(reader);

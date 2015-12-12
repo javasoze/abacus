@@ -1,25 +1,25 @@
 package abacus.search.facets;
 
-import abacus.indexing.AbacusIndexer;
-import abacus.service.AbacusQueryParser;
-import abacus.service.AbacusQueryParser.DefaultQueryParser;
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
+
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.NumericDocValuesField;
-import org.apache.lucene.index.AtomicReader;
-import org.apache.lucene.index.AtomicReaderContext;
 import org.apache.lucene.index.DirectoryReader;
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.IndexWriterConfig;
+import org.apache.lucene.index.LeafReader;
+import org.apache.lucene.index.LeafReaderContext;
 import org.apache.lucene.index.MultiReader;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.RAMDirectory;
-import org.apache.lucene.util.Version;
 
-import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
+import abacus.indexing.AbacusIndexer;
+import abacus.service.AbacusQueryParser;
+import abacus.service.AbacusQueryParser.DefaultQueryParser;
 
 public class FacetTestUtil {
   //test data set
@@ -27,7 +27,7 @@ public class FacetTestUtil {
   static final Directory IDX_DIR = new RAMDirectory();
 
   static final AbacusQueryParser QUERY_PARSER = new DefaultQueryParser("contents",
-      new StandardAnalyzer(Version.LUCENE_48));
+      new StandardAnalyzer());
 
   static {
     Document doc = new Document();
@@ -93,7 +93,7 @@ public class FacetTestUtil {
     AbacusIndexer.addFacetTermField(doc, "tag", "rabbit", true);
     DOC_LIST.add(doc);
 
-    IndexWriterConfig conf = new IndexWriterConfig(Version.LUCENE_48, null);
+    IndexWriterConfig conf = new IndexWriterConfig(null);
     try {
       IndexWriter writer = new IndexWriter(IDX_DIR, conf);
       int count = 0;
@@ -117,11 +117,11 @@ public class FacetTestUtil {
       throws Exception {
     IndexReader reader = DirectoryReader.open(dir);
 
-    List<AtomicReaderContext> leaves = reader.leaves();
-    AtomicReader[] subReaders = new AtomicReader[leaves.size()];
+    List<LeafReaderContext> leaves = reader.leaves();
+    LeafReader[] subReaders = new LeafReader[leaves.size()];
     int i = 0;
-    for (AtomicReaderContext leaf : leaves) {
-      AtomicReader atomicReader = leaf.reader();
+    for (LeafReaderContext leaf : leaves) {
+      LeafReader atomicReader = leaf.reader();
       subReaders[i++] = new FastDocValuesAtomicReader(atomicReader, null, memType);
     }
     reader = new MultiReader(subReaders, true);

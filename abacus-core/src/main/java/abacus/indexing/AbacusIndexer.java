@@ -14,7 +14,7 @@ import org.apache.lucene.document.SortedSetDocValuesField;
 import org.apache.lucene.document.StringField;
 import org.apache.lucene.facet.FacetsConfig;
 import org.apache.lucene.facet.taxonomy.FacetLabel;
-import org.apache.lucene.index.FieldInfo.IndexOptions;
+import org.apache.lucene.index.IndexOptions;
 import org.apache.lucene.util.BytesRef;
 
 public class AbacusIndexer {
@@ -23,9 +23,8 @@ public class AbacusIndexer {
   
   static {
     INDEXED_TERM_TYPE = new FieldType();
-    INDEXED_TERM_TYPE.setStored(false);
-    INDEXED_TERM_TYPE.setIndexed(true);    
-    INDEXED_TERM_TYPE.setIndexOptions(IndexOptions.DOCS_ONLY);
+    INDEXED_TERM_TYPE.setStored(false);   
+    INDEXED_TERM_TYPE.setIndexOptions(IndexOptions.DOCS);
     INDEXED_TERM_TYPE.setOmitNorms(true);
     INDEXED_TERM_TYPE.setStoreTermVectors(false);
     INDEXED_TERM_TYPE.setTokenized(false);

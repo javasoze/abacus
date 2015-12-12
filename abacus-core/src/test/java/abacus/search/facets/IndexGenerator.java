@@ -1,16 +1,17 @@
 package abacus.search.facets;
 
-import abacus.api.AbacusFieldType;
-import abacus.config.FacetIndexedType;
-import abacus.config.FieldConfig;
-import abacus.config.FieldConfigBuilder;
-import abacus.config.IndexDirectoryFacetsConfigReader;
-import abacus.indexing.AbacusIndexer;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.nio.file.FileSystems;
+import java.nio.file.Path;
+import java.util.HashMap;
+import java.util.Map;
+
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field.Store;
 import org.apache.lucene.document.NumericDocValuesField;
-import org.apache.lucene.document.StringField;
 import org.apache.lucene.document.TextField;
 import org.apache.lucene.index.DirectoryReader;
 import org.apache.lucene.index.IndexWriter;
@@ -18,14 +19,14 @@ import org.apache.lucene.index.IndexWriterConfig;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
 import org.apache.lucene.store.RAMDirectory;
-import org.apache.lucene.util.Version;
 import org.json.JSONObject;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.util.HashMap;
-import java.util.Map;
+import abacus.api.AbacusFieldType;
+import abacus.config.FacetIndexedType;
+import abacus.config.FieldConfig;
+import abacus.config.FieldConfigBuilder;
+import abacus.config.IndexDirectoryFacetsConfigReader;
+import abacus.indexing.AbacusIndexer;
 
 public class IndexGenerator {
 
@@ -140,8 +141,7 @@ public class IndexGenerator {
   static Directory buildSmallIndex(File dataFile) throws Exception {
     BufferedReader reader = new BufferedReader(new FileReader(dataFile));
 
-    IndexWriterConfig idxWriterConfig = new IndexWriterConfig(
-        Version.LUCENE_48, new StandardAnalyzer(Version.LUCENE_48));
+    IndexWriterConfig idxWriterConfig = new IndexWriterConfig(new StandardAnalyzer());
     Directory dir = new RAMDirectory();
     IndexWriter writer = new IndexWriter(dir, idxWriterConfig);
     int count = 0;
@@ -170,15 +170,15 @@ public class IndexGenerator {
 
   static void buildLargeIndex(Directory smallIndex, int numChunks, File outDir)
       throws Exception {
-    IndexWriterConfig idxWriterConfig = new IndexWriterConfig(
-        Version.LUCENE_48, null);
-    Directory tempDir = FSDirectory.open(outDir);
+    IndexWriterConfig idxWriterConfig = new IndexWriterConfig(null);
+    Path idxPath = FileSystems.getDefault().getPath(outDir.getAbsolutePath());
+    Directory tempDir = FSDirectory.open(idxPath);
     IndexWriter writer = new IndexWriter(tempDir, idxWriterConfig);
     // index size = 15000 * numChunks
     DirectoryReader reader = DirectoryReader.open(smallIndex);
     Map<String, String> commitData = reader.getIndexCommit().getUserData();
-    for (int i = 0; i < numChunks; ++i) {
-      writer.addIndexes(reader);
+    for (int i = 0; i < numChunks; ++i) {      
+      writer.addIndexes(smallIndex);
       System.out.println((i + 1) * reader.maxDoc() + " docs indexed.");
     }
 

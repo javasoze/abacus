@@ -1,16 +1,17 @@
 package abacus.search.facets;
 
+import org.apache.lucene.search.DocIdSetIterator;
 import org.apache.lucene.util.BytesRef;
-import org.apache.lucene.util.OpenBitSet;
+import org.apache.lucene.util.FixedBitSet;
 
 public abstract class PerSegmentFacetCount {
 
   private final int counts[];
-  private final OpenBitSet bits;
+  private final FixedBitSet bits;
 
   public PerSegmentFacetCount(int[] counts) {
     this.counts = counts;
-    this.bits = new OpenBitSet(counts.length);
+    this.bits = new FixedBitSet(counts.length);
   }
 
   public abstract BytesRef lookupLabel(int ord);
@@ -40,7 +41,9 @@ public abstract class PerSegmentFacetCount {
 
       @Override
       public boolean next(ValCountPair val) {
-        while ((doc = bits.nextSetBit(doc + 1)) != -1) {
+        doc++;
+        if (doc == bits.length()) return false;
+        while ((doc = bits.nextSetBit(doc)) != DocIdSetIterator.NO_MORE_DOCS) {
           int count = counts[doc];
           if (count >= minHit) {
             val.count = count;

@@ -1,5 +1,41 @@
 package abacus.service;
 
+import java.io.Closeable;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+
+import org.apache.lucene.facet.FacetResult;
+import org.apache.lucene.facet.Facets;
+import org.apache.lucene.facet.FacetsCollector;
+import org.apache.lucene.facet.LabelAndValue;
+import org.apache.lucene.facet.sortedset.AbacusAttributeFacetCounts;
+import org.apache.lucene.index.DirectoryReader;
+import org.apache.lucene.index.IndexReader;
+import org.apache.lucene.index.LeafReader;
+import org.apache.lucene.index.LeafReaderContext;
+import org.apache.lucene.index.MultiReader;
+import org.apache.lucene.queryparser.classic.ParseException;
+import org.apache.lucene.search.Collector;
+import org.apache.lucene.search.Explanation;
+import org.apache.lucene.search.Filter;
+import org.apache.lucene.search.IndexSearcher;
+import org.apache.lucene.search.MatchAllDocsQuery;
+import org.apache.lucene.search.MultiCollector;
+import org.apache.lucene.search.Query;
+import org.apache.lucene.search.ScoreDoc;
+import org.apache.lucene.search.Sort;
+import org.apache.lucene.search.SortField;
+import org.apache.lucene.search.TopDocs;
+import org.apache.lucene.search.TopDocsCollector;
+import org.apache.lucene.search.TopFieldCollector;
+import org.apache.lucene.search.TopScoreDocCollector;
+import org.apache.lucene.store.Directory;
+
 import abacus.api.AbacusFilter;
 import abacus.api.AbacusHit;
 import abacus.api.AbacusQuery;
@@ -25,46 +61,6 @@ import abacus.search.facets.SortedDocValuesOrdReader;
 import abacus.search.facets.SortedSetDocValuesOrdReader;
 import abacus.search.filter.FilterConstructor;
 import abacus.search.query.QueryConstructor;
-import org.apache.lucene.facet.FacetResult;
-import org.apache.lucene.facet.Facets;
-import org.apache.lucene.facet.FacetsCollector;
-import org.apache.lucene.facet.LabelAndValue;
-import org.apache.lucene.facet.sortedset.AbacusAttributeFacetCounts;
-import org.apache.lucene.index.AtomicReader;
-import org.apache.lucene.index.AtomicReaderContext;
-import org.apache.lucene.index.DirectoryReader;
-import org.apache.lucene.index.IndexReader;
-import org.apache.lucene.index.MultiReader;
-import org.apache.lucene.queryparser.classic.ParseException;
-import org.apache.lucene.search.Collector;
-import org.apache.lucene.search.Explanation;
-import org.apache.lucene.search.FieldDoc;
-import org.apache.lucene.search.Filter;
-import org.apache.lucene.search.IndexSearcher;
-import org.apache.lucene.search.MatchAllDocsQuery;
-import org.apache.lucene.search.MultiCollector;
-import org.apache.lucene.search.Query;
-import org.apache.lucene.search.ScoreDoc;
-import org.apache.lucene.search.Sort;
-import org.apache.lucene.search.SortField;
-import org.apache.lucene.search.TopDocs;
-import org.apache.lucene.search.TopDocsCollector;
-import org.apache.lucene.search.TopFieldCollector;
-import org.apache.lucene.search.TopScoreDocCollector;
-import org.apache.lucene.store.Directory;
-import org.apache.lucene.util.BytesRef;
-
-import java.io.Closeable;
-import java.io.IOException;
-import java.lang.reflect.Field;
-import java.sql.Array;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
 
 public class AbacusQueryService implements Closeable {
 
@@ -83,11 +79,11 @@ public class AbacusQueryService implements Closeable {
     dirReader = DirectoryReader.open(idxDir);
     configMap = IndexDirectoryFacetsConfigReader.readerFacetsConfig(dirReader);
     attrReaderState = new HashMap<>();
-    List<AtomicReaderContext> leaves = dirReader.leaves();
-    AtomicReader[] subReaders = new AtomicReader[leaves.size()];
+    List<LeafReaderContext> leaves = dirReader.leaves();
+    LeafReader[] subReaders = new LeafReader[leaves.size()];
     int i = 0;
-    for (AtomicReaderContext leaf : leaves) {
-      AtomicReader atomicReader = leaf.reader();
+    for (LeafReaderContext leaf : leaves) {
+      LeafReader atomicReader = leaf.reader();
       subReaders[i++] = new FastDocValuesAtomicReader(atomicReader, loadOptions, defaultMemType);
     }
 
@@ -160,9 +156,9 @@ public class AbacusQueryService implements Closeable {
 
     TopDocsCollector topDocsCollector;
     if (sort == null) {
-      topDocsCollector = TopScoreDocCollector.create(offset + count, false);
+      topDocsCollector = TopScoreDocCollector.create(offset + count);
     } else {
-      topDocsCollector = TopFieldCollector.create(sort, offset + count, false, true, false, false);
+      topDocsCollector = TopFieldCollector.create(sort, offset + count, false, true, false);
     }
     Collector collector = facetsCollector == null ?
         topDocsCollector :

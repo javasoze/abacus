@@ -9,17 +9,16 @@ import org.apache.lucene.document.Document;
 import org.apache.lucene.document.NumericDocValuesField;
 import org.apache.lucene.document.SortedDocValuesField;
 import org.apache.lucene.document.SortedSetDocValuesField;
-import org.apache.lucene.index.AtomicReader;
 import org.apache.lucene.index.DirectoryReader;
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.IndexWriterConfig;
+import org.apache.lucene.index.LeafReader;
 import org.apache.lucene.index.NumericDocValues;
 import org.apache.lucene.index.SortedDocValues;
 import org.apache.lucene.index.SortedSetDocValues;
 import org.apache.lucene.store.RAMDirectory;
 import org.apache.lucene.util.BytesRef;
-import org.apache.lucene.util.Version;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -51,11 +50,11 @@ public class DocValuesWrapperTest {
     {}};
   
   static IndexReader topReader;
-  static AtomicReader atomicReader;
+  static LeafReader atomicReader;
   
   @BeforeClass
   public static void setup() throws Exception {
-    IndexWriterConfig config = new IndexWriterConfig(Version.LUCENE_48, new StandardAnalyzer(Version.LUCENE_48));
+    IndexWriterConfig config = new IndexWriterConfig(new StandardAnalyzer());
     IndexWriter writer = new IndexWriter(dir, config);
     
     for (int i = 0; i < numericVals.length; ++i) {

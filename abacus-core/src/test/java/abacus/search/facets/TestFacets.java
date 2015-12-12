@@ -15,6 +15,7 @@ import org.apache.lucene.search.MatchAllDocsQuery;
 import org.apache.lucene.search.MultiCollector;
 import org.apache.lucene.search.TopDocs;
 import org.apache.lucene.search.TopScoreDocCollector;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import abacus.search.facets.FastDocValuesAtomicReader.MemType;
@@ -41,7 +42,7 @@ public class TestFacets {
     IndexReader reader = FacetTestUtil.getIndexReader(FacetTestUtil.IDX_DIR, memType);
     IndexSearcher searcher = new IndexSearcher(reader);
 
-    TopScoreDocCollector docsCollector = TopScoreDocCollector.create(10, true);
+    TopScoreDocCollector docsCollector = TopScoreDocCollector.create(10);
     FacetsCollector facetsCollector = new FacetsCollector(false);
 
     Collector collector = MultiCollector.wrap(docsCollector, facetsCollector);

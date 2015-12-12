@@ -7,9 +7,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.lucene.index.AtomicReader;
 import org.apache.lucene.index.FieldInfo;
-import org.apache.lucene.index.FilterAtomicReader;
+import org.apache.lucene.index.FilterLeafReader;
+import org.apache.lucene.index.LeafReader;
 import org.apache.lucene.index.NumericDocValues;
 import org.apache.lucene.index.SortedDocValues;
 import org.apache.lucene.index.SortedSetDocValues;
@@ -25,7 +25,7 @@ import abacus.search.facets.docvalues.NativeNumericDocValues;
 import abacus.search.facets.docvalues.NativeSortedDocValues;
 import abacus.search.facets.docvalues.NativeSortedSetDocValues;
 
-public class FastDocValuesAtomicReader extends FilterAtomicReader {
+public class FastDocValuesAtomicReader extends FilterLeafReader {
 
   private Map<String, NumericDocValues> cached;
   private Map<String, SortedDocValues> sortedCached;  
@@ -40,12 +40,12 @@ public class FastDocValuesAtomicReader extends FilterAtomicReader {
     Native
   };
   
-  public FastDocValuesAtomicReader(AtomicReader in, Map<String, MemType> loadOptionsMap) 
+  public FastDocValuesAtomicReader(LeafReader in, Map<String, MemType> loadOptionsMap) 
       throws IOException {
     this(in, loadOptionsMap, MemType.Default);    
   }
   
-  public FastDocValuesAtomicReader(AtomicReader in, Map<String, MemType> loadOptionsMap, MemType defaultMemType) 
+  public FastDocValuesAtomicReader(LeafReader in, Map<String, MemType> loadOptionsMap, MemType defaultMemType) 
       throws IOException {
     super(in);
     cached = new HashMap<String, NumericDocValues>();
@@ -56,7 +56,6 @@ public class FastDocValuesAtomicReader extends FilterAtomicReader {
       if (type == null) {
         type = defaultMemType;
       }
-      if (finfo.hasDocValues()) {
         switch(finfo.getDocValuesType()) {
         case NUMERIC: {
           NumericDocValues val = super.getNumericDocValues(finfo.name);
@@ -105,7 +104,6 @@ public class FastDocValuesAtomicReader extends FilterAtomicReader {
         }
         default : {
           break;
-        }
         }
       }
     }

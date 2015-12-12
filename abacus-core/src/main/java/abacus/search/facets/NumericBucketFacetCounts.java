@@ -1,7 +1,6 @@
 package abacus.search.facets;
 
 import java.io.IOException;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.SortedMap;
@@ -12,7 +11,7 @@ import org.apache.lucene.facet.Facets;
 import org.apache.lucene.facet.FacetsCollector;
 import org.apache.lucene.facet.FacetsCollector.MatchingDocs;
 import org.apache.lucene.facet.LabelAndValue;
-import org.apache.lucene.index.AtomicReader;
+import org.apache.lucene.index.LeafReader;
 import org.apache.lucene.index.NumericDocValues;
 import org.apache.lucene.search.DocIdSet;
 import org.apache.lucene.search.DocIdSetIterator;
@@ -42,7 +41,7 @@ public class NumericBucketFacetCounts extends Facets {
   private final void count(List<MatchingDocs> matchingDocs) throws IOException {
     FacetBucket[] buckets = bucketMap.values().toArray(new FacetBucket[bucketMap.size()]);
     for (MatchingDocs hits : matchingDocs) {
-      AtomicReader reader = hits.context.reader();
+      LeafReader reader = hits.context.reader();
       NumericDocValues docValues = reader.getNumericDocValues(field);
       if (docValues == null) {
         continue;

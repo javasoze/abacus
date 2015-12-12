@@ -2,17 +2,18 @@ package abacus.search.facets;
 
 import java.io.IOException;
 
-import org.apache.lucene.index.AtomicReaderContext;
+import org.apache.lucene.index.LeafReaderContext;
 import org.apache.lucene.search.CollectionTerminatedException;
 import org.apache.lucene.search.Collector;
+import org.apache.lucene.search.LeafCollector;
 import org.apache.lucene.search.Scorer;
 
-public class EarlyTerminationCollector extends Collector {
+public class EarlyTerminationCollector implements LeafCollector, Collector {
 
-  private final Collector inner;
+  private final LeafCollector inner;
   private final int max;
   private int numCollected;
-  public EarlyTerminationCollector(int max, Collector inner) {
+  public EarlyTerminationCollector(int max, LeafCollector inner) {
     this.inner = inner;
     this.max = max;
     this.numCollected = 0;
@@ -32,16 +33,15 @@ public class EarlyTerminationCollector extends Collector {
   }
 
   @Override
-  public void setNextReader(AtomicReaderContext context) throws IOException {
+  public LeafCollector getLeafCollector(LeafReaderContext context)
+      throws IOException {
     if (numCollected >= max) {
       throw new CollectionTerminatedException();
     }
-    inner.setNextReader(context);
+    return this;
   }
-
   @Override
-  public boolean acceptsDocsOutOfOrder() {
-    return inner.acceptsDocsOutOfOrder();
+  public boolean needsScores() {
+    return false;
   }
-
 }
